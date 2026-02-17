@@ -125,8 +125,9 @@ export default function App() {
       setSelectedStartKey(null);
       setInstructionNodeKey(null);
       rerender();
-    } catch {
-      // Silently ignore bad JSON
+    } catch (err) {
+      console.error('Failed to import maze JSON:', err);
+      alert('Failed to import maze: invalid JSON file.');
     }
   }, [rerender]);
 
