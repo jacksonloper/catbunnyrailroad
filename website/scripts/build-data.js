@@ -248,7 +248,7 @@ async function resolveBrokenNames(node) {
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ott_ids: [parseInt(m[1]), parseInt(m[2])] }),
+            body: JSON.stringify({ ott_ids: [parseInt(m[1], 10), parseInt(m[2], 10)] }),
           }
         );
         if (res.ok) {
