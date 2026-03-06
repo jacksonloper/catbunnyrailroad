@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "fetch-images": "node scripts/fetch-images.js",
+    "build-data": "node scripts/build-data.js",
     "dev": "vite",
-    "build": "node scripts/fetch-images.js && vite build",
+    "build": "node scripts/build-data.js && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

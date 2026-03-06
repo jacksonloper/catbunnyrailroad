@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Generated data files (rebuilt during build from species.csv + API)
+src/data/species.json
+src/data/tree.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
