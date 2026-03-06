@@ -228,7 +228,7 @@ async function main() {
   // Write output
   if (DRY_RUN) {
     console.log("\n[DRY RUN] Would write the following to species.csv:");
-    console.log(`  ${deduped.length} organisms across ${new Set(deduped.map((d) => d.category)).size} categories`);
+    console.log(`  ${deduped.length} organisms across ${new Set(deduped.map((d) => d.category).filter(Boolean)).size} categories`);
   } else {
     writeCsv(deduped, CSV_PATH);
     console.log(`\nWrote ${deduped.length} entries to ${CSV_PATH}`);

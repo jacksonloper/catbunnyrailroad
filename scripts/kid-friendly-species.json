@@ -726,10 +726,10 @@
   {"common_name":"Amazon river dolphin","scientific_name":"Inia geoffrensis","category":"More wild mammals"},
 
   {"common_name":"spring onion","scientific_name":"Allium fistulosum","category":"Vegetables and crops"},
-  {"common_name":"cauliflower","scientific_name":"Brassica oleracea var. botrytis","category":"Vegetables and crops"},
+  {"common_name":"cauliflower","scientific_name":"Brassica oleracea","category":"Vegetables and crops"},
   {"common_name":"asparagus","scientific_name":"Asparagus officinalis","category":"Vegetables and crops"},
   {"common_name":"artichoke","scientific_name":"Cynara cardunculus","category":"Vegetables and crops"},
-  {"common_name":"Brussels sprouts","scientific_name":"Brassica oleracea var. gemmifera","category":"Vegetables and crops"},
+  {"common_name":"Brussels sprouts","scientific_name":"Brassica oleracea","category":"Vegetables and crops"},
   {"common_name":"zucchini","scientific_name":"Cucurbita pepo","category":"Vegetables and crops"},
   {"common_name":"eggplant","scientific_name":"Solanum melongena","category":"Vegetables and crops"},
 
