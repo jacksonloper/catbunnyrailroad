@@ -1,16 +1,16 @@
-name,node_id,taxon
-cat,563166,Felis catus
-dog,247341,Canis lupus
-rabbit,864596,Oryctolagus cuniculus
-horse,1068218,Equus caballus
-cow,490099,Bos taurus
-chicken,153563,Gallus gallus
-duck,765167,Anas platyrhynchos
-frog,991547,Anura (MRCA)
-butterfly,,Lepidoptera (MRCA)
-sunflower,,Helianthus annuus
-rose,,Rosa
-dolphin,,Delphinidae (MRCA)
-elephant,,Elephantidae (MRCA)
-lion,563151,Panthera leo
-oak,,Quercus
+name,ott_id
+cat,563166
+dog,247341
+rabbit,864596
+horse,1068218
+cow,490099
+chicken,153563
+duck,765167
+frog,991547
+butterfly,965954
+sunflower,515712
+rose,259066
+dolphin,698406
+elephant,541924
+lion,563151
+oak,791121
