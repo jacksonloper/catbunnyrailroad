@@ -111,6 +111,8 @@ function simplifyTree(node, ottSet, brokenMap) {
     // Treat this internal node as a leaf for the broken taxon's OTT ID
     node.ott_id = brokenMap.get(node.label);
     node.isSpecies = true;
+    node.isBroken = true;
+    node.brokenMrcaLabel = node.label;
     node.children = [];
     return node;
   }
@@ -145,11 +147,16 @@ function treeToCompact(node, speciesByOtt) {
   // For leaf nodes (species)
   if (node.children.length === 0) {
     const sp = speciesByOtt[node.ott_id];
-    return {
+    const result = {
       name: sp ? sp.name : node.taxon || node.label,
       ott_id: node.ott_id,
       children: [],
     };
+    if (node.isBroken) {
+      result.broken = true;
+      result.mrca_label = node.brokenMrcaLabel;
+    }
+    return result;
   }
 
   // For internal nodes
@@ -226,6 +233,46 @@ async function resolveNodeNames(node) {
 }
 
 // ---------------------------------------------------------------------------
+// Resolve MRCA taxon names for broken taxa.  Parses the MRCA node label
+// (e.g. "mrcaott37377ott106844") to extract two OTT IDs, then queries the
+// MRCA API to get the nearest proper taxon name.
+// ---------------------------------------------------------------------------
+
+async function resolveBrokenNames(node) {
+  if (node.children.length === 0 && node.broken && node.mrca_label) {
+    const m = node.mrca_label.match(/mrcaott(\d+)ott(\d+)/);
+    if (m) {
+      try {
+        const res = await fetch(
+          "https://api.opentreeoflife.org/v3/tree_of_life/mrca",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ott_ids: [parseInt(m[1]), parseInt(m[2])] }),
+          }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (data.nearest_taxon?.name) {
+            node.mrca_name = data.nearest_taxon.name;
+            console.log(
+              `  Resolved broken ${node.name} → MRCA taxon: ${data.nearest_taxon.name}`
+            );
+          }
+        }
+      } catch (err) {
+        console.log(
+          `  Warning: could not resolve broken MRCA for ${node.name}: ${err.message}`
+        );
+      }
+    }
+  }
+  for (const child of node.children) {
+    await resolveBrokenNames(child);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -234,19 +281,7 @@ async function main() {
   const species = parseCsv(csv);
   console.log(`Read ${species.length} species from CSV`);
 
-  // Build species.json
-  const speciesJson = species.map((sp) => ({
-    name: sp.name,
-    ott_id: Number(sp.ott_id),
-    image_url: sp.image_url || null,
-  }));
-
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(
-    path.join(OUT_DIR, "species.json"),
-    JSON.stringify(speciesJson, null, 2)
-  );
-  console.log(`Wrote species.json`);
 
   // Fetch phylogenetic tree
   const ottIds = species.map((sp) => Number(sp.ott_id));
@@ -286,18 +321,59 @@ async function main() {
   console.log("Resolving internal node names...");
   await resolveNodeNames(compactTree);
 
+  // Resolve MRCA taxon names for broken taxa
+  console.log("Resolving broken taxa MRCA names...");
+  await resolveBrokenNames(compactTree);
+
   fs.writeFileSync(
     path.join(OUT_DIR, "tree.json"),
     JSON.stringify(compactTree, null, 2)
   );
   console.log(`Wrote tree.json`);
 
+  // Collect broken taxa OTT IDs and their MRCA names from the tree
+  const brokenInfo = {};
+  function collectBroken(node) {
+    if (node.broken) {
+      brokenInfo[node.ott_id] = node.mrca_name || null;
+    }
+    for (const child of node.children) {
+      collectBroken(child);
+    }
+  }
+  collectBroken(compactTree);
+
+  // Build species.json (written after tree processing so we can include
+  // broken-taxon metadata)
+  const speciesJson = species.map((sp) => {
+    const ottId = Number(sp.ott_id);
+    const entry = {
+      name: sp.name,
+      ott_id: ottId,
+      image_url: sp.image_url || null,
+    };
+    if (ottId in brokenInfo) {
+      entry.broken = true;
+      if (brokenInfo[ottId]) {
+        entry.mrca_name = brokenInfo[ottId];
+      }
+    }
+    return entry;
+  });
+
+  fs.writeFileSync(
+    path.join(OUT_DIR, "species.json"),
+    JSON.stringify(speciesJson, null, 2)
+  );
+  console.log(`Wrote species.json`);
+
   // Print tree structure for verification
   function printTree(node, indent = 0) {
     const prefix = "  ".repeat(indent);
+    const broken = node.broken ? " ≈" : "";
     const label =
       node.children.length === 0
-        ? `🌿 ${node.name}`
+        ? `🌿 ${node.name}${broken}`
         : `📁 ${node.name || "(unnamed)"}`;
     console.log(`${prefix}${label}`);
     for (const child of node.children) {

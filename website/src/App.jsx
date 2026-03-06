@@ -148,6 +148,14 @@ function SpeciesCard({ sp }) {
         <div className="species-img placeholder">?</div>
       )}
       <span className="species-name">{sp}</span>
+      {speciesData?.broken && (
+        <span
+          className="broken-badge"
+          title={`Approximate placement: ${sp} is not monophyletic in the synthetic tree${speciesData.mrca_name ? `. Placed at ${speciesData.mrca_name}` : ""}`}
+        >
+          ≈ {speciesData.mrca_name || "approx."}
+        </span>
+      )}
     </li>
   );
 }
@@ -282,6 +290,14 @@ function App() {
                   <div className="species-img placeholder">?</div>
                 )}
                 <span className="species-name">{sp.name}</span>
+                {sp.broken && (
+                  <span
+                    className="broken-badge"
+                    title={`Approximate placement: ${sp.name} is not monophyletic in the synthetic tree${sp.mrca_name ? `. Placed at ${sp.mrca_name}` : ""}`}
+                  >
+                    ≈ {sp.mrca_name || "approx."}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

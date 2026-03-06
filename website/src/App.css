@@ -183,6 +183,13 @@ h2 {
   text-transform: capitalize;
 }
 
+.broken-badge {
+  font-size: 0.7rem;
+  color: #999;
+  font-style: italic;
+  cursor: help;
+}
+
 /* ------ Light mode ------ */
 
 @media (prefers-color-scheme: light) {
