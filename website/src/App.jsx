@@ -130,8 +130,11 @@ function Autocomplete({ label, value, onChange, onSelect, trie, selectedItem }) 
   );
 }
 
+// Build a lookup map for species data by name
+const speciesByName = new Map(species.map((s) => [s.name, s]));
+
 function SpeciesCard({ sp }) {
-  const speciesData = species.find((s) => s.name === sp);
+  const speciesData = speciesByName.get(sp);
   return (
     <li className="species-card">
       {speciesData?.image_url ? (

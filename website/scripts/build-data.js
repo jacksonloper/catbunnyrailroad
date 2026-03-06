@@ -83,7 +83,7 @@ function parseNewick(nwk) {
     if (label) {
       node.label = label;
       // Match ott_id: may end with " ottNNN" (quoted) or "_ottNNN" (unquoted)
-      const ottMatch = label.match(/[\s_]ott(\d+)$/) || label.match(/\bott(\d+)$/);
+      const ottMatch = label.match(/(?:[\s_]|\b)ott(\d+)$/);
       if (ottMatch) {
         node.ott_id = parseInt(ottMatch[1]);
         node.taxon = label
@@ -213,8 +213,8 @@ async function resolveNodeNames(node) {
             node.name = data.nearest_taxon.name;
           }
         }
-      } catch {
-        // Keep the original name if the API call fails
+      } catch (err) {
+        console.log(`  Warning: could not resolve ${node.name}: ${err.message}`);
       }
     }
   }
