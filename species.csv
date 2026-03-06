@@ -1,0 +1,16 @@
+name,node_id,taxon
+cat,563166,Felis catus
+dog,247341,Canis lupus
+rabbit,,Oryctolagus cuniculus
+horse,,Equus caballus
+cow,490099,Bos taurus
+chicken,,Gallus gallus
+duck,,Anas platyrhynchos
+frog,991547,Anura (MRCA)
+butterfly,,Lepidoptera (MRCA)
+sunflower,,Helianthus annuus
+rose,,Rosa
+dolphin,,Delphinidae (MRCA)
+elephant,,Elephantidae (MRCA)
+lion,563151,Panthera leo
+oak,,Quercus
