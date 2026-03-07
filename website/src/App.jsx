@@ -202,24 +202,33 @@ function App() {
         const pathSp = findPath(tree, sp.ott_id);
         if (!pathSp) return null;
 
-        let commonA = 0;
+        // depth of LCA(A, species) — bigger = more A-like
+        let lcaDepthA = 0;
         for (let i = 0; i < Math.min(pathSp.length, pathA.length); i++) {
-          if (pathSp[i] === pathA[i]) commonA = i;
+          if (pathSp[i] === pathA[i]) lcaDepthA = i;
           else break;
         }
-        const levelA = pathSp.length - 1 - commonA;
 
-        let commonB = 0;
+        // depth of LCA(B, species) — bigger = more B-like
+        let lcaDepthB = 0;
         for (let i = 0; i < Math.min(pathSp.length, pathB.length); i++) {
-          if (pathSp[i] === pathB[i]) commonB = i;
+          if (pathSp[i] === pathB[i]) lcaDepthB = i;
           else break;
         }
-        const levelB = pathSp.length - 1 - commonB;
 
-        return { name, levelA, levelB };
+        // Tree distance: edges up from species to LCA + edges down from LCA to target
+        const levelA = (pathSp.length - 1 - lcaDepthA) + (pathA.length - 1 - lcaDepthA);
+        const levelB = (pathSp.length - 1 - lcaDepthB) + (pathB.length - 1 - lcaDepthB);
+
+        return { name, levelA, levelB, lcaDepthA, lcaDepthB };
       })
       .filter(Boolean)
-      .sort((a, b) => a.levelA - b.levelA || a.levelB - b.levelB);
+      .sort((x, y) => {
+        // Sort from A to B using LCA-depth comparison
+        if (x.lcaDepthA !== y.lcaDepthA) return y.lcaDepthA - x.lcaDepthA; // A-like first
+        if (x.lcaDepthB !== y.lcaDepthB) return x.lcaDepthB - y.lcaDepthB; // B-like later
+        return 0;
+      });
   }, [cladeSpecies, selectedA, selectedB]);
 
   // Compute outside species with distances from the clade
