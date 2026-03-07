@@ -143,27 +143,40 @@ function simplifyTree(node, ottSet, brokenMap) {
 // Leaf nodes also have: { ott_id, speciesName }
 // ---------------------------------------------------------------------------
 
-function treeToCompact(node, speciesByOtt) {
+function treeToCompact(node, speciesByOtt, speciesGroupsByOtt) {
   // For leaf nodes (species)
   if (node.children.length === 0) {
+    const group = speciesGroupsByOtt[node.ott_id];
     const sp = speciesByOtt[node.ott_id];
-    const result = {
-      name: sp ? sp.name : node.taxon || node.label,
-      ott_id: node.ott_id,
-      children: [],
-    };
-    if (node.isBroken) {
-      result.broken = true;
-      result.mrca_label = node.brokenMrcaLabel;
+    const baseName = sp ? sp.name : node.taxon || node.label;
+    const broken = node.isBroken
+      ? { broken: true, mrca_label: node.brokenMrcaLabel }
+      : {};
+
+    // If multiple species share this OTT ID, emit one leaf per species
+    if (group && group.length > 1) {
+      return {
+        name: node.taxon || node.label || baseName,
+        ott_id: node.ott_id,
+        children: group.map((s) => ({
+          name: s.name,
+          ott_id: node.ott_id,
+          children: [],
+          ...broken,
+        })),
+      };
     }
-    return result;
+
+    return { name: baseName, ott_id: node.ott_id, children: [], ...broken };
   }
 
   // For internal nodes
   return {
     name: node.taxon || node.label || "",
     ott_id: node.ott_id || null,
-    children: node.children.map((c) => treeToCompact(c, speciesByOtt)),
+    children: node.children.map((c) =>
+      treeToCompact(c, speciesByOtt, speciesGroupsByOtt)
+    ),
   };
 }
 
@@ -283,11 +296,14 @@ async function main() {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  // Fetch phylogenetic tree
+  // Fetch phylogenetic tree (deduplicate OTT IDs for the API call)
   const ottIds = species.map((sp) => Number(sp.ott_id));
-  console.log(`Fetching phylogenetic tree for ${ottIds.length} OTT IDs...`);
+  const uniqueOttIds = [...new Set(ottIds)];
+  console.log(
+    `Fetching phylogenetic tree for ${uniqueOttIds.length} unique OTT IDs (${ottIds.length} species)...`
+  );
 
-  const treeData = await fetchTree(ottIds);
+  const treeData = await fetchTree(uniqueOttIds);
   console.log(`Got Newick tree (${treeData.newick.length} chars)`);
 
   // Parse and simplify the tree
@@ -309,13 +325,18 @@ async function main() {
 
   const simplified = simplifyTree(rawTree, ottSet, brokenMap);
 
-  // Build lookup for species
+  // Build lookup for species (single + grouped by OTT ID)
+  // speciesByOtt stores one representative per OTT (used for single-entry names)
   const speciesByOtt = {};
+  const speciesGroupsByOtt = {};
   for (const sp of species) {
-    speciesByOtt[Number(sp.ott_id)] = sp;
+    const ottId = Number(sp.ott_id);
+    speciesByOtt[ottId] = sp;
+    if (!speciesGroupsByOtt[ottId]) speciesGroupsByOtt[ottId] = [];
+    speciesGroupsByOtt[ottId].push(sp);
   }
 
-  const compactTree = treeToCompact(simplified, speciesByOtt);
+  const compactTree = treeToCompact(simplified, speciesByOtt, speciesGroupsByOtt);
 
   // Resolve unnamed internal nodes (mrcaott...) to proper taxon names
   console.log("Resolving internal node names...");
