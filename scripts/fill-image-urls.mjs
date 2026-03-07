@@ -162,6 +162,30 @@ async function getWikidataImage(ncbiId) {
   ?item wdt:P18 ?image .
 } LIMIT 1`;
 
+  return await runWikidataSparql(query);
+}
+
+/**
+ * Query Wikidata SPARQL to find a Wikimedia Commons image for a taxon
+ * identified by its scientific name (Wikidata property P225).
+ * Returns the image URL or null.
+ */
+async function getWikidataImageByName(scientificName) {
+  if (!scientificName) return null;
+  // Sanitize: allow only letters, spaces, hyphens, periods, and the × symbol
+  if (!/^[\p{L}\s.\-×]+$/u.test(scientificName)) return null;
+
+  const escaped = scientificName.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  const query = `SELECT ?image WHERE {
+  ?item wdt:P225 "${escaped}" .
+  ?item wdt:P18 ?image .
+} LIMIT 1`;
+
+  return await runWikidataSparql(query);
+}
+
+/** Run a Wikidata SPARQL query and return the first image URL or null. */
+async function runWikidataSparql(query) {
   const params = new URLSearchParams({ query });
   const res = await fetch(
     `https://query.wikidata.org/sparql?${params}`,
@@ -189,7 +213,7 @@ async function getWikidataImage(ncbiId) {
  * If OneZoom doesn't have an image, falls back to Wikidata/Wikimedia Commons
  * using the OTT → NCBI → Wikidata bridge.
  */
-async function getImageWithRecursiveDescent(ottId, maxDepth = 3) {
+async function getImageWithRecursiveDescent(ottId, scientificName, maxDepth = 3) {
   // First try the taxon itself
   const directUrl = await getDirectImage(ottId);
   if (directUrl) return directUrl;
@@ -230,6 +254,13 @@ async function getImageWithRecursiveDescent(ottId, maxDepth = 3) {
     if (wdUrl) return wdUrl;
   }
 
+  // Fallback: try Wikidata via scientific name (P225)
+  if (scientificName) {
+    console.log(`    Trying Wikidata by scientific name: ${scientificName}`);
+    const wdUrl = await getWikidataImageByName(scientificName);
+    if (wdUrl) return wdUrl;
+  }
+
   return null;
 }
 
@@ -256,7 +287,7 @@ async function main() {
   let updated = 0;
   for (const row of missing) {
     console.log(`\nLooking up image for "${row.name}" (ott_id=${row.ott_id})...`);
-    const url = await getImageWithRecursiveDescent(Number(row.ott_id));
+    const url = await getImageWithRecursiveDescent(Number(row.ott_id), row.scientific_name);
     if (url) {
       console.log(`  ✓ Found: ${url}`);
       row.image_url = url;
