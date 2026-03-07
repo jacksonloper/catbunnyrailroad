@@ -218,6 +218,169 @@ h2 {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  border-radius: 12px;
+  padding: 0.5rem;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.species-card:hover {
+  background: rgba(100, 108, 255, 0.08);
+}
+
+.species-card.selected {
+  background: rgba(100, 108, 255, 0.15);
+  box-shadow: 0 0 0 2px #646cff;
+}
+
+.species-checkbox {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: #646cff;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* ------ Make Tree bar ------ */
+
+.make-tree-bar {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.make-tree-btn {
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #646cff;
+  color: #fff;
+}
+
+.make-tree-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.clear-selection-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+.clear-selection-btn:hover {
+  background: #333;
+}
+
+/* ------ Subtree overlay ------ */
+
+.subtree-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.subtree-panel {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.subtree-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #444;
+}
+
+.subtree-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.subtree-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.subtree-close:hover {
+  background: #333;
+}
+
+.subtree-content {
+  padding: 1rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.subtree-node {
+  border-left: 2px solid #555;
+  padding-left: 12px;
+  margin-top: 4px;
+}
+
+.subtree-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 4px 0;
+}
+
+.subtree-internal .subtree-name {
+  font-size: 0.85rem;
+  color: #999;
+  font-style: italic;
+}
+
+.subtree-leaf .subtree-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.subtree-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
 }
 
 .species-img {
@@ -279,5 +442,34 @@ h2 {
   }
   .show-more-btn:hover {
     background: #e8e8e8;
+  }
+  .make-tree-bar {
+    background: #f0f0f0;
+    border-color: #ccc;
+  }
+  .clear-selection-btn {
+    border-color: #ccc;
+  }
+  .clear-selection-btn:hover {
+    background: #e8e8e8;
+  }
+  .species-card:hover {
+    background: rgba(100, 108, 255, 0.06);
+  }
+  .species-card.selected {
+    background: rgba(100, 108, 255, 0.1);
+  }
+  .subtree-panel {
+    background: #fff;
+    border-color: #ccc;
+  }
+  .subtree-header {
+    border-bottom-color: #ccc;
+  }
+  .subtree-close:hover {
+    background: #f0f0f0;
+  }
+  .subtree-node {
+    border-left-color: #ccc;
   }
 }
