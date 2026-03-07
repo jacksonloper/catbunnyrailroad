@@ -210,7 +210,7 @@ function SubtreeNode({ node, depth = 0 }) {
         <span className="subtree-name">{node.name}</span>
       </div>
       {node.children.map((child, i) => (
-        <SubtreeNode key={child.ott_id ?? i} node={child} depth={depth + 1} />
+        <SubtreeNode key={`${child.ott_id}-${child.name}-${i}`} node={child} depth={depth + 1} />
       ))}
     </div>
   );
@@ -222,7 +222,7 @@ function SubtreeView({ subtree, onClose }) {
       <div className="subtree-panel">
         <div className="subtree-header">
           <h3>Subtree</h3>
-          <button className="subtree-close" onClick={onClose}>✕</button>
+          <button className="subtree-close" aria-label="Close subtree view" onClick={onClose}>✕</button>
         </div>
         <div className="subtree-content">
           <SubtreeNode node={subtree} />
@@ -489,6 +489,8 @@ function App() {
                       key={sp.name}
                       className={`species-card ${isSelected ? "selected" : ""}`}
                       onClick={() => toggleOrganism(sp.name)}
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleOrganism(sp.name); } }}
                     >
                       <input
                         type="checkbox"
@@ -544,6 +546,8 @@ function App() {
                         key={sp.ott_id}
                         className={`species-card ${isSelected ? "selected" : ""}`}
                         onClick={() => toggleOrganism(sp.name)}
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleOrganism(sp.name); } }}
                       >
                         <input
                           type="checkbox"
