@@ -197,12 +197,12 @@ function SpeciesCard({ sp }) {
 }
 
 /** Recursive tree view component for displaying a subtree */
-function SubtreeNode({ node, depth = 0 }) {
+function SubtreeNode({ node }) {
   const sp = speciesByOttId.get(node.ott_id);
   const isLeaf = node.children.length === 0;
 
   return (
-    <div className="subtree-node" style={{ marginLeft: depth * 16 }}>
+    <div className="subtree-node">
       <div className={`subtree-label ${isLeaf ? "subtree-leaf" : "subtree-internal"}`}>
         {sp?.image_url && isLeaf ? (
           <img className="subtree-img" src={sp.image_url} alt={node.name} loading="lazy" />
@@ -210,7 +210,7 @@ function SubtreeNode({ node, depth = 0 }) {
         <span className="subtree-name">{node.name}</span>
       </div>
       {node.children.map((child, i) => (
-        <SubtreeNode key={`${child.ott_id}-${child.name}-${i}`} node={child} depth={depth + 1} />
+        <SubtreeNode key={`${child.ott_id}-${child.name}-${i}`} node={child} />
       ))}
     </div>
   );
