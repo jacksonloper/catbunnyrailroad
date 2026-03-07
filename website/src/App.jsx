@@ -186,6 +186,42 @@ function App() {
   const [showOutside, setShowOutside] = useState(false);
   const [outsideLimit, setOutsideLimit] = useState(OUTSIDE_PAGE_SIZE);
 
+  // Compute in-clade species with distances to A and B, sorted from A to B
+  const enrichedCladeSpecies = useMemo(() => {
+    if (!cladeSpecies || !selectedA || !selectedB) return [];
+
+    const pathA = findPath(tree, selectedA.ott_id);
+    const pathB = findPath(tree, selectedB.ott_id);
+    if (!pathA || !pathB) return [];
+
+    return cladeSpecies
+      .map((name) => {
+        const sp = speciesByName.get(name);
+        if (!sp) return null;
+
+        const pathSp = findPath(tree, sp.ott_id);
+        if (!pathSp) return null;
+
+        let commonA = 0;
+        for (let i = 0; i < Math.min(pathSp.length, pathA.length); i++) {
+          if (pathSp[i] === pathA[i]) commonA = i;
+          else break;
+        }
+        const levelA = pathSp.length - 1 - commonA;
+
+        let commonB = 0;
+        for (let i = 0; i < Math.min(pathSp.length, pathB.length); i++) {
+          if (pathSp[i] === pathB[i]) commonB = i;
+          else break;
+        }
+        const levelB = pathSp.length - 1 - commonB;
+
+        return { name, levelA, levelB };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.levelA - b.levelA || a.levelB - b.levelB);
+  }, [cladeSpecies, selectedA, selectedB]);
+
   // Compute outside species with distances from the clade
   const outsideSpecies = useMemo(() => {
     if (!mrcaNode || !cladeSpecies) return [];
@@ -327,9 +363,35 @@ function App() {
             </button>
             {showIncluded && (
               <ul className="species-list">
-                {cladeSpecies.map((name) => (
-                  <SpeciesCard key={name} sp={name} />
-                ))}
+                {enrichedCladeSpecies.map((sp) => {
+                  const data = speciesByName.get(sp.name);
+                  return (
+                    <li key={sp.name} className="species-card">
+                      {data?.image_url ? (
+                        <img
+                          className="species-img"
+                          src={data.image_url}
+                          alt={sp.name}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="species-img placeholder">?</div>
+                      )}
+                      <span className="species-name">{sp.name}</span>
+                      <span className="distance-label">
+                        ↑{sp.levelA} to {selectedA.name}, ↑{sp.levelB} to {selectedB.name}
+                      </span>
+                      {data?.broken && (
+                        <span
+                          className="broken-badge"
+                          title={`Approximate placement: ${sp.name} is not monophyletic in the synthetic tree${data.mrca_name ? `. Placed at ${data.mrca_name}` : ""}`}
+                        >
+                          ≈ {data.mrca_name || "approx."}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
