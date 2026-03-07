@@ -143,40 +143,27 @@ function simplifyTree(node, ottSet, brokenMap) {
 // Leaf nodes also have: { ott_id, speciesName }
 // ---------------------------------------------------------------------------
 
-function treeToCompact(node, speciesByOtt, speciesGroupsByOtt) {
+function treeToCompact(node, speciesByOtt) {
   // For leaf nodes (species)
   if (node.children.length === 0) {
-    const group = speciesGroupsByOtt[node.ott_id];
     const sp = speciesByOtt[node.ott_id];
-    const baseName = sp ? sp.name : node.taxon || node.label;
-    const broken = node.isBroken
-      ? { broken: true, mrca_label: node.brokenMrcaLabel }
-      : {};
-
-    // If multiple species share this OTT ID, emit one leaf per species
-    if (group && group.length > 1) {
-      return {
-        name: node.taxon || node.label || baseName,
-        ott_id: node.ott_id,
-        children: group.map((s) => ({
-          name: s.name,
-          ott_id: node.ott_id,
-          children: [],
-          ...broken,
-        })),
-      };
+    const result = {
+      name: sp ? sp.name : node.taxon || node.label,
+      ott_id: node.ott_id,
+      children: [],
+    };
+    if (node.isBroken) {
+      result.broken = true;
+      result.mrca_label = node.brokenMrcaLabel;
     }
-
-    return { name: baseName, ott_id: node.ott_id, children: [], ...broken };
+    return result;
   }
 
   // For internal nodes
   return {
     name: node.taxon || node.label || "",
     ott_id: node.ott_id || null,
-    children: node.children.map((c) =>
-      treeToCompact(c, speciesByOtt, speciesGroupsByOtt)
-    ),
+    children: node.children.map((c) => treeToCompact(c, speciesByOtt)),
   };
 }
 
@@ -291,19 +278,38 @@ async function resolveBrokenNames(node) {
 
 async function main() {
   const csv = fs.readFileSync(CSV_PATH, "utf-8");
-  const species = parseCsv(csv);
-  console.log(`Read ${species.length} species from CSV`);
+  const allRows = parseCsv(csv);
+  console.log(`Read ${allRows.length} rows from CSV`);
+
+  // Deduplicate by ott_id – keep first occurrence
+  const seenOtts = new Set();
+  const species = [];
+  for (const row of allRows) {
+    const ottId = Number(row.ott_id);
+    if (!ottId) {
+      console.log(`  Skipping row with invalid ott_id: ${row.name}`);
+      continue;
+    }
+    if (seenOtts.has(ottId)) {
+      console.log(`  Skipping duplicate ott_id ${ottId} (${row.name})`);
+      continue;
+    }
+    seenOtts.add(ottId);
+    species.push(row);
+  }
+  if (species.length < allRows.length) {
+    console.log(
+      `Deduplicated: ${allRows.length} rows → ${species.length} unique OTT IDs`
+    );
+  }
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  // Fetch phylogenetic tree (deduplicate OTT IDs for the API call)
+  // Fetch phylogenetic tree
   const ottIds = species.map((sp) => Number(sp.ott_id));
-  const uniqueOttIds = [...new Set(ottIds)];
-  console.log(
-    `Fetching phylogenetic tree for ${uniqueOttIds.length} unique OTT IDs (${ottIds.length} species)...`
-  );
+  console.log(`Fetching phylogenetic tree for ${ottIds.length} OTT IDs...`);
 
-  const treeData = await fetchTree(uniqueOttIds);
+  const treeData = await fetchTree(ottIds);
   console.log(`Got Newick tree (${treeData.newick.length} chars)`);
 
   // Parse and simplify the tree
@@ -325,18 +331,13 @@ async function main() {
 
   const simplified = simplifyTree(rawTree, ottSet, brokenMap);
 
-  // Build lookup for species (single + grouped by OTT ID)
-  // speciesByOtt stores one representative per OTT (used for single-entry names)
+  // Build lookup for species by OTT ID
   const speciesByOtt = {};
-  const speciesGroupsByOtt = {};
   for (const sp of species) {
-    const ottId = Number(sp.ott_id);
-    speciesByOtt[ottId] = sp;
-    if (!speciesGroupsByOtt[ottId]) speciesGroupsByOtt[ottId] = [];
-    speciesGroupsByOtt[ottId].push(sp);
+    speciesByOtt[Number(sp.ott_id)] = sp;
   }
 
-  const compactTree = treeToCompact(simplified, speciesByOtt, speciesGroupsByOtt);
+  const compactTree = treeToCompact(simplified, speciesByOtt);
 
   // Resolve unnamed internal nodes (mrcaott...) to proper taxon names
   console.log("Resolving internal node names...");
