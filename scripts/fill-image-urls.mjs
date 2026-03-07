@@ -123,9 +123,71 @@ async function getChildren(ottId) {
 
 const MAX_FRONTIER_SIZE = 20; // limit breadth to keep API calls manageable
 
+// ---------------------------------------------------------------------------
+// Wikidata fallback – bridge from OTT via NCBI/GBIF to Wikimedia Commons
+// ---------------------------------------------------------------------------
+
+/**
+ * Get the NCBI taxonomy ID for a taxon from its OTT ID.
+ * Returns the NCBI ID as a string, or null if not found.
+ */
+async function getNcbiId(ottId) {
+  const res = await fetch(
+    "https://api.opentreeoflife.org/v3/taxonomy/taxon_info",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ott_id: ottId }),
+    }
+  );
+  if (!res.ok) return null;
+  const data = await res.json();
+  for (const src of data.tax_sources ?? []) {
+    if (src.startsWith("ncbi:")) return src.replace("ncbi:", "");
+  }
+  return null;
+}
+
+/**
+ * Query Wikidata SPARQL to find a Wikimedia Commons image for a taxon
+ * identified by its NCBI taxonomy ID (Wikidata property P685).
+ * Returns the image URL or null.
+ */
+async function getWikidataImage(ncbiId) {
+  // Validate NCBI ID is purely numeric to prevent SPARQL injection
+  if (!/^\d+$/.test(ncbiId)) return null;
+
+  const query = `SELECT ?image WHERE {
+  ?item wdt:P685 "${ncbiId}" .
+  ?item wdt:P18 ?image .
+} LIMIT 1`;
+
+  const params = new URLSearchParams({ query });
+  const res = await fetch(
+    `https://query.wikidata.org/sparql?${params}`,
+    {
+      headers: {
+        Accept: "application/json",
+        "User-Agent":
+          "CatBunnyRailroad/1.0 (https://github.com/jacksonloper/catbunnyrailroad)",
+      },
+    }
+  );
+  if (!res.ok) {
+    console.error(`    Wikidata SPARQL error: ${res.status}`);
+    return null;
+  }
+  const data = await res.json();
+  const bindings = data.results?.bindings ?? [];
+  return bindings[0]?.image?.value ?? null;
+}
+
 /**
  * Recursive descent: try to find an image for a taxon by walking down the
  * taxonomy tree.  We do a breadth-first search up to `maxDepth` levels.
+ *
+ * If OneZoom doesn't have an image, falls back to Wikidata/Wikimedia Commons
+ * using the OTT → NCBI → Wikidata bridge.
  */
 async function getImageWithRecursiveDescent(ottId, maxDepth = 3) {
   // First try the taxon itself
@@ -157,6 +219,15 @@ async function getImageWithRecursiveDescent(ottId, maxDepth = 3) {
     }
 
     frontier = nextFrontier.slice(0, MAX_FRONTIER_SIZE);
+  }
+
+  // Fallback: try Wikidata via the OTT → NCBI bridge
+  console.log(`    OneZoom exhausted — trying Wikidata fallback...`);
+  const ncbiId = await getNcbiId(ottId);
+  if (ncbiId) {
+    console.log(`    NCBI ID: ${ncbiId}`);
+    const wdUrl = await getWikidataImage(ncbiId);
+    if (wdUrl) return wdUrl;
   }
 
   return null;
