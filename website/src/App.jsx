@@ -24,6 +24,17 @@ function findPath(node, ottId, path = []) {
   return null;
 }
 
+/** Find the path from root to a specific internal node (by reference) */
+function findNodePath(root, target, path = []) {
+  const current = [...path, root];
+  if (root === target) return current;
+  for (const child of root.children) {
+    const result = findNodePath(child, target, current);
+    if (result) return result;
+  }
+  return null;
+}
+
 /** Find the MRCA node for two species (by ott_id) */
 function findMRCA(treeRoot, ottA, ottB) {
   const pathA = findPath(treeRoot, ottA);
@@ -133,6 +144,8 @@ function Autocomplete({ label, value, onChange, onSelect, trie, selectedItem }) 
 // Build a lookup map for species data by name
 const speciesByName = new Map(species.map((s) => [s.name, s]));
 
+const OUTSIDE_PAGE_SIZE = 20;
+
 function SpeciesCard({ sp }) {
   const speciesData = speciesByName.get(sp);
   return (
@@ -168,7 +181,86 @@ function App() {
   const [selectedA, setSelectedA] = useState(null);
   const [selectedB, setSelectedB] = useState(null);
   const [cladeSpecies, setCladeSpecies] = useState(null);
-  const [cladeName, setCladeName] = useState("");
+  const [mrcaNode, setMrcaNode] = useState(null);
+  const [showIncluded, setShowIncluded] = useState(false);
+  const [showOutside, setShowOutside] = useState(false);
+  const [outsideLimit, setOutsideLimit] = useState(OUTSIDE_PAGE_SIZE);
+
+  // Compute in-clade species with distances to A and B, sorted from A to B
+  const enrichedCladeSpecies = useMemo(() => {
+    if (!cladeSpecies || !selectedA || !selectedB) return [];
+
+    const pathA = findPath(tree, selectedA.ott_id);
+    const pathB = findPath(tree, selectedB.ott_id);
+    if (!pathA || !pathB) return [];
+
+    return cladeSpecies
+      .map((name) => {
+        const sp = speciesByName.get(name);
+        if (!sp) return null;
+
+        const pathSp = findPath(tree, sp.ott_id);
+        if (!pathSp) return null;
+
+        // depth of LCA(A, species) — bigger = more A-like
+        let lcaDepthA = 0;
+        for (let i = 0; i < Math.min(pathSp.length, pathA.length); i++) {
+          if (pathSp[i] === pathA[i]) lcaDepthA = i;
+          else break;
+        }
+
+        // depth of LCA(B, species) — bigger = more B-like
+        let lcaDepthB = 0;
+        for (let i = 0; i < Math.min(pathSp.length, pathB.length); i++) {
+          if (pathSp[i] === pathB[i]) lcaDepthB = i;
+          else break;
+        }
+
+        // Tree distance: edges up from species to LCA + edges down from LCA to target
+        const levelA = (pathSp.length - 1 - lcaDepthA) + (pathA.length - 1 - lcaDepthA);
+        const levelB = (pathSp.length - 1 - lcaDepthB) + (pathB.length - 1 - lcaDepthB);
+
+        return { name, levelA, levelB, lcaDepthA, lcaDepthB };
+      })
+      .filter(Boolean)
+      .sort((x, y) => {
+        // Sort from A to B using LCA-depth comparison
+        if (x.lcaDepthA !== y.lcaDepthA) return y.lcaDepthA - x.lcaDepthA; // A-like first
+        if (x.lcaDepthB !== y.lcaDepthB) return x.lcaDepthB - y.lcaDepthB; // B-like later
+        return 0;
+      });
+  }, [cladeSpecies, selectedA, selectedB]);
+
+  // Compute outside species with distances from the clade
+  const outsideSpecies = useMemo(() => {
+    if (!mrcaNode || !cladeSpecies) return [];
+
+    const cladeSet = new Set(cladeSpecies);
+    const pathToMRCA = findNodePath(tree, mrcaNode);
+    if (!pathToMRCA) return [];
+    const mrcaIdx = pathToMRCA.length - 1;
+
+    const results = [];
+    for (const sp of species) {
+      if (cladeSet.has(sp.name)) continue;
+
+      const pathToSpecies = findPath(tree, sp.ott_id);
+      if (!pathToSpecies) continue;
+
+      // Find where the paths diverge
+      let divergeIdx = 0;
+      for (let i = 0; i < Math.min(pathToMRCA.length, pathToSpecies.length); i++) {
+        if (pathToMRCA[i] === pathToSpecies[i]) divergeIdx = i;
+        else break;
+      }
+
+      const height = mrcaIdx - divergeIdx;
+      results.push({ name: sp.name, ott_id: sp.ott_id, height });
+    }
+
+    results.sort((a, b) => a.height - b.height);
+    return results;
+  }, [mrcaNode, cladeSpecies]);
 
   function handleSelectA(sp) {
     setSelectedA(sp);
@@ -202,7 +294,10 @@ function App() {
 
     const leaves = getLeaves(mrca);
     setCladeSpecies(leaves);
-    setCladeName(mrca.name || "their common ancestor");
+    setMrcaNode(mrca);
+    setShowIncluded(false);
+    setShowOutside(false);
+    setOutsideLimit(OUTSIDE_PAGE_SIZE);
   }
 
   function handleReset() {
@@ -211,7 +306,10 @@ function App() {
     setSelectedA(null);
     setSelectedB(null);
     setCladeSpecies(null);
-    setCladeName("");
+    setMrcaNode(null);
+    setShowIncluded(false);
+    setShowOutside(false);
+    setOutsideLimit(OUTSIDE_PAGE_SIZE);
   }
 
   return (
@@ -261,15 +359,95 @@ function App() {
             <strong>{selectedB.name}</strong>
           </h2>
           <p className="clade-info">
-            Their most recent common ancestor is in the group{" "}
-            <strong>{cladeName}</strong>. All {cladeSpecies.length} organisms in
-            that group:
+            They belong to a group of {cladeSpecies.length} organisms.
           </p>
-          <ul className="species-list">
-            {cladeSpecies.map((name) => (
-              <SpeciesCard key={name} sp={name} />
-            ))}
-          </ul>
+
+          <div className="collapsible-section">
+            <button
+              className="collapsible-toggle"
+              onClick={() => setShowIncluded(!showIncluded)}
+            >
+              <span className="toggle-arrow">{showIncluded ? "▼" : "▶"}</span>
+              Animals in this group ({cladeSpecies.length})
+            </button>
+            {showIncluded && (
+              <ul className="species-list">
+                {enrichedCladeSpecies.map((sp) => {
+                  const data = speciesByName.get(sp.name);
+                  return (
+                    <li key={sp.name} className="species-card">
+                      {data?.image_url ? (
+                        <img
+                          className="species-img"
+                          src={data.image_url}
+                          alt={sp.name}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="species-img placeholder">?</div>
+                      )}
+                      <span className="species-name">{sp.name}</span>
+                      <span className="distance-label">
+                        ↑{sp.levelA} to {selectedA.name}, ↑{sp.levelB} to {selectedB.name}
+                      </span>
+                      {data?.broken && (
+                        <span
+                          className="broken-badge"
+                          title={`Approximate placement: ${sp.name} is not monophyletic in the synthetic tree${data.mrca_name ? `. Placed at ${data.mrca_name}` : ""}`}
+                        >
+                          ≈ {data.mrca_name || "approx."}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          <div className="collapsible-section">
+            <button
+              className="collapsible-toggle"
+              onClick={() => setShowOutside(!showOutside)}
+            >
+              <span className="toggle-arrow">{showOutside ? "▼" : "▶"}</span>
+              Nearest relatives outside this group ({outsideSpecies.length})
+            </button>
+            {showOutside && (
+              <>
+                <ul className="species-list">
+                  {outsideSpecies.slice(0, outsideLimit).map((sp) => (
+                    <li key={sp.ott_id} className="species-card">
+                      {speciesByName.get(sp.name)?.image_url ? (
+                        <img
+                          className="species-img"
+                          src={speciesByName.get(sp.name).image_url}
+                          alt={sp.name}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="species-img placeholder">?</div>
+                      )}
+                      <span className="species-name">{sp.name}</span>
+                      <span className="distance-label">
+                        ↑{sp.height} {sp.height === 1 ? "level" : "levels"} up
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {outsideLimit < outsideSpecies.length && (
+                  <div className="show-more-container">
+                    <button
+                      className="show-more-btn"
+                      onClick={() => setOutsideLimit((l) => l + OUTSIDE_PAGE_SIZE)}
+                    >
+                      Show more ({Math.min(OUTSIDE_PAGE_SIZE, outsideSpecies.length - outsideLimit)} more)
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       )}
 

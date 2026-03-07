@@ -1,16 +1,66 @@
-name,ott_id,image_url
-cat,563166,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/404/32374404.jpg
-dog,247341,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/938/27815938.jpg
-rabbit,864596,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/181/7530181.jpg
-horse,1068218,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/000/31662000.jpg
-cow,490099,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/693/32368693.jpg
-chicken,153563,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/919/24875919.jpg
-duck,765167,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/025/31925025.jpg
-frog,991547,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/846/27735846.jpg
-butterfly,965954,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/175/26875175.jpg
-sunflower,515712,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/270/25593270.jpg
-rose,259066,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/851/26800851.jpg
-dolphin,698406,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/415/31956415.jpg
-elephant,541924,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/726/32633726.jpg
-lion,563151,https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/140/140.jpg
-oak,791121,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/313/31644313.jpg
+name,scientific_name,ott_id,image_url
+cat,Felis catus,563166,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/404/32374404.jpg
+dog,Canis lupus,247341,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/938/27815938.jpg
+rabbit,Oryctolagus cuniculus,864596,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/181/7530181.jpg
+horse,Equus caballus,1068218,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/000/31662000.jpg
+cow,Bos taurus,490099,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/693/32368693.jpg
+chicken,Gallus gallus,153563,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/919/24875919.jpg
+duck,Anas platyrhynchos,765167,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/025/31925025.jpg
+frog,Anura,991547,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/846/27735846.jpg
+butterfly,Lepidoptera,965954,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/175/26875175.jpg
+sunflower,Helianthus annuus,515712,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/270/25593270.jpg
+rose,Rosa,259066,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/851/26800851.jpg
+dolphin,Delphinidae,698406,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/415/31956415.jpg
+elephant,Elephantidae,541924,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/726/32633726.jpg
+lion,Panthera leo,563151,https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/140/140.jpg
+oak,Quercus,791121,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/313/31644313.jpg
+bear,Ursus arctos,872567,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/880/26787880.jpg
+pig,Sus scrofa,730013,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/006/31653006.jpg
+sheep,Ovis aries,70819,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/916/32632916.jpg
+goat,Capra hircus,19017,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/251/31924251.jpg
+mouse,Mus musculus,542509,https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/310/83310.jpg
+rat,Rattus norvegicus,271555,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/920/27718920.jpg
+hamster,Mesocricetus auratus,391631,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/672/25631672.jpg
+guinea pig,Cavia porcellus,744000,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/350/31811350.jpg
+giraffe,Giraffa camelopardalis,768674,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/387/26880387.jpg
+zebra,Equus quagga,124776,http://commons.wikimedia.org/wiki/Special:FilePath/Cebra%20de%20Burchell%20%28Equus%20quagga%20burchellii%29%2C%20parque%20nacional%20Kruger%2C%20Sud%C3%A1frica%2C%202018-07-24%2C%20DD%2001.jpg
+hippopotamus,Hippopotamus amphibius,510762,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/309/27779309.jpg
+rhinoceros,Rhinocerotidae,1034218,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/666/25657666.jpg
+gorilla,Gorilla gorilla,417965,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/478/31326478.jpg
+chimpanzee,Pan troglodytes,417950,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/520/27252520.jpg
+orangutan,Pongo pygmaeus,770302,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/933/28685933.jpg
+tiger,Panthera tigris,42314,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/050/13145050.jpg
+leopard,Panthera pardus,42324,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/706/32525706.jpg
+cheetah,Acinonyx jubatus,752759,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/168/25602168.jpg
+wolf,Canis lupus,247341,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/938/27815938.jpg
+fox,Vulpes vulpes,821964,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/525/27291525.jpg
+deer,Cervidae,460505,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/985/27770985.jpg
+moose,Alces alces,460509,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/314/26821314.jpg
+camel,Camelus,510767,http://commons.wikimedia.org/wiki/Special:FilePath/Chameau%20de%20bactriane.JPG
+llama,Lama glama,986973,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/118/26928118.jpg
+kangaroo,Macropus,42495,http://commons.wikimedia.org/wiki/Special:FilePath/Eastern%20grey%20kangaroo%20dec07%2002.jpg
+koala,Phascolarctos cinereus,327624,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/702/11754702.jpg
+panda,Ailuropoda melanoleuca,872573,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/539/27693539.jpg
+polar bear,Ursus maritimus,10732,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/033/31476033.jpg
+bat,Chiroptera,574724,http://commons.wikimedia.org/wiki/Special:FilePath/Big-eared-townsend-fledermaus.jpg
+whale,Balaenoptera,800316,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/303/31324303.jpg
+seal,Phocidae,749626,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/26886297.jpg
+otter,Lutra lutra,348036,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/444/28684444.jpg
+beaver,Castor,1048190,http://commons.wikimedia.org/wiki/Special:FilePath/American%20Beaver.jpg
+squirrel,Sciuridae,384218,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/904/26818904.jpg
+raccoon,Procyon lotor,348040,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/194/26870194.jpg
+skunk,Mephitis mephitis,231602,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/120/32389120.jpg
+hedgehog,Erinaceus europaeus,796660,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/913/5817913.jpg
+porcupine,Erethizon dorsatum,848921,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/337/27690337.jpg
+armadillo,Dasypus novemcinctus,796672,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/021/26853021.jpg
+sloth,Folivora,495015,http://commons.wikimedia.org/wiki/Special:FilePath/Bradypus.jpg
+monkey,Simiiformes,386195,http://commons.wikimedia.org/wiki/Special:FilePath/Simiiformes.png
+lemur,Lemuridae,913933,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/330/27748330.jpg
+jaguar,Panthera onca,42322,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/695/33154695.jpg
+hyena,Crocuta crocuta,397157,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/377/26849377.jpg
+meerkat,Suricata suricatta,803645,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/836/27761836.jpg
+wombat,Vombatus ursinus,835328,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/658/2005658.jpg
+platypus,Ornithorhynchus anatinus,962377,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/046/31655046.jpg
+narwhal,Monodon monoceros,306757,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/458/26794458.jpg
+walrus,Odobenus rosmarus,749644,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/217/26790217.jpg
+manatee,Trichechus,226189,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/943/31958943.jpg

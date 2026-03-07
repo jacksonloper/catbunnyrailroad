@@ -139,6 +139,65 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
+/* ------ Collapsible sections ------ */
+
+.collapsible-section {
+  margin-bottom: 1rem;
+}
+
+.collapsible-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #2a2a2a;
+  color: inherit;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.collapsible-toggle:hover {
+  background: #333;
+}
+
+.toggle-arrow {
+  font-size: 0.8rem;
+  width: 1em;
+  display: inline-block;
+}
+
+.distance-label {
+  font-size: 0.75rem;
+  color: #999;
+  font-style: italic;
+}
+
+.show-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.show-more-btn {
+  padding: 0.5rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #2a2a2a;
+  color: inherit;
+}
+
+.show-more-btn:hover {
+  background: #333;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -206,5 +265,19 @@ h2 {
   }
   .autocomplete label {
     color: #666;
+  }
+  .collapsible-toggle {
+    background: #f0f0f0;
+    border-color: #ccc;
+  }
+  .collapsible-toggle:hover {
+    background: #e8e8e8;
+  }
+  .show-more-btn {
+    background: #f0f0f0;
+    border-color: #ccc;
+  }
+  .show-more-btn:hover {
+    background: #e8e8e8;
   }
 }
