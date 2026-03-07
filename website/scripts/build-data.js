@@ -278,8 +278,30 @@ async function resolveBrokenNames(node) {
 
 async function main() {
   const csv = fs.readFileSync(CSV_PATH, "utf-8");
-  const species = parseCsv(csv);
-  console.log(`Read ${species.length} species from CSV`);
+  const allRows = parseCsv(csv);
+  console.log(`Read ${allRows.length} rows from CSV`);
+
+  // Deduplicate by ott_id – keep first occurrence
+  const seenOtts = new Set();
+  const species = [];
+  for (const row of allRows) {
+    const ottId = Number(row.ott_id);
+    if (!ottId) {
+      console.log(`  Skipping row with invalid ott_id: ${row.name}`);
+      continue;
+    }
+    if (seenOtts.has(ottId)) {
+      console.log(`  Skipping duplicate ott_id ${ottId} (${row.name})`);
+      continue;
+    }
+    seenOtts.add(ottId);
+    species.push(row);
+  }
+  if (species.length < allRows.length) {
+    console.log(
+      `Deduplicated: ${allRows.length} rows → ${species.length} unique OTT IDs`
+    );
+  }
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
@@ -309,7 +331,7 @@ async function main() {
 
   const simplified = simplifyTree(rawTree, ottSet, brokenMap);
 
-  // Build lookup for species
+  // Build lookup for species by OTT ID
   const speciesByOtt = {};
   for (const sp of species) {
     speciesByOtt[Number(sp.ott_id)] = sp;
