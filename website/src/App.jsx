@@ -49,6 +49,28 @@ function findMRCA(treeRoot, ottA, ottB) {
   return mrca;
 }
 
+/**
+ * Extract an induced subtree containing only the specified ott_ids.
+ * Internal nodes with a single child are collapsed (their child replaces them).
+ */
+function extractSubtree(node, ottIdSet) {
+  if (node.children.length === 0) {
+    // Leaf: keep only if its ott_id is in the set
+    if (ottIdSet.has(node.ott_id)) {
+      return { name: node.name, ott_id: node.ott_id, children: [] };
+    }
+    return null;
+  }
+  // Recurse into children and keep only non-null results
+  const keptChildren = node.children
+    .map((c) => extractSubtree(c, ottIdSet))
+    .filter(Boolean);
+  if (keptChildren.length === 0) return null;
+  // Collapse internal nodes with a single child
+  if (keptChildren.length === 1) return keptChildren[0];
+  return { name: node.name, ott_id: node.ott_id, children: keptChildren };
+}
+
 // ---------------------------------------------------------------------------
 // Trie-based autocomplete
 // ---------------------------------------------------------------------------
@@ -143,6 +165,7 @@ function Autocomplete({ label, value, onChange, onSelect, trie, selectedItem }) 
 
 // Build a lookup map for species data by name
 const speciesByName = new Map(species.map((s) => [s.name, s]));
+const speciesByOttId = new Map(species.map((s) => [s.ott_id, s]));
 
 const OUTSIDE_PAGE_SIZE = 20;
 
@@ -173,6 +196,42 @@ function SpeciesCard({ sp }) {
   );
 }
 
+/** Recursive tree view component for displaying a subtree */
+function SubtreeNode({ node, depth = 0 }) {
+  const sp = speciesByOttId.get(node.ott_id);
+  const isLeaf = node.children.length === 0;
+
+  return (
+    <div className="subtree-node" style={{ marginLeft: depth * 16 }}>
+      <div className={`subtree-label ${isLeaf ? "subtree-leaf" : "subtree-internal"}`}>
+        {sp?.image_url && isLeaf ? (
+          <img className="subtree-img" src={sp.image_url} alt={node.name} loading="lazy" />
+        ) : null}
+        <span className="subtree-name">{node.name}</span>
+      </div>
+      {node.children.map((child, i) => (
+        <SubtreeNode key={child.ott_id ?? i} node={child} depth={depth + 1} />
+      ))}
+    </div>
+  );
+}
+
+function SubtreeView({ subtree, onClose }) {
+  return (
+    <div className="subtree-overlay">
+      <div className="subtree-panel">
+        <div className="subtree-header">
+          <h3>Subtree</h3>
+          <button className="subtree-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="subtree-content">
+          <SubtreeNode node={subtree} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const trie = useMemo(() => buildTrie(species), []);
 
@@ -185,6 +244,32 @@ function App() {
   const [showIncluded, setShowIncluded] = useState(false);
   const [showOutside, setShowOutside] = useState(false);
   const [outsideLimit, setOutsideLimit] = useState(OUTSIDE_PAGE_SIZE);
+  const [selectedOrganisms, setSelectedOrganisms] = useState(new Set());
+  const [showSubtree, setShowSubtree] = useState(false);
+
+  function toggleOrganism(name) {
+    setSelectedOrganisms((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
+
+  // Build subtree from selected organisms (+ the pair if in MRCA flow)
+  const subtree = useMemo(() => {
+    if (!showSubtree || selectedOrganisms.size === 0) return null;
+    const ottIds = new Set();
+    for (const name of selectedOrganisms) {
+      const sp = speciesByName.get(name);
+      if (sp) ottIds.add(sp.ott_id);
+    }
+    // Include the user-entered pair if in the find MRCA flow
+    if (selectedA) ottIds.add(selectedA.ott_id);
+    if (selectedB) ottIds.add(selectedB.ott_id);
+    if (ottIds.size < 2) return null;
+    return extractSubtree(tree, ottIds);
+  }, [showSubtree, selectedOrganisms, selectedA, selectedB]);
 
   // Compute in-clade species with distances to A and B, sorted from A to B
   const enrichedCladeSpecies = useMemo(() => {
@@ -310,6 +395,8 @@ function App() {
     setShowIncluded(false);
     setShowOutside(false);
     setOutsideLimit(OUTSIDE_PAGE_SIZE);
+    setSelectedOrganisms(new Set());
+    setShowSubtree(false);
   }
 
   return (
@@ -318,6 +405,28 @@ function App() {
       <p className="subtitle">
         Pick two living things and discover what they have in common!
       </p>
+
+      {selectedOrganisms.size > 0 && (
+        <div className="make-tree-bar">
+          <button
+            className="make-tree-btn"
+            onClick={() => setShowSubtree(true)}
+            disabled={selectedOrganisms.size + (selectedA ? 1 : 0) + (selectedB ? 1 : 0) < 2}
+          >
+            🌳 Make tree ({selectedOrganisms.size} selected)
+          </button>
+          <button
+            className="clear-selection-btn"
+            onClick={() => { setSelectedOrganisms(new Set()); setShowSubtree(false); }}
+          >
+            Clear selection
+          </button>
+        </div>
+      )}
+
+      {showSubtree && subtree && (
+        <SubtreeView subtree={subtree} onClose={() => setShowSubtree(false)} />
+      )}
 
       <form className="picker" onSubmit={handleSubmit}>
         <div className="picker-inputs">
@@ -368,14 +477,26 @@ function App() {
               onClick={() => setShowIncluded(!showIncluded)}
             >
               <span className="toggle-arrow">{showIncluded ? "▼" : "▶"}</span>
-              Animals in this group ({cladeSpecies.length})
+              Organisms in this group ({cladeSpecies.length})
             </button>
             {showIncluded && (
               <ul className="species-list">
                 {enrichedCladeSpecies.map((sp) => {
                   const data = speciesByName.get(sp.name);
+                  const isSelected = selectedOrganisms.has(sp.name);
                   return (
-                    <li key={sp.name} className="species-card">
+                    <li
+                      key={sp.name}
+                      className={`species-card ${isSelected ? "selected" : ""}`}
+                      onClick={() => toggleOrganism(sp.name)}
+                    >
+                      <input
+                        type="checkbox"
+                        className="species-checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleOrganism(sp.name)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
                       {data?.image_url ? (
                         <img
                           className="species-img"
@@ -416,24 +537,38 @@ function App() {
             {showOutside && (
               <>
                 <ul className="species-list">
-                  {outsideSpecies.slice(0, outsideLimit).map((sp) => (
-                    <li key={sp.ott_id} className="species-card">
-                      {speciesByName.get(sp.name)?.image_url ? (
-                        <img
-                          className="species-img"
-                          src={speciesByName.get(sp.name).image_url}
-                          alt={sp.name}
-                          loading="lazy"
+                  {outsideSpecies.slice(0, outsideLimit).map((sp) => {
+                    const isSelected = selectedOrganisms.has(sp.name);
+                    return (
+                      <li
+                        key={sp.ott_id}
+                        className={`species-card ${isSelected ? "selected" : ""}`}
+                        onClick={() => toggleOrganism(sp.name)}
+                      >
+                        <input
+                          type="checkbox"
+                          className="species-checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleOrganism(sp.name)}
+                          onClick={(e) => e.stopPropagation()}
                         />
-                      ) : (
-                        <div className="species-img placeholder">?</div>
-                      )}
-                      <span className="species-name">{sp.name}</span>
-                      <span className="distance-label">
-                        ↑{sp.height} {sp.height === 1 ? "level" : "levels"} up
-                      </span>
-                    </li>
-                  ))}
+                        {speciesByName.get(sp.name)?.image_url ? (
+                          <img
+                            className="species-img"
+                            src={speciesByName.get(sp.name).image_url}
+                            alt={sp.name}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="species-img placeholder">?</div>
+                        )}
+                        <span className="species-name">{sp.name}</span>
+                        <span className="distance-label">
+                          ↑{sp.height} {sp.height === 1 ? "level" : "levels"} up
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
                 {outsideLimit < outsideSpecies.length && (
                   <div className="show-more-container">
