@@ -101,27 +101,30 @@ async function main() {
 
   console.log(`Found ${missing.length} rows without OTT IDs.`);
 
-  // TNRS accepts batches — process in groups of 20 to stay within limits
+  // TNRS accepts batches — process in groups of 20 to stay within limits.
+  // Prefer scientific_name over name when available (TNRS resolves
+  // scientific names far more reliably than common English names).
   const BATCH_SIZE = 20;
   let updated = 0;
 
   for (let i = 0; i < missing.length; i += BATCH_SIZE) {
     const batch = missing.slice(i, i + BATCH_SIZE);
-    const names = batch.map((r) => r.name);
+    const lookupNames = batch.map((r) => r.scientific_name || r.name);
     console.log(
-      `\nBatch ${Math.floor(i / BATCH_SIZE) + 1}: looking up ${names.length} name(s)...`
+      `\nBatch ${Math.floor(i / BATCH_SIZE) + 1}: looking up ${lookupNames.length} name(s)...`
     );
 
-    const idMap = await matchNames(names);
+    const idMap = await matchNames(lookupNames);
 
     for (const row of batch) {
-      const ottId = idMap.get(row.name.toLowerCase());
+      const queryName = (row.scientific_name || row.name).toLowerCase();
+      const ottId = idMap.get(queryName);
       if (ottId) {
-        console.log(`  ✓ ${row.name} → ott_id=${ottId}`);
+        console.log(`  ✓ ${row.name} (${queryName}) → ott_id=${ottId}`);
         row.ott_id = String(ottId);
         updated++;
       } else {
-        console.log(`  ✗ ${row.name} — no match found`);
+        console.log(`  ✗ ${row.name} (${queryName}) — no match found`);
       }
     }
   }
