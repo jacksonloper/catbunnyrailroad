@@ -243,29 +243,42 @@ function maxDepth(node) {
 /**
  * Layout the tree for SVG rendering.
  * Returns { nodes: [{x, y, node, isLeaf}], edges: [{x1,y1,x2,y2}] }
- * Leaves get sequential y positions; internal node y = average of children.
+ *
+ * Every user-selected taxon (isTaxon node) gets its own sequential y-line,
+ * whether it is a leaf or an internal node.  Non-taxon internal nodes are
+ * vertically placed at the average of their descendant taxa positions.
  */
 function layoutTree(root) {
   const depth = maxDepth(root);
   const hSpacing = 32; // horizontal pixels per depth level
-  const vSpacing = 28; // vertical pixels per leaf row
+  const vSpacing = 28; // vertical pixels per taxon row
   const nodes = [];
   const edges = [];
-  let leafIndex = 0;
+  let lineIndex = 0;
 
   function walk(node, d) {
+    const x = d * hSpacing;
+
     if (node.children.length === 0) {
-      // Leaf
-      const x = d * hSpacing;
-      const y = leafIndex * vSpacing;
-      leafIndex++;
+      // Leaf – always gets its own line
+      const y = lineIndex * vSpacing;
+      lineIndex++;
       nodes.push({ x, y, node, isLeaf: true });
       return y;
     }
-    // Internal node
+
+    if (node.isTaxon) {
+      // Internal taxon – gets its own line, then walk children
+      const selfY = lineIndex * vSpacing;
+      lineIndex++;
+      node.children.forEach((c) => walk(c, d + 1));
+      nodes.push({ x, y: selfY, node, isLeaf: false });
+      return selfY;
+    }
+
+    // Non-taxon internal – avg of children
     const childYs = node.children.map((c) => walk(c, d + 1));
     const y = childYs.reduce((a, b) => a + b, 0) / childYs.length;
-    const x = d * hSpacing;
     nodes.push({ x, y, node, isLeaf: false });
     return y;
   }
@@ -281,8 +294,9 @@ function layoutTree(root) {
     const validChildren = childInfos.filter(Boolean);
     if (validChildren.length === 0) return;
 
-    // Vertical line at parent x
-    const ys = validChildren.map((c) => c.y);
+    // Vertical line at parent x – include parent y so that taxon internal
+    // nodes that sit above/below their children are properly connected.
+    const ys = [...validChildren.map((c) => c.y), parentInfo.y];
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
     edges.push({ x1: parentInfo.x, y1: minY, x2: parentInfo.x, y2: maxY });
@@ -298,11 +312,12 @@ function layoutTree(root) {
   }
   buildEdges(root);
 
-  return { nodes, edges, leafCount: leafIndex, hSpacing, vSpacing, depth };
+  return { nodes, edges, leafCount: lineIndex, hSpacing, vSpacing, depth };
 }
 
 function SubtreeView({ subtree, onClose }) {
   const [copied, setCopied] = useState(false);
+  const [copiedJson, setCopiedJson] = useState(false);
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
@@ -310,27 +325,35 @@ function SubtreeView({ subtree, onClose }) {
 
   const labelOffset = 8;
   const imgSize = 20;
-  // Measure longest label to set SVG width
+  // Measure longest label to set SVG width – add extra space for stars
   const maxLabelLen = taxaNodes.length > 0 ? Math.max(...taxaNodes.map((l) => l.node.name.length)) : 0;
-  const rightPad = maxLabelLen * 7 + imgSize + labelOffset + 20;
+  const rightPad = maxLabelLen * 7 + imgSize + labelOffset + 30;
   const svgWidth = (layout.depth + 1) * layout.hSpacing + rightPad;
   const svgHeight = layout.leafCount * layout.vSpacing;
 
-  function handleCopy() {
-    const text = ottIds.join(",");
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(() => {
-      // Fallback: select text from a temporary element
+  function copyToClipboard(text, onSuccess) {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(() => {
       const ta = document.createElement("textarea");
       ta.value = text;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
+      onSuccess();
+    });
+  }
+
+  function handleCopy() {
+    copyToClipboard(ottIds.join(","), () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  function handleCopyJson() {
+    copyToClipboard(JSON.stringify(subtree, null, 2), () => {
+      setCopiedJson(true);
+      setTimeout(() => setCopiedJson(false), 2000);
     });
   }
 
@@ -346,6 +369,13 @@ function SubtreeView({ subtree, onClose }) {
               title="Copy OTT IDs to clipboard"
             >
               {copied ? "✓ Copied!" : "📋 Copy OTT IDs"}
+            </button>
+            <button
+              className="subtree-copy-btn"
+              onClick={handleCopyJson}
+              title="Copy subtree JSON to clipboard"
+            >
+              {copiedJson ? "✓ Copied!" : "📋 Copy JSON"}
             </button>
             <button className="subtree-close" aria-label="Close subtree view" onClick={onClose}>✕</button>
           </div>

@@ -7,7 +7,8 @@ cow,Bos taurus,490099,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99
 chicken,Gallus gallus,153563,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/919/24875919.jpg,
 duck,Anas platyrhynchos,765167,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/025/31925025.jpg,
 frog,Anura,991547,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/846/27735846.jpg,
-butterfly,Lepidoptera,965954,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/175/26875175.jpg,
+butterfly,Papilionidae,661439,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/175/26875175.jpg,"Butterflies (Papilionoidea) are not monophyletic in the synthetic tree. Papilionidae (swallowtail butterflies) is used as a representative butterfly family within the order Lepidoptera."
+lepidoptera,Lepidoptera,965954,,,"Lepidoptera is the order containing all butterflies and moths. It is a higher-level grouping (not a single species)."
 sunflower,Helianthus annuus,515712,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/270/25593270.jpg,
 rose,Rosa,259066,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/851/26800851.jpg,
 dolphin,Delphinidae,698406,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/415/31956415.jpg,
@@ -174,7 +175,7 @@ millipede,Archispirostreptus gigas,81620,,https://www.onezoom.org/OZtree/static/
 termite,Macrotermes bellicosus,213031,,http://commons.wikimedia.org/wiki/Special:FilePath/Macrotermes%20bellicosus%20minor%20soldier.jpg,
 praying mantis,Mantis religiosa,656298,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/026/25364026.jpg,
 stag beetle,Lucanus cervus,867953,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/765/29212765.jpg,
-moth,Actias luna,180968,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/715/34040715.jpg,
+moth,Actias luna,180968,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/715/34040715.jpg,"'Moth' is not a formal group — it refers to any Lepidoptera that is not a butterfly. Actias luna (luna moth) is used as a representative species."
 tick,Ixodes ricinus,493144,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/625/32368625.jpg,
 barnacle,Balanus balanus,323642,,http://commons.wikimedia.org/wiki/Special:FilePath/Balanus%20balanus%20%28YPM%20IZ%20030315%29.jpeg,
 orange,Citrus sinensis,3942433,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/812/25584812.jpg,

@@ -478,11 +478,17 @@ h2 {
   background: none;
   border: none;
   color: #c90;
-  font-size: 0.85rem;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 0 0.15rem;
+  padding: 0.4rem;
   vertical-align: super;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .comment-star:hover {
