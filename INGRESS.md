@@ -4,20 +4,22 @@ This document describes the process for adding new organisms (taxa) to the Cat B
 
 ## Step 1: Add Rows to `species.csv`
 
-Open `species.csv` and add one row per new organism. You only need to fill in two columns:
+Open `species.csv` and add one row per new organism. You need to fill in at least:
 
 | Column | Required | What to put |
 |--------|----------|-------------|
 | `name` | ✓ | Common English name (e.g. `cat`, `strawberry`) |
 | `scientific_name` | ✓ | Binomial name, genus, family, or order (e.g. `Felis catus`, `Rosa`, `Chiroptera`) |
 | `ott_id` | | Leave empty — filled automatically in Step 2 |
+| `node_id` | | Leave empty unless needed (see Step 4) |
 | `image_url` | | Leave empty — filled automatically in Step 3 |
+| `comments` | | Leave empty unless needed (see Step 4) |
 
 Example new rows:
 
 ```
-axolotl,Ambystoma mexicanum,,
-red panda,Ailurus fulgens,,
+axolotl,Ambystoma mexicanum,,,,
+red panda,Ailurus fulgens,,,,
 ```
 
 **Tips:**
@@ -77,9 +79,31 @@ npm run build
 **What to look for in the build output:**
 - `❌ Row with invalid ott_id: <name>` — a row has a non-numeric or missing OTT ID. Go back and fix it in `species.csv`.
 - `❌ Duplicate ott_id <id>` — two rows share the same OTT ID. Every row must have a unique ID. Remove one of the duplicates.
-- `❌ Broken-taxa collision` — two broken taxa mapped to the same replacement node. Adjust `species.csv` to use different (more specific) OTT IDs.
-- `Broken taxon: ott<id> mapped to node <label>` — the taxon is not monophyletic in the synthetic tree. The build handles this automatically by mapping it to its MRCA, but the taxon will display with an `≈` marker. This is informational, not an error.
-- `Warning: could not resolve <name>` — MRCA name resolution failed. Usually non-fatal, but worth a look.
+- `❌ The API reported broken (non-monophyletic) taxa:` — the taxon's OTT ID is not monophyletic in the synthetic tree.  **You need to add a `node_id`** for this row.  The error message tells you what replacement node ID to use.  See "Fixing broken taxa" below.
+- `❌ Duplicate tree placement ID` — two rows would map to the same tree node. Adjust the `node_id` values to avoid the collision.
+- `❌ taxa not found in tree` — a taxon could not be placed in the tree.  Check the OTT ID or node ID is correct.
+
+### Fixing broken taxa
+
+When a taxon is "broken" (non-monophyletic), the build will fail with a message like:
+
+```
+❌ The API reported broken (non-monophyletic) taxa:
+   ott791121 (oak) → mapped to mrcaott37377ott106844
+   Fix: add node_id="mrcaott37377ott106844" to this row in species.csv
+```
+
+To fix this:
+1. Copy the replacement node ID from the error message
+2. Add it to the `node_id` column for that row
+3. Add a comment explaining the situation to the `comments` column
+
+For example:
+```csv
+oak,Quercus,791121,mrcaott37377ott106844,https://...,"Oak (Quercus) is not monophyletic in the synthetic tree. Placed at Fagales instead."
+```
+
+The `comments` field will show as a clickable ★ footnote on the website.
 
 ## Step 5: Fixing Edge Cases by Hand
 
