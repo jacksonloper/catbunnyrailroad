@@ -8,6 +8,9 @@ on:
     paths:
       - "species.csv"
 
+permissions:
+  contents: read
+
 jobs:
   check-duplicates:
     runs-on: ubuntu-latest
