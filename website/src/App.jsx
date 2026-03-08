@@ -181,6 +181,7 @@ const OUTSIDE_PAGE_SIZE = 20;
 
 function SpeciesCard({ sp }) {
   const taxonData = taxaByName.get(sp);
+  const [showComment, setShowComment] = useState(false);
   return (
     <li className="species-card">
       {taxonData?.image_url ? (
@@ -193,14 +194,25 @@ function SpeciesCard({ sp }) {
       ) : (
         <div className="species-img placeholder">?</div>
       )}
-      <span className="species-name">{sp}</span>
-      {taxonData?.broken && (
-        <span
-          className="broken-badge"
-          title={`Approximate placement: ${sp} is not monophyletic in the synthetic tree${taxonData.mrca_name ? `. Placed at ${taxonData.mrca_name}` : ""}`}
-        >
-          ≈ {taxonData.mrca_name || "approx."}
-        </span>
+      <span className="species-name">
+        {sp}
+        {taxonData?.comments && (
+          <button
+            className="comment-star"
+            onClick={(e) => { e.stopPropagation(); setShowComment(!showComment); }}
+            aria-label="Show note"
+            title="Click for details"
+          >★</button>
+        )}
+      </span>
+      {showComment && taxonData?.comments && (
+        <div className="comment-popup">
+          <p>{taxonData.comments}</p>
+          <button
+            className="comment-close"
+            onClick={(e) => { e.stopPropagation(); setShowComment(false); }}
+          >✕</button>
+        </div>
       )}
     </li>
   );
@@ -378,6 +390,17 @@ function SubtreeView({ subtree, onClose }) {
                   >
                     {l.node.name}
                   </text>
+                  {sp?.comments && (
+                    <text
+                      x={l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + l.node.name.length * 7 + 4}
+                      y={l.y}
+                      dominantBaseline="central"
+                      className="subtree-comment-star"
+                    >
+                      <title>{sp.comments}</title>
+                      ★
+                    </text>
+                  )}
                 </g>
               );
             })}
@@ -847,13 +870,11 @@ function App() {
                       <span className="distance-label">
                         ↑{sp.levelA} to {selectedA.name}, ↑{sp.levelB} to {selectedB.name}
                       </span>
-                      {data?.broken && (
+                      {data?.comments && (
                         <span
-                          className="broken-badge"
-                          title={`Approximate placement: ${sp.name} is not monophyletic in the synthetic tree${data.mrca_name ? `. Placed at ${data.mrca_name}` : ""}`}
-                        >
-                          ≈ {data.mrca_name || "approx."}
-                        </span>
+                          className="comment-star-inline"
+                          title={data.comments}
+                        >★</span>
                       )}
                     </li>
                   );
@@ -929,27 +950,7 @@ function App() {
           <h2>All organisms</h2>
           <ul className="species-list">
             {taxa.map((sp) => (
-              <li key={sp.ott_id} className="species-card">
-                {sp.image_url ? (
-                  <img
-                    className="species-img"
-                    src={sp.image_url}
-                    alt={sp.name}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="species-img placeholder">?</div>
-                )}
-                <span className="species-name">{sp.name}</span>
-                {sp.broken && (
-                  <span
-                    className="broken-badge"
-                    title={`Approximate placement: ${sp.name} is not monophyletic in the synthetic tree${sp.mrca_name ? `. Placed at ${sp.mrca_name}` : ""}`}
-                  >
-                    ≈ {sp.mrca_name || "approx."}
-                  </span>
-                )}
-              </li>
+              <SpeciesCard key={sp.ott_id} sp={sp.name} />
             ))}
           </ul>
         </div>

@@ -19,13 +19,21 @@ jobs:
 
       - name: Check for duplicate OTT IDs
         run: |
+          # species.csv columns: name,scientific_name,ott_id,node_id,image_url,comments
           # Extract ott_id column (3rd column), skip header, ignore blanks,
           # sort and find duplicates.
           dupes=$(tail -n +2 species.csv \
-            | cut -d',' -f3 \
-            | sed '/^$/d' \
-            | sort \
-            | uniq -d)
+            | python3 -c "
+          import csv, sys
+          ids = []
+          for row in csv.reader(sys.stdin):
+            if len(row) >= 3 and row[2].strip():
+              ids.append(row[2].strip())
+          from collections import Counter
+          for val, cnt in Counter(ids).items():
+            if cnt > 1:
+              print(val)
+          ")
 
           if [ -n "$dupes" ]; then
             echo "❌ Duplicate OTT IDs found in species.csv:"

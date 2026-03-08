@@ -472,10 +472,74 @@ h2 {
   text-transform: capitalize;
 }
 
-.broken-badge {
-  font-size: 0.7rem;
+/* ------ Comment star / popup ------ */
+
+.comment-star {
+  background: none;
+  border: none;
+  color: #c90;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0 0.15rem;
+  vertical-align: super;
+  line-height: 1;
+}
+
+.comment-star:hover {
+  color: #fb0;
+}
+
+.comment-star-inline {
+  color: #c90;
+  font-size: 0.75rem;
+  cursor: help;
+  vertical-align: super;
+  line-height: 1;
+}
+
+.comment-popup {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: #ddd;
+  width: max-content;
+  max-width: 260px;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  text-align: left;
+  text-transform: none;
+  font-weight: normal;
+}
+
+.comment-popup p {
+  margin: 0;
+}
+
+.comment-close {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: none;
+  border: none;
   color: #999;
-  font-style: italic;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0;
+}
+
+.comment-close:hover {
+  color: #fff;
+}
+
+.subtree-comment-star {
+  fill: #c90;
+  font-size: 0.7rem;
   cursor: help;
 }
 
@@ -654,5 +718,10 @@ h2 {
   }
   .error-console-dismiss {
     color: #900;
+  }
+  .comment-popup {
+    background: #fff;
+    border-color: #ccc;
+    color: #333;
   }
 }
