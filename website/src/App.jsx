@@ -97,15 +97,15 @@ function buildTrie(items) {
   for (const item of items) {
     // Index each word in the name so "swallowtail butterfly" matches "butterfly"
     const words = item.name.toLowerCase().split(/\s+/);
-    const inserted = new Set(); // avoid duplicate insertions for same prefix
+    const seenNodes = new Set(); // avoid duplicate insertions for same prefix
     for (const word of words) {
       let node = root;
       for (const ch of word) {
         if (!node.children[ch]) node.children[ch] = new TrieNode();
         node = node.children[ch];
-        if (!inserted.has(node)) {
+        if (!seenNodes.has(node)) {
           node.items.push(item);
-          inserted.add(node);
+          seenNodes.add(node);
         }
       }
     }
@@ -344,7 +344,7 @@ function SubtreeView({ subtree, onClose }) {
 
   /** Enrich subtree with comments for JSON export */
   function enrichWithComments(node) {
-    const result = { name: node.name, ott_id: node.ott_id, children: node.children.map(enrichWithComments) };
+    const result = { name: node.name, ott_id: node.ott_id, children: (node.children || []).map(enrichWithComments) };
     if (node.isTaxon) result.isTaxon = true;
     const sp = taxaByOttId.get(node.ott_id);
     if (sp?.comments) result.comments = sp.comments;
