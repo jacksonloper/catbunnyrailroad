@@ -325,9 +325,11 @@ function SubtreeView({ subtree, onClose }) {
 
   const labelOffset = 8;
   const imgSize = 20;
-  // Measure longest label to set SVG width – add extra space for stars
+  const pxPerChar = 7;      // approximate character width for label measurement
+  const starPad = 30;       // extra right padding for comment stars
+  // Measure longest label to set SVG width
   const maxLabelLen = taxaNodes.length > 0 ? Math.max(...taxaNodes.map((l) => l.node.name.length)) : 0;
-  const rightPad = maxLabelLen * 7 + imgSize + labelOffset + 30;
+  const rightPad = maxLabelLen * pxPerChar + imgSize + labelOffset + starPad;
   const svgWidth = (layout.depth + 1) * layout.hSpacing + rightPad;
   const svgHeight = layout.leafCount * layout.vSpacing;
 
@@ -424,7 +426,7 @@ function SubtreeView({ subtree, onClose }) {
                   </text>
                   {sp?.comments && (
                     <text
-                      x={l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + l.node.name.length * 7 + 4}
+                      x={l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + l.node.name.length * pxPerChar + 4}
                       y={l.y}
                       dominantBaseline="central"
                       className="subtree-comment-star"
