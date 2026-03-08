@@ -283,7 +283,7 @@ function SubtreeView({ subtree, onClose }) {
   const labelOffset = 8;
   const imgSize = 20;
   // Measure longest label to set SVG width
-  const maxLabelLen = Math.max(...leaves.map((l) => l.node.name.length));
+  const maxLabelLen = leaves.length > 0 ? Math.max(...leaves.map((l) => l.node.name.length)) : 0;
   const rightPad = maxLabelLen * 7 + imgSize + labelOffset + 20;
   const svgWidth = (layout.depth + 1) * layout.hSpacing + rightPad;
   const svgHeight = layout.leafCount * layout.vSpacing;
@@ -291,6 +291,16 @@ function SubtreeView({ subtree, onClose }) {
   function handleCopy() {
     const text = ottIds.join(",");
     navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // Fallback: select text from a temporary element
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -380,20 +390,28 @@ function App() {
   const [showSubtree, setShowSubtree] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
+  const [importError, setImportError] = useState("");
 
   function handleImportTree() {
     const ids = importText
       .split(/[\s,]+/)
       .map((s) => parseInt(s.trim(), 10))
       .filter((n) => !isNaN(n) && n > 0);
-    if (ids.length < 2) return;
+    if (ids.length < 2) {
+      setImportError("Please enter at least 2 valid OTT IDs.");
+      return;
+    }
     // Match OTT IDs to species names
     const names = new Set();
     for (const id of ids) {
       const sp = speciesByOttId.get(id);
       if (sp) names.add(sp.name);
     }
-    if (names.size < 2) return;
+    if (names.size < 2) {
+      setImportError(`Only ${names.size} of the entered OTT IDs matched known organisms. Need at least 2.`);
+      return;
+    }
+    setImportError("");
     setSelectedOrganisms(names);
     setShowSubtree(true);
     setShowImport(false);
@@ -552,6 +570,7 @@ function App() {
     setShowSubtree(false);
     setShowImport(false);
     setImportText("");
+    setImportError("");
   }
 
   return (
@@ -584,10 +603,11 @@ function App() {
               <textarea
                 className="import-textarea"
                 value={importText}
-                onChange={(e) => setImportText(e.target.value)}
+                onChange={(e) => { setImportText(e.target.value); setImportError(""); }}
                 placeholder="563166,247341,864596"
                 rows={4}
               />
+              {importError && <p className="import-error">{importError}</p>}
               <button
                 className="make-tree-btn import-go-btn"
                 onClick={handleImportTree}
