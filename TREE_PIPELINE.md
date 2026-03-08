@@ -2,7 +2,7 @@
 
 This document explains how `website/scripts/build-data.js` turns
 `species.csv` into the two JSON files the website uses at runtime:
-`species.json` and `tree.json`.
+`taxa.json` and `tree.json`.
 
 Run the pipeline with:
 
@@ -14,9 +14,11 @@ npm run build        # data + vite production build
 
 ---
 
-## 1. Read and deduplicate `species.csv`
+## 1. Validate `species.csv`
 
-`species.csv` is the single source of truth. Each row has:
+`species.csv` is the single source of truth.  Each row represents one
+**taxon** (which may be a species, genus, family, order, etc.).
+Columns:
 
 | Column | Example |
 |--------|---------|
@@ -25,13 +27,13 @@ npm run build        # data + vite production build
 | `ott_id` | `965954` |
 | `image_url` | `https://…` |
 
-Rows are **deduplicated by `ott_id`** (first occurrence wins).
-For example, "dog" and "wolf" both map to OTT 247341 (*Canis lupus*);
-wolf is dropped during deduplication.
+**Every row must have a valid, unique `ott_id`.**  If two rows share
+the same OTT ID, the build fails immediately.  A CI workflow
+(`.github/workflows/check-csv.yml`) also catches duplicates on PRs.
 
 ## 2. Fetch the induced subtree from Open Tree of Life
 
-The deduplicated OTT IDs are sent to the
+The OTT IDs are sent to the
 [induced_subtree API](https://api.opentreeoflife.org/v3/tree_of_life/induced_subtree).
 
 The API returns:
@@ -59,116 +61,94 @@ object tree.  Each node has:
 Labels may be single-quoted (when they contain special characters like
 spaces or parentheses) or unquoted.  The parser handles both.
 
-## 4. Build the broken-taxa map
+## 4. Build the broken-taxa map and check for collisions
 
-Before simplification, a `brokenMap` is built from the API's `broken`
-field.  This map has two flavors of keys:
+A `brokenMap` is built from the API's `broken` field:
 
 | Key style | Example key | Example value (original OTT ID) |
 |-----------|-------------|--------------------------------|
 | MRCA label | `mrcaott42481ott42493` | `42495` |
 | OTT label  | `ott443203` | `28241` |
 
-The map tells `simplifyTree` which internal nodes are stand-ins for
-broken (non-monophyletic) taxa.
+Before proceeding, the build checks for **broken-taxa collisions**: if
+two different taxa are both mapped to the *same* replacement node, the
+build fails.  This would mean two distinct CSV rows collapse to a single
+tree node, which is ambiguous.  The fix is to adjust `species.csv`
+(e.g. use a more specific OTT ID for one of the colliding taxa).
 
 ## 5. Simplify the tree (`simplifyTree`)
 
-This is the heart of the pipeline.  It takes the raw parsed tree
-and reduces it to contain only species from our list.
-The function processes nodes recursively, bottom-up, and handles
-several special cases.
+The raw API tree contains thousands of intermediate nodes.
+`simplifyTree` prunes it down to only the branches relevant to our
+taxa list.  **Importantly, taxa may sit on internal nodes** — they are
+NOT forced to be leaves.
 
-### 5a. MRCA-style broken taxa (exact label match)
+The function walks the tree recursively and does:
 
-If a node's label exactly matches a key in `brokenMap`, the node is
-converted to a leaf representing the broken taxon:
+### 5a. Mark broken taxa
 
-```
-Node "mrcaott42481ott42493"  →  leaf with ott_id 42495, isBroken=true
-```
+If a node's label matches a `brokenMap` key (either an MRCA-style label
+like `mrcaott42481ott42493` or an OTT-style key like `ott443203`), the
+node's `ott_id` is reassigned to the original taxon's OTT ID and it is
+marked `isTaxon = true`, `isBroken = true`.
 
-This catches cases where the API mapped a broken taxon to an MRCA node.
+### 5b. Mark taxa
 
-### 5b. Leaf nodes
-
-Leaf nodes are kept only if their `ott_id` is in the species set.
-Otherwise they are pruned (return `null`).
-
-Before pruning, the function also checks for **OTT-style broken taxa
-that ended up as leaves** (e.g. a node labeled `Nephropoidea_ott443203`
-that is a leaf because all its descendants were pruned).  If the node's
-OTT key (e.g. `"ott443203"`) is in `brokenMap`, it is converted to a
-broken-taxon leaf with the original OTT ID.
-
-### 5c. Recursive child simplification
-
-For internal nodes, all children are recursively simplified and any
-`null` results (pruned nodes) are filtered out.
-
-### 5d. Higher-taxon species
-
-Some species in our list use a higher-taxon OTT ID that corresponds to
-an **internal node** rather than a leaf.  For example:
-
-- **butterfly** = Lepidoptera (OTT 965954), an order that is also an
-  ancestor of **moth** (Actias luna, OTT 180968)
-
-Without special handling, the Lepidoptera internal node would just
-be a passthrough and butterfly would be lost from the tree (not
-findable by `findPath` in the browser, which only matches leaves).
-
-The fix: when an internal node's `ott_id` is in the species set,
-a **new leaf child** is added with that same `ott_id`.  This makes the
-species findable as a leaf while preserving the tree structure for its
-descendants.
+Any node whose `ott_id` is in the taxa set gets `isTaxon = true`.
+This includes internal nodes — for example, butterfly (Lepidoptera,
+OTT 965954) is an internal node that is the ancestor of moth.
+In the old design a synthetic leaf child would be added; now the node
+simply stays internal with `isTaxon = true`.
 
 ```
-Before:                    After:
-Lepidoptera (internal)     Lepidoptera (internal)
-  └─ moth                    ├─ moth
-                             └─ butterfly  ← new leaf child
+butterfly (isTaxon, internal)
+  └─ moth (isTaxon, leaf)
 ```
 
-### 5e. OTT-style broken taxa on internal nodes
+### 5c. Recurse and prune
 
-Similar to the MRCA-style check at the top, but for broken taxa whose
-replacement node has an OTT-style label (e.g. `Fagales_ott267709`) that
-doesn't exactly match the `brokenMap` key.  The function checks whether
-the node's formatted OTT key (`"ott" + ott_id`) is in `brokenMap` and,
-if so, adds a broken-taxon leaf child.
+Children are recursively simplified.  Nodes that are pruned (`null`)
+are filtered out.  Then:
 
-### 5f. Pruning and collapsing
-
-After all children are processed:
-
-- If **no children** remain → prune this node (return `null`).
-- If **exactly one child** remains → collapse: replace this node with
-  its sole child (removes unnecessary intermediate nodes).
-- Otherwise → keep the node with its remaining children.
+- **No children and not a taxon** → pruned.
+- **Single child and not a taxon** → collapsed (replaced by the child).
+- **Otherwise** → kept.
 
 ## 6. Convert to compact JSON (`treeToCompact`)
 
-The simplified tree is converted to a compact format for the browser:
+The simplified tree is converted to a compact format for the browser.
+Each node has `{ name, ott_id, children }`.  Taxon nodes additionally
+have `isTaxon: true`.  Broken taxa have `broken: true, mrca_label`.
 
 ```js
-// Internal node
+// Internal node (not a taxon)
 { name: "Carnivora", ott_id: 44565, children: [ … ] }
 
-// Leaf node (species)
-{ name: "dog", ott_id: 247341, children: [] }
+// Leaf taxon
+{ name: "dog", ott_id: 247341, children: [], isTaxon: true }
 
-// Broken-taxon leaf
-{ name: "lobster", ott_id: 28241, children: [], broken: true, mrca_label: "ott443203" }
+// Internal taxon (e.g. butterfly = Lepidoptera, ancestor of moth)
+{ name: "butterfly", ott_id: 965954, children: [ … ], isTaxon: true }
+
+// Broken taxon
+{ name: "lobster", ott_id: 28241, children: [], isTaxon: true, broken: true, mrca_label: "ott443203" }
 ```
 
-Leaf names come from `species.csv` (the common name).  Internal node
-names come from the Newick label's taxon portion.
+Taxon names come from `species.csv` (the common name).  Non-taxon
+internal node names come from the Newick label's taxon portion.
 
-## 7. Resolve broken-taxa names
+## 7. Post-build verification
 
-For leaf nodes marked `broken: true`, the build resolves a
-human-readable taxon name for the MRCA / replacement node:
+After building the compact tree, the build verifies:
+
+1. **Each taxon appears exactly once** in the tree (no duplicates).
+2. **Every CSV row is accounted for** — no taxa are missing from the
+   tree.  If either check fails, the build errors out.
+
+## 8. Resolve broken-taxa names
+
+For nodes marked `broken: true`, the build resolves a human-readable
+taxon name for the replacement node:
 
 - **MRCA-style labels** (`mrcaott37377ott106844`): queries the
   [MRCA API](https://api.opentreeoflife.org/v3/tree_of_life/mrca)
@@ -178,18 +158,19 @@ human-readable taxon name for the MRCA / replacement node:
   to get the taxon name directly.
 
 The resolved name is stored as `mrca_name` on the tree node and
-propagated to `species.json`.
+propagated to `taxa.json`.
 
-## 8. Output files
+## 9. Output files
 
 ### `src/data/tree.json`
 
 The compact tree used for MRCA lookups and subtree rendering in the
-browser.  Internal nodes may have `ott_id: null` (unnamed MRCA nodes).
+browser.  Nodes with `isTaxon: true` are the user-visible organisms.
+Non-taxon internal nodes may have `ott_id: null`.
 
-### `src/data/species.json`
+### `src/data/taxa.json`
 
-A flat array of species objects:
+A flat array of taxon objects:
 
 ```js
 {
@@ -207,6 +188,33 @@ regenerated on every build from `species.csv` + API data.
 
 ---
 
+## Key design decisions
+
+### Taxa can be internal nodes
+
+A taxon like "butterfly" (Lepidoptera) is an order — it's an ancestor
+of "moth" in the tree.  Rather than creating a synthetic leaf child
+(the old approach), the internal node is simply marked `isTaxon: true`.
+The website's `findPath()` matches any node by `ott_id`, not just
+leaves, and `getTaxa()` collects names from all `isTaxon` nodes.
+
+### No duplicate OTT IDs
+
+Every row in `species.csv` must have a unique OTT ID.  This is
+enforced by:
+1. The CI workflow `.github/workflows/check-csv.yml` (on PRs/pushes)
+2. The `fill-ott-ids.mjs` script (after resolving new IDs)
+3. The `build-data.js` build step (at the start)
+
+### Broken-taxa collisions are build errors
+
+If the Open Tree of Life API maps two of our taxa to the same
+replacement node (e.g. because both are non-monophyletic and happen
+to share an MRCA), the build fails.  The fix is to adjust
+`species.csv` to avoid the collision.
+
+---
+
 ## Diagram: data flow
 
 ```
@@ -216,22 +224,24 @@ species.csv
 ┌───────────────────┐
 │  build-data.js    │
 │                   │
-│  1. parse CSV     │
-│  2. dedup by OTT  │
-│  3. fetch tree ───┼──► Open Tree of Life API
-│  4. parse Newick  │         (induced_subtree)
+│  1. validate CSV  │
+│  2. fetch tree ───┼──► Open Tree of Life API
+│  3. parse Newick  │         (induced_subtree)
+│  4. broken map    │
 │  5. simplifyTree  │
 │  6. treeToCompact │
-│  7. resolve names ┼──► MRCA API / taxonomy API
-│  8. write JSON    │
+│  7. verify        │
+│  8. resolve names ┼──► MRCA API / taxonomy API
+│  9. write JSON    │
 └───────┬───────────┘
         │
         ▼
   src/data/tree.json
-  src/data/species.json
+  src/data/taxa.json
         │
         ▼
   App.jsx (browser)
     • findPath / findMRCA
+    • getTaxa (collects isTaxon nodes)
     • SVG cladogram layout
 ```
