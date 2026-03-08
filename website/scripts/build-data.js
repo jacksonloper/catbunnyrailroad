@@ -106,6 +106,11 @@ function parseNewick(nwk) {
 // ---------------------------------------------------------------------------
 
 function simplifyTree(node, ottSet, brokenMap) {
+  // Helper: format OTT key for brokenMap lookup
+  const ottKey = node.ott_id ? "ott" + node.ott_id : null;
+  // Helper: fallback label for new leaf nodes
+  const fallbackLabel = node.taxon || node.label || "";
+
   // Check if this node is a "broken" taxon replacement
   if (node.label && brokenMap.has(node.label)) {
     // Treat this internal node as a leaf for the broken taxon's OTT ID
@@ -119,6 +124,15 @@ function simplifyTree(node, ottSet, brokenMap) {
 
   // Tag leaves that are in our species set
   if (node.children.length === 0) {
+    // Also check for OTT-type broken replacements that ended up as leaves
+    // (e.g. Nephropoidea_ott443203 is a leaf replacing lobster ott28241)
+    if (ottKey && brokenMap.has(ottKey)) {
+      node.ott_id = brokenMap.get(ottKey);
+      node.isSpecies = true;
+      node.isBroken = true;
+      node.brokenMrcaLabel = node.label || ottKey;
+      return node;
+    }
     node.isSpecies = ottSet.has(node.ott_id);
     return node.isSpecies ? node : null;
   }
@@ -127,6 +141,33 @@ function simplifyTree(node, ottSet, brokenMap) {
   node.children = node.children
     .map((c) => simplifyTree(c, ottSet, brokenMap))
     .filter(Boolean);
+
+  // If this internal node's ott_id is also in our species set (e.g. butterfly
+  // = Lepidoptera which is an ancestor of moth), add a leaf child so the
+  // species stays findable in the tree.
+  if (node.ott_id && ottSet.has(node.ott_id)) {
+    node.children.push({
+      label: fallbackLabel,
+      ott_id: node.ott_id,
+      children: [],
+      isSpecies: true,
+    });
+  }
+
+  // Check if this node is a replacement for a broken taxon whose label
+  // includes a taxon-name prefix (e.g. "Fagales_ott267709" for brokenMap
+  // key "ott267709").  The MRCA-style labels are caught at the top of this
+  // function; this handles the OTT-style labels that don't match exactly.
+  if (ottKey && brokenMap.has(ottKey)) {
+    node.children.push({
+      label: fallbackLabel,
+      ott_id: brokenMap.get(ottKey),
+      children: [],
+      isSpecies: true,
+      isBroken: true,
+      brokenMrcaLabel: node.label || ottKey,
+    });
+  }
 
   // If no children remain, prune this node
   if (node.children.length === 0) return null;
@@ -189,7 +230,8 @@ async function fetchTree(ottIds) {
 // ---------------------------------------------------------------------------
 // Resolve MRCA taxon names for broken taxa.  Parses the MRCA node label
 // (e.g. "mrcaott37377ott106844") to extract two OTT IDs, then queries the
-// MRCA API to get the nearest proper taxon name.
+// MRCA API to get the nearest proper taxon name.  Also handles OTT-style
+// labels (e.g. "Fagales_ott267709") by querying the taxonomy API directly.
 // ---------------------------------------------------------------------------
 
 async function resolveBrokenNames(node) {
@@ -218,6 +260,34 @@ async function resolveBrokenNames(node) {
         console.log(
           `  Warning: could not resolve broken MRCA for ${node.name}: ${err.message}`
         );
+      }
+    } else {
+      // OTT-style label (e.g. "Fagales_ott267709") – query taxonomy API
+      const ottMatch = node.mrca_label.match(/ott(\d+)/);
+      if (ottMatch) {
+        try {
+          const res = await fetch(
+            "https://api.opentreeoflife.org/v3/taxonomy/taxon_info",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ott_id: parseInt(ottMatch[1], 10) }),
+            }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            if (data.name) {
+              node.mrca_name = data.name;
+              console.log(
+                `  Resolved broken ${node.name} → taxon: ${data.name}`
+              );
+            }
+          }
+        } catch (err) {
+          console.log(
+            `  Warning: could not resolve broken taxon for ${node.name}: ${err.message}`
+          );
+        }
       }
     }
   }
