@@ -1,0 +1,36 @@
+name: Check CSV for duplicate OTT IDs
+
+on:
+  push:
+    paths:
+      - "species.csv"
+  pull_request:
+    paths:
+      - "species.csv"
+
+jobs:
+  check-duplicates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for duplicate OTT IDs
+        run: |
+          # Extract ott_id column (3rd column), skip header, ignore blanks,
+          # sort and find duplicates.
+          dupes=$(tail -n +2 species.csv \
+            | cut -d',' -f3 \
+            | sed '/^$/d' \
+            | sort \
+            | uniq -d)
+
+          if [ -n "$dupes" ]; then
+            echo "❌ Duplicate OTT IDs found in species.csv:"
+            for id in $dupes; do
+              echo "  ott_id=$id appears in these rows:"
+              grep -n ",$id," species.csv || true
+            done
+            exit 1
+          fi
+
+          echo "✅ No duplicate OTT IDs found."

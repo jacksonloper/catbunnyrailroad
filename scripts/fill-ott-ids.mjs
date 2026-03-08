@@ -91,7 +91,7 @@ async function matchNames(names) {
 async function main() {
   const csvText = fs.readFileSync(CSV_PATH, "utf-8");
   const rows = parseCsv(csvText);
-  console.log(`Read ${rows.length} species from ${CSV_PATH}`);
+  console.log(`Read ${rows.length} taxa from ${CSV_PATH}`);
 
   const missing = rows.filter((r) => !r.ott_id);
   if (missing.length === 0) {
@@ -135,6 +135,21 @@ async function main() {
   } else {
     console.log("\nNo new OTT IDs found.");
   }
+
+  // Check for duplicate OTT IDs — every row must have a unique ID
+  const seen = new Map();
+  for (const row of rows) {
+    if (!row.ott_id) continue;
+    const id = String(row.ott_id);
+    if (seen.has(id)) {
+      console.error(
+        `\n❌  Duplicate OTT ID ${id}: "${row.name}" and "${seen.get(id)}"`
+      );
+      process.exit(1);
+    }
+    seen.set(id, row.name);
+  }
+  console.log("✅ No duplicate OTT IDs.");
 }
 
 main().catch((err) => {
