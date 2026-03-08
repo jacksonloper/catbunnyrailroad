@@ -499,7 +499,7 @@ h2 {
 
 .comment-popup {
   position: absolute;
-  bottom: 100%;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   background: #2a2a2a;
@@ -515,6 +515,7 @@ h2 {
   text-align: left;
   text-transform: none;
   font-weight: normal;
+  margin-top: 4px;
 }
 
 .comment-popup p {

@@ -200,7 +200,8 @@ function SpeciesCard({ sp }) {
           <button
             className="comment-star"
             onClick={(e) => { e.stopPropagation(); setShowComment(!showComment); }}
-            aria-label="Show note"
+            aria-label={showComment ? "Hide note" : "Show note"}
+            aria-expanded={showComment}
             title="Click for details"
           >★</button>
         )}
@@ -211,6 +212,7 @@ function SpeciesCard({ sp }) {
           <button
             className="comment-close"
             onClick={(e) => { e.stopPropagation(); setShowComment(false); }}
+            aria-label="Close"
           >✕</button>
         </div>
       )}
