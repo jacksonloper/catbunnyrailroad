@@ -3,8 +3,8 @@
  * the phylogenetic tree from Open Tree of Life's induced_subtree API.
  *
  * Outputs:
- *   - src/data/species.json  (species list with image URLs)
- *   - src/data/tree.json     (phylogenetic tree for MRCA lookups)
+ *   - src/data/taxa.json   (taxa list with image URLs)
+ *   - src/data/tree.json   (phylogenetic tree for MRCA lookups)
  *
  * Usage: node scripts/build-data.js
  */
@@ -101,40 +101,33 @@ function parseNewick(nwk) {
 }
 
 // ---------------------------------------------------------------------------
-// Tree simplification – collapse single-child internal nodes, keep only
-// nodes relevant to our species list
+// Tree simplification – prune branches that contain no taxa of interest.
+// Taxa may sit on internal nodes; we do NOT force them to be leaves.
+// Broken taxa get their ott_id reassigned to the original taxon's OTT ID.
 // ---------------------------------------------------------------------------
 
 function simplifyTree(node, ottSet, brokenMap) {
-  // Helper: format OTT key for brokenMap lookup
-  const ottKey = node.ott_id ? "ott" + node.ott_id : null;
-  // Helper: fallback label for new leaf nodes
-  const fallbackLabel = node.taxon || node.label || "";
-
-  // Check if this node is a "broken" taxon replacement
+  // Check if this node is a replacement for a broken taxon (by label match).
+  // brokenMap: Map<replacementLabel, originalOttId>
   if (node.label && brokenMap.has(node.label)) {
-    // Treat this internal node as a leaf for the broken taxon's OTT ID
     node.ott_id = brokenMap.get(node.label);
-    node.isSpecies = true;
+    node.isTaxon = true;
     node.isBroken = true;
     node.brokenMrcaLabel = node.label;
-    node.children = [];
-    return node;
   }
 
-  // Tag leaves that are in our species set
-  if (node.children.length === 0) {
-    // Also check for OTT-type broken replacements that ended up as leaves
-    // (e.g. Nephropoidea_ott443203 is a leaf replacing lobster ott28241)
-    if (ottKey && brokenMap.has(ottKey)) {
-      node.ott_id = brokenMap.get(ottKey);
-      node.isSpecies = true;
-      node.isBroken = true;
-      node.brokenMrcaLabel = node.label || ottKey;
-      return node;
-    }
-    node.isSpecies = ottSet.has(node.ott_id);
-    return node.isSpecies ? node : null;
+  // Also check OTT-keyed broken entries (e.g. "ott443203" as a key)
+  const ottKey = node.ott_id ? "ott" + node.ott_id : null;
+  if (!node.isBroken && ottKey && brokenMap.has(ottKey)) {
+    node.ott_id = brokenMap.get(ottKey);
+    node.isTaxon = true;
+    node.isBroken = true;
+    node.brokenMrcaLabel = node.label || ottKey;
+  }
+
+  // Mark this node if its ott_id is one of our taxa
+  if (!node.isTaxon && node.ott_id && ottSet.has(node.ott_id)) {
+    node.isTaxon = true;
   }
 
   // Recursively simplify children
@@ -142,70 +135,40 @@ function simplifyTree(node, ottSet, brokenMap) {
     .map((c) => simplifyTree(c, ottSet, brokenMap))
     .filter(Boolean);
 
-  // If this internal node's ott_id is also in our species set (e.g. butterfly
-  // = Lepidoptera which is an ancestor of moth), add a leaf child so the
-  // species stays findable in the tree.
-  if (node.ott_id && ottSet.has(node.ott_id)) {
-    node.children.push({
-      label: fallbackLabel,
-      ott_id: node.ott_id,
-      children: [],
-      isSpecies: true,
-    });
-  }
+  // Prune: if this is a leaf and not a taxon, drop it
+  if (node.children.length === 0 && !node.isTaxon) return null;
 
-  // Check if this node is a replacement for a broken taxon whose label
-  // includes a taxon-name prefix (e.g. "Fagales_ott267709" for brokenMap
-  // key "ott267709").  The MRCA-style labels are caught at the top of this
-  // function; this handles the OTT-style labels that don't match exactly.
-  if (ottKey && brokenMap.has(ottKey)) {
-    node.children.push({
-      label: fallbackLabel,
-      ott_id: brokenMap.get(ottKey),
-      children: [],
-      isSpecies: true,
-      isBroken: true,
-      brokenMrcaLabel: node.label || ottKey,
-    });
-  }
-
-  // If no children remain, prune this node
-  if (node.children.length === 0) return null;
-
-  // Collapse single-child nodes
-  if (node.children.length === 1) return node.children[0];
+  // Collapse single-child internal nodes (unless this node is a taxon)
+  if (node.children.length === 1 && !node.isTaxon) return node.children[0];
 
   return node;
 }
 
 // ---------------------------------------------------------------------------
 // Convert simplified tree to a compact JSON format suitable for the browser.
-// Each node has:  { id, name, children: [ids...] }
-// Leaf nodes also have: { ott_id, speciesName }
+// Each node has:  { name, ott_id, children: [...] }
+// Taxa nodes also have:  { isTaxon: true }
+// Broken taxa also have: { broken: true, mrca_label }
 // ---------------------------------------------------------------------------
 
-function treeToCompact(node, speciesByOtt) {
-  // For leaf nodes (species)
-  if (node.children.length === 0) {
-    const sp = speciesByOtt[node.ott_id];
-    const result = {
-      name: sp ? sp.name : node.taxon || node.label,
-      ott_id: node.ott_id,
-      children: [],
-    };
-    if (node.isBroken) {
-      result.broken = true;
-      result.mrca_label = node.brokenMrcaLabel;
-    }
-    return result;
+function treeToCompact(node, taxaByOtt) {
+  const sp = taxaByOtt[node.ott_id];
+
+  const result = {
+    name: sp ? sp.name : node.taxon || node.label || "",
+    ott_id: node.ott_id || null,
+    children: node.children.map((c) => treeToCompact(c, taxaByOtt)),
+  };
+
+  if (node.isTaxon) {
+    result.isTaxon = true;
+  }
+  if (node.isBroken) {
+    result.broken = true;
+    result.mrca_label = node.brokenMrcaLabel;
   }
 
-  // For internal nodes
-  return {
-    name: node.taxon || node.label || "",
-    ott_id: node.ott_id || null,
-    children: node.children.map((c) => treeToCompact(c, speciesByOtt)),
-  };
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -235,7 +198,7 @@ async function fetchTree(ottIds) {
 // ---------------------------------------------------------------------------
 
 async function resolveBrokenNames(node) {
-  if (node.children.length === 0 && node.broken && node.mrca_label) {
+  if (node.broken && node.mrca_label) {
     const m = node.mrca_label.match(/mrcaott(\d+)ott(\d+)/);
     if (m) {
       try {
@@ -305,32 +268,29 @@ async function main() {
   const allRows = parseCsv(csv);
   console.log(`Read ${allRows.length} rows from CSV`);
 
-  // Deduplicate by ott_id – keep first occurrence
-  const seenOtts = new Set();
-  const species = [];
+  // Validate: every row must have a valid, unique OTT ID
+  const seenOtts = new Map();
+  const taxa = [];
   for (const row of allRows) {
     const ottId = Number(row.ott_id);
     if (!ottId) {
-      console.log(`  Skipping row with invalid ott_id: ${row.name}`);
-      continue;
+      console.error(`❌ Row with invalid ott_id: ${row.name}`);
+      process.exit(1);
     }
     if (seenOtts.has(ottId)) {
-      console.log(`  Skipping duplicate ott_id ${ottId} (${row.name})`);
-      continue;
+      console.error(
+        `❌ Duplicate ott_id ${ottId}: "${row.name}" and "${seenOtts.get(ottId)}"`
+      );
+      process.exit(1);
     }
-    seenOtts.add(ottId);
-    species.push(row);
-  }
-  if (species.length < allRows.length) {
-    console.log(
-      `Deduplicated: ${allRows.length} rows → ${species.length} unique OTT IDs`
-    );
+    seenOtts.set(ottId, row.name);
+    taxa.push(row);
   }
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
   // Fetch phylogenetic tree
-  const ottIds = species.map((sp) => Number(sp.ott_id));
+  const ottIds = taxa.map((t) => Number(t.ott_id));
   console.log(`Fetching phylogenetic tree for ${ottIds.length} OTT IDs...`);
 
   const treeData = await fetchTree(ottIds);
@@ -340,10 +300,31 @@ async function main() {
   const rawTree = parseNewick(treeData.newick);
   const ottSet = new Set(ottIds);
 
-  // Build a map of broken taxa: internal node label -> original OTT ID
+  // Build a map of broken taxa: replacement node label -> original OTT ID
   // (for taxa that aren't monophyletic in the synthetic tree)
   const brokenMap = new Map();
   if (treeData.broken) {
+    // Check for broken-taxa collisions: two taxa mapping to the same
+    // replacement node would be ambiguous and is a build error.
+    const replacementToOtts = new Map();
+    for (const [ottKey, nodeLabel] of Object.entries(treeData.broken)) {
+      const ottId = parseInt(ottKey.replace("ott", ""));
+      if (!replacementToOtts.has(nodeLabel)) {
+        replacementToOtts.set(nodeLabel, []);
+      }
+      replacementToOtts.get(nodeLabel).push(ottId);
+    }
+    for (const [label, ids] of replacementToOtts) {
+      if (ids.length > 1) {
+        const names = ids.map((id) => `ott${id} (${seenOtts.get(id) || "?"})`);
+        console.error(
+          `❌ Broken-taxa collision: ${names.join(" and ")} both map to ` +
+          `replacement node "${label}". Fix species.csv so this doesn't happen.`
+        );
+        process.exit(1);
+      }
+    }
+
     for (const [ottKey, nodeLabel] of Object.entries(treeData.broken)) {
       const ottId = parseInt(ottKey.replace("ott", ""));
       brokenMap.set(nodeLabel, ottId);
@@ -355,13 +336,41 @@ async function main() {
 
   const simplified = simplifyTree(rawTree, ottSet, brokenMap);
 
-  // Build lookup for species by OTT ID
-  const speciesByOtt = {};
-  for (const sp of species) {
-    speciesByOtt[Number(sp.ott_id)] = sp;
+  // Build lookup for taxa by OTT ID
+  const taxaByOtt = {};
+  for (const t of taxa) {
+    taxaByOtt[Number(t.ott_id)] = t;
   }
 
-  const compactTree = treeToCompact(simplified, speciesByOtt);
+  const compactTree = treeToCompact(simplified, taxaByOtt);
+
+  // Verify that every taxon appears exactly once in the tree
+  const treeOtts = new Map();
+  function collectTaxaOtts(node) {
+    if (node.isTaxon) {
+      if (treeOtts.has(node.ott_id)) {
+        console.error(
+          `❌ Taxon ott_id ${node.ott_id} appears more than once in the tree ` +
+          `("${node.name}" and "${treeOtts.get(node.ott_id)}")`
+        );
+        process.exit(1);
+      }
+      treeOtts.set(node.ott_id, node.name);
+    }
+    for (const child of node.children) {
+      collectTaxaOtts(child);
+    }
+  }
+  collectTaxaOtts(compactTree);
+
+  const missingFromTree = ottIds.filter((id) => !treeOtts.has(id));
+  if (missingFromTree.length > 0) {
+    console.error(
+      `❌ ${missingFromTree.length} taxa not found in tree: ` +
+      missingFromTree.map((id) => `ott${id} (${seenOtts.get(id)})`).join(", ")
+    );
+    process.exit(1);
+  }
 
   // Internal node names are not displayed in the tree (topology-only rendering),
   // so skip the MRCA API calls that would resolve them.
@@ -389,14 +398,14 @@ async function main() {
   }
   collectBroken(compactTree);
 
-  // Build species.json (written after tree processing so we can include
+  // Build taxa.json (written after tree processing so we can include
   // broken-taxon metadata)
-  const speciesJson = species.map((sp) => {
-    const ottId = Number(sp.ott_id);
+  const taxaJson = taxa.map((t) => {
+    const ottId = Number(t.ott_id);
     const entry = {
-      name: sp.name,
+      name: t.name,
       ott_id: ottId,
-      image_url: sp.image_url || null,
+      image_url: t.image_url || null,
     };
     if (ottId in brokenInfo) {
       entry.broken = true;
@@ -408,19 +417,20 @@ async function main() {
   });
 
   fs.writeFileSync(
-    path.join(OUT_DIR, "species.json"),
-    JSON.stringify(speciesJson, null, 2)
+    path.join(OUT_DIR, "taxa.json"),
+    JSON.stringify(taxaJson, null, 2)
   );
-  console.log(`Wrote species.json`);
+  console.log(`Wrote taxa.json`);
 
   // Print tree structure for verification
   function printTree(node, indent = 0) {
     const prefix = "  ".repeat(indent);
     const broken = node.broken ? " ≈" : "";
+    const taxon = node.isTaxon ? " ★" : "";
     const label =
       node.children.length === 0
-        ? `🌿 ${node.name}${broken}`
-        : `📁 ${node.name || "(unnamed)"}`;
+        ? `🌿 ${node.name}${broken}${taxon}`
+        : `📁 ${node.name || "(unnamed)"}${broken}${taxon}`;
     console.log(`${prefix}${label}`);
     for (const child of node.children) {
       printTree(child, indent + 1);

@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import species from "./data/species.json";
+import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import "./App.css";
 
@@ -7,16 +7,20 @@ import "./App.css";
 // Tree utilities – work with the compact tree JSON
 // ---------------------------------------------------------------------------
 
-/** Collect all leaf names under a tree node */
-function getLeaves(node) {
-  if (node.children.length === 0) return [node.name];
-  return node.children.flatMap(getLeaves);
+/** Collect the names of all taxa (isTaxon nodes) under a tree node */
+function getTaxa(node) {
+  let result = [];
+  if (node.isTaxon) result.push(node.name);
+  for (const child of node.children) {
+    result = result.concat(getTaxa(child));
+  }
+  return result;
 }
 
-/** Find the path from root to a leaf with the given ott_id */
+/** Find the path from root to the node with the given ott_id */
 function findPath(node, ottId, path = []) {
   const current = [...path, node];
-  if (node.ott_id === ottId && node.children.length === 0) return current;
+  if (node.ott_id === ottId) return current;
   for (const child of node.children) {
     const result = findPath(child, ottId, current);
     if (result) return result;
@@ -35,7 +39,7 @@ function findNodePath(root, target, path = []) {
   return null;
 }
 
-/** Find the MRCA node for two species (by ott_id) */
+/** Find the MRCA node for two taxa (by ott_id) */
 function findMRCA(treeRoot, ottA, ottB) {
   const pathA = findPath(treeRoot, ottA);
   const pathB = findPath(treeRoot, ottB);
@@ -51,13 +55,16 @@ function findMRCA(treeRoot, ottA, ottB) {
 
 /**
  * Extract an induced subtree containing only the specified ott_ids.
- * Internal nodes with a single child are collapsed (their child replaces them).
+ * Keeps taxa nodes even if they are internal (have children).
+ * Internal nodes with a single child are collapsed (unless they are taxa).
  */
 function extractSubtree(node, ottIdSet) {
+  const isTaxon = ottIdSet.has(node.ott_id);
+
   if (node.children.length === 0) {
-    // Leaf: keep only if its ott_id is in the set
-    if (ottIdSet.has(node.ott_id)) {
-      return { name: node.name, ott_id: node.ott_id, children: [] };
+    // Leaf: keep only if it's a requested taxon
+    if (isTaxon) {
+      return { name: node.name, ott_id: node.ott_id, children: [], isTaxon: true };
     }
     return null;
   }
@@ -65,10 +72,13 @@ function extractSubtree(node, ottIdSet) {
   const keptChildren = node.children
     .map((c) => extractSubtree(c, ottIdSet))
     .filter(Boolean);
-  if (keptChildren.length === 0) return null;
-  // Collapse internal nodes with a single child
-  if (keptChildren.length === 1) return keptChildren[0];
-  return { name: node.name, ott_id: node.ott_id, children: keptChildren };
+
+  if (keptChildren.length === 0 && !isTaxon) return null;
+  // Collapse internal nodes with a single child (unless this node is a taxon)
+  if (keptChildren.length === 1 && !isTaxon) return keptChildren[0];
+  const result = { name: node.name, ott_id: node.ott_id, children: keptChildren };
+  if (isTaxon) result.isTaxon = true;
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -163,20 +173,20 @@ function Autocomplete({ label, value, onChange, onSelect, trie, selectedItem }) 
   );
 }
 
-// Build a lookup map for species data by name
-const speciesByName = new Map(species.map((s) => [s.name, s]));
-const speciesByOttId = new Map(species.map((s) => [s.ott_id, s]));
+// Build a lookup map for taxa data by name
+const taxaByName = new Map(taxa.map((t) => [t.name, t]));
+const taxaByOttId = new Map(taxa.map((t) => [t.ott_id, t]));
 
 const OUTSIDE_PAGE_SIZE = 20;
 
 function SpeciesCard({ sp }) {
-  const speciesData = speciesByName.get(sp);
+  const taxonData = taxaByName.get(sp);
   return (
     <li className="species-card">
-      {speciesData?.image_url ? (
+      {taxonData?.image_url ? (
         <img
           className="species-img"
-          src={speciesData.image_url}
+          src={taxonData.image_url}
           alt={sp}
           loading="lazy"
         />
@@ -184,12 +194,12 @@ function SpeciesCard({ sp }) {
         <div className="species-img placeholder">?</div>
       )}
       <span className="species-name">{sp}</span>
-      {speciesData?.broken && (
+      {taxonData?.broken && (
         <span
           className="broken-badge"
-          title={`Approximate placement: ${sp} is not monophyletic in the synthetic tree${speciesData.mrca_name ? `. Placed at ${speciesData.mrca_name}` : ""}`}
+          title={`Approximate placement: ${sp} is not monophyletic in the synthetic tree${taxonData.mrca_name ? `. Placed at ${taxonData.mrca_name}` : ""}`}
         >
-          ≈ {speciesData.mrca_name || "approx."}
+          ≈ {taxonData.mrca_name || "approx."}
         </span>
       )}
     </li>
@@ -200,10 +210,14 @@ function SpeciesCard({ sp }) {
 // SVG tree layout – topology-only cladogram (no internal labels)
 // ---------------------------------------------------------------------------
 
-/** Collect all leaf OTT IDs from a subtree node */
+/** Collect all taxa OTT IDs from a subtree node */
 function collectSubtreeOtts(node) {
-  if (node.children.length === 0) return [node.ott_id];
-  return node.children.flatMap(collectSubtreeOtts);
+  let result = [];
+  if (node.isTaxon) result.push(node.ott_id);
+  for (const child of node.children) {
+    result = result.concat(collectSubtreeOtts(child));
+  }
+  return result;
 }
 
 /** Compute max depth (number of edges from root to deepest leaf) */
@@ -277,13 +291,13 @@ function SubtreeView({ subtree, onClose }) {
   const [copied, setCopied] = useState(false);
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
-  const leaves = layout.nodes.filter((n) => n.isLeaf);
+  const taxaNodes = layout.nodes.filter((n) => n.isLeaf || n.node.isTaxon);
   const ottIds = useMemo(() => collectSubtreeOtts(subtree), [subtree]);
 
   const labelOffset = 8;
   const imgSize = 20;
   // Measure longest label to set SVG width
-  const maxLabelLen = leaves.length > 0 ? Math.max(...leaves.map((l) => l.node.name.length)) : 0;
+  const maxLabelLen = taxaNodes.length > 0 ? Math.max(...taxaNodes.map((l) => l.node.name.length)) : 0;
   const rightPad = maxLabelLen * 7 + imgSize + labelOffset + 20;
   const svgWidth = (layout.depth + 1) * layout.hSpacing + rightPad;
   const svgHeight = layout.leafCount * layout.vSpacing;
@@ -341,9 +355,9 @@ function SubtreeView({ subtree, onClose }) {
                 strokeWidth={1.5}
               />
             ))}
-            {/* Leaf labels */}
-            {leaves.map((l) => {
-              const sp = speciesByOttId.get(l.node.ott_id);
+            {/* Taxa labels (leaves and internal taxa) */}
+            {taxaNodes.map((l) => {
+              const sp = taxaByOttId.get(l.node.ott_id);
               return (
                 <g key={l.node.ott_id ?? l.node.name}>
                   {sp?.image_url && (
@@ -454,7 +468,7 @@ function ErrorConsole() {
 // ---------------------------------------------------------------------------
 
 function App() {
-  const trie = useMemo(() => buildTrie(species), []);
+  const trie = useMemo(() => buildTrie(taxa), []);
 
   const [inputA, setInputA] = useState("");
   const [inputB, setInputB] = useState("");
@@ -481,10 +495,10 @@ function App() {
       setImportError("Please enter at least 2 valid OTT IDs.");
       return;
     }
-    // Match OTT IDs to species names
+    // Match OTT IDs to taxa names
     const names = new Set();
     for (const id of ids) {
-      const sp = speciesByOttId.get(id);
+      const sp = taxaByOttId.get(id);
       if (sp) names.add(sp.name);
     }
     if (names.size < 2) {
@@ -512,7 +526,7 @@ function App() {
     if (!showSubtree || selectedOrganisms.size === 0) return null;
     const ottIds = new Set();
     for (const name of selectedOrganisms) {
-      const sp = speciesByName.get(name);
+      const sp = taxaByName.get(name);
       if (sp) ottIds.add(sp.ott_id);
     }
     // Include the user-entered pair if in the find MRCA flow
@@ -522,7 +536,7 @@ function App() {
     return extractSubtree(tree, ottIds);
   }, [showSubtree, selectedOrganisms, selectedA, selectedB]);
 
-  // Compute in-clade species with distances to A and B, sorted from A to B
+  // Compute in-clade taxa with distances to A and B, sorted from A to B
   const enrichedCladeSpecies = useMemo(() => {
     if (!cladeSpecies || !selectedA || !selectedB) return [];
 
@@ -532,27 +546,27 @@ function App() {
 
     return cladeSpecies
       .map((name) => {
-        const sp = speciesByName.get(name);
+        const sp = taxaByName.get(name);
         if (!sp) return null;
 
         const pathSp = findPath(tree, sp.ott_id);
         if (!pathSp) return null;
 
-        // depth of LCA(A, species) — bigger = more A-like
+        // depth of LCA(A, taxon) — bigger = more A-like
         let lcaDepthA = 0;
         for (let i = 0; i < Math.min(pathSp.length, pathA.length); i++) {
           if (pathSp[i] === pathA[i]) lcaDepthA = i;
           else break;
         }
 
-        // depth of LCA(B, species) — bigger = more B-like
+        // depth of LCA(B, taxon) — bigger = more B-like
         let lcaDepthB = 0;
         for (let i = 0; i < Math.min(pathSp.length, pathB.length); i++) {
           if (pathSp[i] === pathB[i]) lcaDepthB = i;
           else break;
         }
 
-        // Tree distance: edges up from species to LCA + edges down from LCA to target
+        // Tree distance: edges up from taxon to LCA + edges down from LCA to target
         const levelA = (pathSp.length - 1 - lcaDepthA) + (pathA.length - 1 - lcaDepthA);
         const levelB = (pathSp.length - 1 - lcaDepthB) + (pathB.length - 1 - lcaDepthB);
 
@@ -567,7 +581,7 @@ function App() {
       });
   }, [cladeSpecies, selectedA, selectedB]);
 
-  // Compute outside species with distances from the clade
+  // Compute outside taxa with distances from the clade
   const outsideSpecies = useMemo(() => {
     if (!mrcaNode || !cladeSpecies) return [];
 
@@ -577,7 +591,7 @@ function App() {
     const mrcaIdx = pathToMRCA.length - 1;
 
     const results = [];
-    for (const sp of species) {
+    for (const sp of taxa) {
       if (cladeSet.has(sp.name)) continue;
 
       const pathToSpecies = findPath(tree, sp.ott_id);
@@ -644,7 +658,7 @@ function App() {
         return;
       }
 
-      const leaves = getLeaves(mrca);
+      const leaves = getTaxa(mrca);
       setCladeSpecies(leaves);
       setMrcaNode(mrca);
       setShowIncluded(false);
@@ -802,7 +816,7 @@ function App() {
             {showIncluded && (
               <ul className="species-list">
                 {enrichedCladeSpecies.map((sp) => {
-                  const data = speciesByName.get(sp.name);
+                  const data = taxaByName.get(sp.name);
                   const isSelected = selectedOrganisms.has(sp.name);
                   return (
                     <li
@@ -876,10 +890,10 @@ function App() {
                           onChange={() => toggleOrganism(sp.name)}
                           onClick={(e) => e.stopPropagation()}
                         />
-                        {speciesByName.get(sp.name)?.image_url ? (
+                        {taxaByName.get(sp.name)?.image_url ? (
                           <img
                             className="species-img"
-                            src={speciesByName.get(sp.name).image_url}
+                            src={taxaByName.get(sp.name).image_url}
                             alt={sp.name}
                             loading="lazy"
                           />
@@ -914,7 +928,7 @@ function App() {
         <div className="all-species">
           <h2>All organisms</h2>
           <ul className="species-list">
-            {species.map((sp) => (
+            {taxa.map((sp) => (
               <li key={sp.ott_id} className="species-card">
                 {sp.image_url ? (
                   <img
