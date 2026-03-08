@@ -23,8 +23,8 @@ Columns:
 | Column | Example | Required |
 |--------|---------|----------|
 | `name` | `butterfly` | ✓ |
-| `scientific_name` | `Lepidoptera` | ✓ |
-| `ott_id` | `965954` | ✓ |
+| `scientific_name` | `Papilionidae` | ✓ |
+| `ott_id` | `661439` | ✓ |
 | `node_id` | `mrcaott37377ott106844` | optional |
 | `image_url` | `https://…` | optional |
 | `comments` | `Oak is not monophyletic…` | optional |
@@ -121,8 +121,8 @@ have `isTaxon: true`.
 // Leaf taxon
 { name: "dog", ott_id: 247341, children: [], isTaxon: true }
 
-// Internal taxon (e.g. butterfly = Lepidoptera, ancestor of moth)
-{ name: "butterfly", ott_id: 965954, children: [ … ], isTaxon: true }
+// Internal taxon (e.g. lepidoptera = Lepidoptera, ancestor of butterfly and moth)
+{ name: "lepidoptera", ott_id: 965954, children: [ … ], isTaxon: true }
 ```
 
 Taxon names come from `species.csv` (the common name).
@@ -165,9 +165,9 @@ regenerated on every build from `species.csv` + API data.
 
 ### Taxa can be internal nodes
 
-A taxon like "butterfly" (Lepidoptera) is an order — it's an ancestor
-of "moth" in the tree.  The internal node is simply marked
-`isTaxon: true`.  The website's `findPath()` matches any node by
+A taxon like "lepidoptera" (Lepidoptera, OTT 965954) is an order — it's an
+ancestor of "butterfly" and "moth" in the tree.  The internal node is simply
+marked `isTaxon: true`.  The website's `findPath()` matches any node by
 `ott_id`, not just leaves.
 
 ### No duplicate OTT IDs
