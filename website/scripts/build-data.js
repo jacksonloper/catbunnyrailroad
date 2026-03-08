@@ -187,52 +187,6 @@ async function fetchTree(ottIds) {
 }
 
 // ---------------------------------------------------------------------------
-// Resolve unnamed internal nodes by querying the MRCA API with two
-// descendant leaves.  This gives us proper taxon names like "Carnivora".
-// ---------------------------------------------------------------------------
-
-function collectLeafOtts(node) {
-  if (node.children.length === 0) return [node.ott_id];
-  return node.children.flatMap(collectLeafOtts);
-}
-
-async function resolveNodeNames(node) {
-  // Only resolve nodes whose name starts with "mrca" (unnamed internal nodes)
-  if (node.children.length > 0 && node.name && node.name.startsWith("mrca")) {
-    // Use the first leaf from each child subtree to get a more precise MRCA
-    const childLeafSets = node.children.map(collectLeafOtts);
-    const ottA = childLeafSets[0]?.[0];
-    const ottB = childLeafSets[childLeafSets.length - 1]?.[0];
-    if (ottA && ottB && ottA !== ottB) {
-      try {
-        const res = await fetch(
-          "https://api.opentreeoflife.org/v3/tree_of_life/mrca",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ott_ids: [ottA, ottB] }),
-          }
-        );
-        if (res.ok) {
-          const data = await res.json();
-          if (data.nearest_taxon?.name) {
-            console.log(`  Resolved ${node.name} → ${data.nearest_taxon.name}`);
-            node.name = data.nearest_taxon.name;
-          }
-        }
-      } catch (err) {
-        console.log(`  Warning: could not resolve ${node.name}: ${err.message}`);
-      }
-    }
-  }
-
-  // Recurse into children
-  for (const child of node.children) {
-    await resolveNodeNames(child);
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Resolve MRCA taxon names for broken taxa.  Parses the MRCA node label
 // (e.g. "mrcaott37377ott106844") to extract two OTT IDs, then queries the
 // MRCA API to get the nearest proper taxon name.
@@ -339,9 +293,9 @@ async function main() {
 
   const compactTree = treeToCompact(simplified, speciesByOtt);
 
-  // Resolve unnamed internal nodes (mrcaott...) to proper taxon names
-  console.log("Resolving internal node names...");
-  await resolveNodeNames(compactTree);
+  // Internal node names are not displayed in the tree (topology-only rendering),
+  // so skip the MRCA API calls that would resolve them.
+  console.log("Skipping internal node name resolution (topology-only tree).");
 
   // Resolve MRCA taxon names for broken taxa
   console.log("Resolving broken taxa MRCA names...");

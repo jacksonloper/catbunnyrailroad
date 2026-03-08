@@ -311,7 +311,7 @@ h2 {
   border: 1px solid #444;
   border-radius: 12px;
   width: 100%;
-  max-width: 600px;
+  max-width: 90vw;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -347,40 +347,101 @@ h2 {
 
 .subtree-content {
   padding: 1rem;
-  overflow-y: auto;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.subtree-node {
-  border-left: 2px solid #555;
-  padding-left: 12px;
-  margin-top: 4px;
+.subtree-svg {
+  display: block;
 }
 
-.subtree-label {
+.subtree-leaf-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  fill: currentColor;
+}
+
+.subtree-header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 4px 0;
 }
 
-.subtree-internal .subtree-name {
+.subtree-copy-btn {
+  padding: 0.35rem 0.8rem;
   font-size: 0.85rem;
-  color: #999;
-  font-style: italic;
-}
-
-.subtree-leaf .subtree-name {
-  font-size: 0.95rem;
   font-weight: 600;
-  text-transform: capitalize;
+  border: 1px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #2a2a2a;
+  color: inherit;
 }
 
-.subtree-img {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  object-fit: cover;
+.subtree-copy-btn:hover {
+  background: #333;
+}
+
+/* ------ Import flow ------ */
+
+.import-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.import-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+.import-btn:hover {
+  background: #333;
+}
+
+.import-panel {
+  max-width: 480px;
+}
+
+.import-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.import-hint {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 0;
+}
+
+.import-textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  font-family: monospace;
+  border: 2px solid #444;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: inherit;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.import-textarea:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.import-go-btn {
+  align-self: center;
 }
 
 .species-img {
@@ -469,7 +530,21 @@ h2 {
   .subtree-close:hover {
     background: #f0f0f0;
   }
-  .subtree-node {
-    border-left-color: #ccc;
+  .subtree-copy-btn {
+    background: #f0f0f0;
+    border-color: #ccc;
+  }
+  .subtree-copy-btn:hover {
+    background: #e8e8e8;
+  }
+  .import-btn {
+    border-color: #ccc;
+  }
+  .import-btn:hover {
+    background: #f0f0f0;
+  }
+  .import-textarea {
+    background: #fff;
+    border-color: #ccc;
   }
 }

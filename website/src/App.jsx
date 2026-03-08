@@ -196,36 +196,168 @@ function SpeciesCard({ sp }) {
   );
 }
 
-/** Recursive tree view component for displaying a subtree */
-function SubtreeNode({ node }) {
-  const sp = speciesByOttId.get(node.ott_id);
-  const isLeaf = node.children.length === 0;
+// ---------------------------------------------------------------------------
+// SVG tree layout – topology-only cladogram (no internal labels)
+// ---------------------------------------------------------------------------
 
-  return (
-    <div className="subtree-node">
-      <div className={`subtree-label ${isLeaf ? "subtree-leaf" : "subtree-internal"}`}>
-        {sp?.image_url && isLeaf ? (
-          <img className="subtree-img" src={sp.image_url} alt={node.name} loading="lazy" />
-        ) : null}
-        <span className="subtree-name">{node.name}</span>
-      </div>
-      {node.children.map((child, i) => (
-        <SubtreeNode key={`${child.ott_id}-${child.name}-${i}`} node={child} />
-      ))}
-    </div>
-  );
+/** Collect all leaf OTT IDs from a subtree node */
+function collectSubtreeOtts(node) {
+  if (node.children.length === 0) return [node.ott_id];
+  return node.children.flatMap(collectSubtreeOtts);
+}
+
+/** Compute max depth (number of edges from root to deepest leaf) */
+function maxDepth(node) {
+  if (node.children.length === 0) return 0;
+  return 1 + Math.max(...node.children.map(maxDepth));
+}
+
+/**
+ * Layout the tree for SVG rendering.
+ * Returns { nodes: [{x, y, node, isLeaf}], edges: [{x1,y1,x2,y2}] }
+ * Leaves get sequential y positions; internal node y = average of children.
+ */
+function layoutTree(root) {
+  const depth = maxDepth(root);
+  const hSpacing = 32; // horizontal pixels per depth level
+  const vSpacing = 28; // vertical pixels per leaf row
+  const nodes = [];
+  const edges = [];
+  let leafIndex = 0;
+
+  function walk(node, d) {
+    if (node.children.length === 0) {
+      // Leaf
+      const x = d * hSpacing;
+      const y = leafIndex * vSpacing;
+      leafIndex++;
+      nodes.push({ x, y, node, isLeaf: true });
+      return y;
+    }
+    // Internal node
+    const childYs = node.children.map((c) => walk(c, d + 1));
+    const y = childYs.reduce((a, b) => a + b, 0) / childYs.length;
+    const x = d * hSpacing;
+    nodes.push({ x, y, node, isLeaf: false });
+    return y;
+  }
+
+  walk(root, 0);
+
+  // Build edge list from laid-out node positions
+  function buildEdges(node) {
+    if (node.children.length === 0) return;
+    const parentInfo = nodes.find((n) => n.node === node);
+    if (!parentInfo) return;
+    const childInfos = node.children.map((c) => nodes.find((n) => n.node === c));
+    const validChildren = childInfos.filter(Boolean);
+    if (validChildren.length === 0) return;
+
+    // Vertical line at parent x
+    const ys = validChildren.map((c) => c.y);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    edges.push({ x1: parentInfo.x, y1: minY, x2: parentInfo.x, y2: maxY });
+
+    // Horizontal lines to each child
+    for (const ci of validChildren) {
+      edges.push({ x1: parentInfo.x, y1: ci.y, x2: ci.x, y2: ci.y });
+    }
+
+    for (const child of node.children) {
+      buildEdges(child);
+    }
+  }
+  buildEdges(root);
+
+  return { nodes, edges, leafCount: leafIndex, hSpacing, vSpacing, depth };
 }
 
 function SubtreeView({ subtree, onClose }) {
+  const [copied, setCopied] = useState(false);
+
+  const layout = useMemo(() => layoutTree(subtree), [subtree]);
+  const leaves = layout.nodes.filter((n) => n.isLeaf);
+  const ottIds = useMemo(() => collectSubtreeOtts(subtree), [subtree]);
+
+  const labelOffset = 8;
+  const imgSize = 20;
+  // Measure longest label to set SVG width
+  const maxLabelLen = Math.max(...leaves.map((l) => l.node.name.length));
+  const rightPad = maxLabelLen * 7 + imgSize + labelOffset + 20;
+  const svgWidth = (layout.depth + 1) * layout.hSpacing + rightPad;
+  const svgHeight = layout.leafCount * layout.vSpacing;
+
+  function handleCopy() {
+    const text = ottIds.join(",");
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
   return (
     <div className="subtree-overlay">
       <div className="subtree-panel">
         <div className="subtree-header">
           <h3>Subtree</h3>
-          <button className="subtree-close" aria-label="Close subtree view" onClick={onClose}>✕</button>
+          <div className="subtree-header-actions">
+            <button
+              className="subtree-copy-btn"
+              onClick={handleCopy}
+              title="Copy OTT IDs to clipboard"
+            >
+              {copied ? "✓ Copied!" : "📋 Copy OTT IDs"}
+            </button>
+            <button className="subtree-close" aria-label="Close subtree view" onClick={onClose}>✕</button>
+          </div>
         </div>
         <div className="subtree-content">
-          <SubtreeNode node={subtree} />
+          <svg
+            className="subtree-svg"
+            width={svgWidth}
+            height={svgHeight + 10}
+            viewBox={`-4 -${layout.vSpacing / 2} ${svgWidth + 8} ${svgHeight + layout.vSpacing}`}
+          >
+            {/* Edges */}
+            {layout.edges.map((e, i) => (
+              <line
+                key={i}
+                x1={e.x1}
+                y1={e.y1}
+                x2={e.x2}
+                y2={e.y2}
+                stroke="#666"
+                strokeWidth={1.5}
+              />
+            ))}
+            {/* Leaf labels */}
+            {leaves.map((l) => {
+              const sp = speciesByOttId.get(l.node.ott_id);
+              return (
+                <g key={l.node.ott_id ?? l.node.name}>
+                  {sp?.image_url && (
+                    <image
+                      href={sp.image_url}
+                      x={l.x + labelOffset}
+                      y={l.y - imgSize / 2}
+                      width={imgSize}
+                      height={imgSize}
+                      clipPath="inset(0 round 4px)"
+                    />
+                  )}
+                  <text
+                    x={l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0)}
+                    y={l.y}
+                    dominantBaseline="central"
+                    className="subtree-leaf-label"
+                  >
+                    {l.node.name}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
         </div>
       </div>
     </div>
@@ -246,6 +378,27 @@ function App() {
   const [outsideLimit, setOutsideLimit] = useState(OUTSIDE_PAGE_SIZE);
   const [selectedOrganisms, setSelectedOrganisms] = useState(new Set());
   const [showSubtree, setShowSubtree] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importText, setImportText] = useState("");
+
+  function handleImportTree() {
+    const ids = importText
+      .split(/[\s,]+/)
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !isNaN(n) && n > 0);
+    if (ids.length < 2) return;
+    // Match OTT IDs to species names
+    const names = new Set();
+    for (const id of ids) {
+      const sp = speciesByOttId.get(id);
+      if (sp) names.add(sp.name);
+    }
+    if (names.size < 2) return;
+    setSelectedOrganisms(names);
+    setShowSubtree(true);
+    setShowImport(false);
+    setImportText("");
+  }
 
   function toggleOrganism(name) {
     setSelectedOrganisms((prev) => {
@@ -397,6 +550,8 @@ function App() {
     setOutsideLimit(OUTSIDE_PAGE_SIZE);
     setSelectedOrganisms(new Set());
     setShowSubtree(false);
+    setShowImport(false);
+    setImportText("");
   }
 
   return (
@@ -405,6 +560,49 @@ function App() {
       <p className="subtitle">
         Pick two living things and discover what they have in common!
       </p>
+
+      <div className="import-bar">
+        <button
+          className="import-btn"
+          onClick={() => setShowImport(true)}
+        >
+          📥 Import tree from OTT IDs
+        </button>
+      </div>
+
+      {showImport && (
+        <div className="subtree-overlay">
+          <div className="subtree-panel import-panel">
+            <div className="subtree-header">
+              <h3>Import tree from OTT IDs</h3>
+              <button className="subtree-close" aria-label="Close" onClick={() => setShowImport(false)}>✕</button>
+            </div>
+            <div className="subtree-content import-content">
+              <p className="import-hint">
+                Paste a comma-separated list of OTT IDs (e.g. copied from another tree):
+              </p>
+              <textarea
+                className="import-textarea"
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                placeholder="563166,247341,864596"
+                rows={4}
+              />
+              <button
+                className="make-tree-btn import-go-btn"
+                onClick={handleImportTree}
+                disabled={
+                  importText
+                    .split(/[\s,]+/)
+                    .filter((s) => /^\d+$/.test(s.trim())).length < 2
+                }
+              >
+                🌳 Build tree
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedOrganisms.size > 0 && (
         <div className="make-tree-bar">
