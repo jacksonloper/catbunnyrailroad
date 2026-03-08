@@ -547,7 +547,34 @@ h2 {
 .subtree-comment-star {
   fill: #c90;
   font-size: 0.7rem;
-  cursor: help;
+  cursor: pointer;
+}
+
+.subtree-comment-popup {
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  color: #ddd;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.subtree-comment-popup p {
+  margin: 0 0 0.2rem;
+}
+
+.subtree-comment-popup button {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 0;
 }
 
 /* ------ Form error ------ */
@@ -727,6 +754,11 @@ h2 {
     color: #900;
   }
   .comment-popup {
+    background: #fff;
+    border-color: #ccc;
+    color: #333;
+  }
+  .subtree-comment-popup {
     background: #fff;
     border-color: #ccc;
     color: #333;

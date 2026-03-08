@@ -95,11 +95,19 @@ class TrieNode {
 function buildTrie(items) {
   const root = new TrieNode();
   for (const item of items) {
-    let node = root;
-    for (const ch of item.name.toLowerCase()) {
-      if (!node.children[ch]) node.children[ch] = new TrieNode();
-      node = node.children[ch];
-      node.items.push(item);
+    // Index each word in the name so "swallowtail butterfly" matches "butterfly"
+    const words = item.name.toLowerCase().split(/\s+/);
+    const inserted = new Set(); // avoid duplicate insertions for same prefix
+    for (const word of words) {
+      let node = root;
+      for (const ch of word) {
+        if (!node.children[ch]) node.children[ch] = new TrieNode();
+        node = node.children[ch];
+        if (!inserted.has(node)) {
+          node.items.push(item);
+          inserted.add(node);
+        }
+      }
     }
   }
   return root;
@@ -318,6 +326,7 @@ function layoutTree(root) {
 function SubtreeView({ subtree, onClose }) {
   const [copied, setCopied] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
+  const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
@@ -332,6 +341,15 @@ function SubtreeView({ subtree, onClose }) {
   const rightPad = maxLabelLen * pxPerChar + imgSize + labelOffset + starPad;
   const svgWidth = (layout.depth + 1) * layout.hSpacing + rightPad;
   const svgHeight = layout.leafCount * layout.vSpacing;
+
+  /** Enrich subtree with comments for JSON export */
+  function enrichWithComments(node) {
+    const result = { name: node.name, ott_id: node.ott_id, children: node.children.map(enrichWithComments) };
+    if (node.isTaxon) result.isTaxon = true;
+    const sp = taxaByOttId.get(node.ott_id);
+    if (sp?.comments) result.comments = sp.comments;
+    return result;
+  }
 
   function copyToClipboard(text, onSuccess) {
     navigator.clipboard.writeText(text).then(onSuccess).catch(() => {
@@ -353,7 +371,8 @@ function SubtreeView({ subtree, onClose }) {
   }
 
   function handleCopyJson() {
-    copyToClipboard(JSON.stringify(subtree, null, 2), () => {
+    const enriched = enrichWithComments(subtree);
+    copyToClipboard(JSON.stringify(enriched, null, 2), () => {
       setCopiedJson(true);
       setTimeout(() => setCopiedJson(false), 2000);
     });
@@ -404,6 +423,7 @@ function SubtreeView({ subtree, onClose }) {
             {/* Taxa labels (leaves and internal taxa) */}
             {taxaNodes.map((l) => {
               const sp = taxaByOttId.get(l.node.ott_id);
+              const starX = l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + l.node.name.length * pxPerChar + 4;
               return (
                 <g key={l.node.ott_id ?? l.node.name}>
                   {sp?.image_url && (
@@ -426,14 +446,28 @@ function SubtreeView({ subtree, onClose }) {
                   </text>
                   {sp?.comments && (
                     <text
-                      x={l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + l.node.name.length * pxPerChar + 4}
+                      x={starX}
                       y={l.y}
                       dominantBaseline="central"
                       className="subtree-comment-star"
+                      onClick={() => setActiveComment(activeComment === l.node.ott_id ? null : l.node.ott_id)}
+                      style={{ cursor: "pointer" }}
                     >
-                      <title>{sp.comments}</title>
                       ★
                     </text>
+                  )}
+                  {activeComment === l.node.ott_id && sp?.comments && (
+                    <foreignObject
+                      x={starX + 14}
+                      y={l.y - 12}
+                      width={220}
+                      height={100}
+                    >
+                      <div xmlns="http://www.w3.org/1999/xhtml" className="subtree-comment-popup">
+                        <p>{sp.comments}</p>
+                        <button onClick={() => setActiveComment(null)}>✕</button>
+                      </div>
+                    </foreignObject>
                   )}
                 </g>
               );
