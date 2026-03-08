@@ -291,7 +291,7 @@ function SubtreeView({ subtree, onClose }) {
   const [copied, setCopied] = useState(false);
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
-  const taxaNodes = layout.nodes.filter((n) => n.isLeaf || n.node.isTaxon);
+  const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
   const ottIds = useMemo(() => collectSubtreeOtts(subtree), [subtree]);
 
   const labelOffset = 8;
