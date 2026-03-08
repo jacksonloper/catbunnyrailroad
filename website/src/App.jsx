@@ -374,6 +374,85 @@ function SubtreeView({ subtree, onClose }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Error console – captures console.error/warn and shows them in a floating
+// red overlay so mobile users can see what's going wrong.
+// ---------------------------------------------------------------------------
+
+function ErrorConsole() {
+  const [messages, setMessages] = useState([]);
+  const nextId = useRef(0);
+
+  useEffect(() => {
+    const origError = console.error;
+    const origWarn = console.warn;
+
+    function push(level, args) {
+      const text = Array.from(args)
+        .map((a) => {
+          if (typeof a === "string") return a;
+          try { return JSON.stringify(a); } catch { return String(a); }
+        })
+        .join(" ");
+      const id = nextId.current++;
+      // Keep at most 20 messages
+      setMessages((prev) => [...prev.slice(-19), { id, level, text }]);
+    }
+
+    console.error = function (...args) {
+      origError.apply(console, args);
+      push("error", args);
+    };
+    console.warn = function (...args) {
+      origWarn.apply(console, args);
+      push("warn", args);
+    };
+
+    function onError(e) {
+      push("error", [e.message || String(e)]);
+    }
+    function onRejection(e) {
+      push("error", ["Unhandled: " + (e.reason?.message || String(e.reason))]);
+    }
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onRejection);
+
+    return () => {
+      console.error = origError;
+      console.warn = origWarn;
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onRejection);
+    };
+  }, []);
+
+  function dismiss(id) {
+    setMessages((prev) => prev.filter((m) => m.id !== id));
+  }
+
+  if (messages.length === 0) return null;
+
+  return (
+    <div className="error-console">
+      <div className="error-console-header">
+        <span>⚠ Console</span>
+        <button onClick={() => setMessages([])}>Clear</button>
+      </div>
+      <div className="error-console-body">
+        {messages.map((m) => (
+          <div key={m.id} className={`error-console-msg error-console-${m.level}`}>
+            <span className="error-console-text">{m.text}</span>
+            <button className="error-console-dismiss" onClick={() => dismiss(m.id)}>✕</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main App
+// ---------------------------------------------------------------------------
+
 function App() {
   const trie = useMemo(() => buildTrie(species), []);
 
@@ -391,6 +470,7 @@ function App() {
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+  const [formError, setFormError] = useState("");
 
   function handleImportTree() {
     const ids = importText
@@ -532,28 +612,48 @@ function App() {
     setInputA(val);
     if (selectedA && val !== selectedA.name) setSelectedA(null);
     setCladeSpecies(null);
+    setFormError("");
   }
 
   function handleInputBChange(val) {
     setInputB(val);
     if (selectedB && val !== selectedB.name) setSelectedB(null);
     setCladeSpecies(null);
+    setFormError("");
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!selectedA || !selectedB) return;
-    if (selectedA.ott_id === selectedB.ott_id) return;
+    setFormError("");
+    if (!selectedA || !selectedB) {
+      setFormError("Please select both organisms from the suggestions.");
+      return;
+    }
+    if (selectedA.ott_id === selectedB.ott_id) {
+      setFormError("Please pick two different organisms.");
+      return;
+    }
 
-    const mrca = findMRCA(tree, selectedA.ott_id, selectedB.ott_id);
-    if (!mrca) return;
+    try {
+      const mrca = findMRCA(tree, selectedA.ott_id, selectedB.ott_id);
+      if (!mrca) {
+        setFormError(
+          `Could not find the common ancestor of ${selectedA.name} and ${selectedB.name}. ` +
+          "Please try different organisms."
+        );
+        return;
+      }
 
-    const leaves = getLeaves(mrca);
-    setCladeSpecies(leaves);
-    setMrcaNode(mrca);
-    setShowIncluded(false);
-    setShowOutside(false);
-    setOutsideLimit(OUTSIDE_PAGE_SIZE);
+      const leaves = getLeaves(mrca);
+      setCladeSpecies(leaves);
+      setMrcaNode(mrca);
+      setShowIncluded(false);
+      setShowOutside(false);
+      setOutsideLimit(OUTSIDE_PAGE_SIZE);
+    } catch (err) {
+      console.error("handleSubmit error:", err);
+      setFormError("Something went wrong: " + err.message);
+    }
   }
 
   function handleReset() {
@@ -571,6 +671,7 @@ function App() {
     setShowImport(false);
     setImportText("");
     setImportError("");
+    setFormError("");
   }
 
   return (
@@ -676,6 +777,7 @@ function App() {
             Reset
           </button>
         </div>
+        {formError && <p className="form-error">{formError}</p>}
       </form>
 
       {cladeSpecies && (
@@ -838,6 +940,7 @@ function App() {
           </ul>
         </div>
       )}
+      <ErrorConsole />
     </div>
   );
 }

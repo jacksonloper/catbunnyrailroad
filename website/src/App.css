@@ -479,6 +479,90 @@ h2 {
   cursor: help;
 }
 
+/* ------ Form error ------ */
+
+.form-error {
+  text-align: center;
+  color: #e55;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+}
+
+/* ------ Error console overlay ------ */
+
+.error-console {
+  position: fixed;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: min(360px, calc(100vw - 1rem));
+  max-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  background: #2a0a0a;
+  border: 1px solid #c44;
+  border-radius: 8px;
+  z-index: 200;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.error-console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.6rem;
+  background: #3a0e0e;
+  color: #f99;
+  font-weight: 600;
+  border-bottom: 1px solid #c44;
+}
+
+.error-console-header button {
+  background: none;
+  border: 1px solid #c44;
+  color: #f99;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0.15rem 0.5rem;
+}
+
+.error-console-body {
+  overflow-y: auto;
+  max-height: 35vh;
+}
+
+.error-console-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-bottom: 1px solid rgba(200, 60, 60, 0.2);
+  color: #fcc;
+  word-break: break-word;
+}
+
+.error-console-warn {
+  color: #fd9;
+  background: rgba(100, 80, 0, 0.15);
+}
+
+.error-console-text {
+  flex: 1;
+}
+
+.error-console-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #f99;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  line-height: 1;
+}
+
 /* ------ Light mode ------ */
 
 @media (prefers-color-scheme: light) {
@@ -552,5 +636,23 @@ h2 {
   .import-textarea {
     background: #fff;
     border-color: #ccc;
+  }
+  .error-console {
+    background: #fff0f0;
+    border-color: #c44;
+  }
+  .error-console-header {
+    background: #ffe5e5;
+    color: #900;
+  }
+  .error-console-msg {
+    color: #600;
+  }
+  .error-console-warn {
+    color: #630;
+    background: rgba(200, 180, 0, 0.1);
+  }
+  .error-console-dismiss {
+    color: #900;
   }
 }
