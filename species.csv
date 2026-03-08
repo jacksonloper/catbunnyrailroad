@@ -1,229 +1,229 @@
-name,scientific_name,ott_id,image_url
-cat,Felis catus,563166,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/404/32374404.jpg
-dog,Canis lupus,247341,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/938/27815938.jpg
-rabbit,Oryctolagus cuniculus,864596,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/181/7530181.jpg
-horse,Equus caballus,1068218,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/000/31662000.jpg
-cow,Bos taurus,490099,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/693/32368693.jpg
-chicken,Gallus gallus,153563,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/919/24875919.jpg
-duck,Anas platyrhynchos,765167,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/025/31925025.jpg
-frog,Anura,991547,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/846/27735846.jpg
-butterfly,Lepidoptera,965954,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/175/26875175.jpg
-sunflower,Helianthus annuus,515712,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/270/25593270.jpg
-rose,Rosa,259066,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/851/26800851.jpg
-dolphin,Delphinidae,698406,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/415/31956415.jpg
-elephant,Elephantidae,541924,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/726/32633726.jpg
-lion,Panthera leo,563151,https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/140/140.jpg
-oak,Quercus,791121,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/313/31644313.jpg
-bear,Ursus arctos,872567,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/880/26787880.jpg
-pig,Sus scrofa,730013,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/006/31653006.jpg
-sheep,Ovis aries,70819,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/916/32632916.jpg
-goat,Capra hircus,19017,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/251/31924251.jpg
-mouse,Mus musculus,542509,https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/310/83310.jpg
-rat,Rattus norvegicus,271555,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/920/27718920.jpg
-hamster,Mesocricetus auratus,391631,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/672/25631672.jpg
-guinea pig,Cavia porcellus,744000,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/350/31811350.jpg
-giraffe,Giraffa camelopardalis,768674,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/387/26880387.jpg
-zebra,Equus quagga,124776,http://commons.wikimedia.org/wiki/Special:FilePath/Cebra%20de%20Burchell%20%28Equus%20quagga%20burchellii%29%2C%20parque%20nacional%20Kruger%2C%20Sud%C3%A1frica%2C%202018-07-24%2C%20DD%2001.jpg
-hippopotamus,Hippopotamus amphibius,510762,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/309/27779309.jpg
-rhinoceros,Rhinocerotidae,1034218,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/666/25657666.jpg
-gorilla,Gorilla gorilla,417965,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/478/31326478.jpg
-chimpanzee,Pan troglodytes,417950,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/520/27252520.jpg
-orangutan,Pongo pygmaeus,770302,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/933/28685933.jpg
-tiger,Panthera tigris,42314,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/050/13145050.jpg
-leopard,Panthera pardus,42324,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/706/32525706.jpg
-cheetah,Acinonyx jubatus,752759,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/168/25602168.jpg
-fox,Vulpes vulpes,821964,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/525/27291525.jpg
-deer,Cervidae,460505,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/985/27770985.jpg
-moose,Alces alces,460509,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/314/26821314.jpg
-camel,Camelus,510767,http://commons.wikimedia.org/wiki/Special:FilePath/Chameau%20de%20bactriane.JPG
-llama,Lama glama,986973,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/118/26928118.jpg
-kangaroo,Macropus,42495,http://commons.wikimedia.org/wiki/Special:FilePath/Eastern%20grey%20kangaroo%20dec07%2002.jpg
-koala,Phascolarctos cinereus,327624,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/702/11754702.jpg
-panda,Ailuropoda melanoleuca,872573,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/539/27693539.jpg
-polar bear,Ursus maritimus,10732,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/033/31476033.jpg
-bat,Chiroptera,574724,http://commons.wikimedia.org/wiki/Special:FilePath/Big-eared-townsend-fledermaus.jpg
-whale,Balaenoptera,800316,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/303/31324303.jpg
-seal,Phocidae,749626,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/26886297.jpg
-otter,Lutra lutra,348036,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/444/28684444.jpg
-beaver,Castor,1048190,http://commons.wikimedia.org/wiki/Special:FilePath/American%20Beaver.jpg
-squirrel,Sciuridae,384218,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/904/26818904.jpg
-raccoon,Procyon lotor,348040,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/194/26870194.jpg
-skunk,Mephitis mephitis,231602,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/120/32389120.jpg
-hedgehog,Erinaceus europaeus,796660,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/913/5817913.jpg
-porcupine,Erethizon dorsatum,848921,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/337/27690337.jpg
-armadillo,Dasypus novemcinctus,796672,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/021/26853021.jpg
-sloth,Folivora,495015,http://commons.wikimedia.org/wiki/Special:FilePath/Bradypus.jpg
-monkey,Simiiformes,386195,http://commons.wikimedia.org/wiki/Special:FilePath/Simiiformes.png
-lemur,Lemuridae,913933,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/330/27748330.jpg
-jaguar,Panthera onca,42322,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/695/33154695.jpg
-hyena,Crocuta crocuta,397157,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/377/26849377.jpg
-meerkat,Suricata suricatta,803645,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/836/27761836.jpg
-wombat,Vombatus ursinus,835328,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/658/2005658.jpg
-platypus,Ornithorhynchus anatinus,962377,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/046/31655046.jpg
-narwhal,Monodon monoceros,306757,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/458/26794458.jpg
-walrus,Odobenus rosmarus,749644,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/217/26790217.jpg
-manatee,Trichechus,226189,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/943/31958943.jpg
-flying squirrel,Pteromyini,23775,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/390/27162390.jpg
-shark,Selachimorpha,78477,http://commons.wikimedia.org/wiki/Special:FilePath/Great%20white%20shark%20south%20africa.jpg
-octopus,Octopoda,478542,http://commons.wikimedia.org/wiki/Special:FilePath/Octopus2.jpg
-squid,Decapodiformes,854107,http://commons.wikimedia.org/wiki/Special:FilePath/Loligo%20vulgaris.jpg
-jellyfish,Scyphozoa,983579,http://commons.wikimedia.org/wiki/Special:FilePath/Cauliflour%20Jellyfish%2C%20Cephea%20cephea%20at%20Marsa%20Shouna%2C%20Red%20Sea%2C%20Egypt%20SCUBA.jpg
-starfish,Asteroidea,451009,http://commons.wikimedia.org/wiki/Special:FilePath/Royal%20starfish%20%28Astropecten%20articulatus%29%20on%20the%20beach.jpg
-crab,Brachyura,935379,http://commons.wikimedia.org/wiki/Special:FilePath/Liocarcinus%20vernalis.jpg
-lobster,Nephropidae,28241,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/773/31917773.jpg
-seahorse,Hippocampus,1007058,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/803/27220803.jpg
-clownfish,Amphiprion ocellaris,674643,http://commons.wikimedia.org/wiki/Special:FilePath/Clownfisch%20%28Amphiprion%20ocellaris%29.jpg
-sea turtle,Chelonioidea,243396,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/924/24909924.jpg
-stingray,Dasyatidae,644001,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/682/27743682.jpg
-eel,Anguilliformes,854188,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/108/27185108.jpg
-pufferfish,Tetraodontidae,65336,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/580/27157580.jpg
-swordfish,Xiphias gladius,358621,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/610/31655610.jpg
-anglerfish,Lophiiformes,583640,http://commons.wikimedia.org/wiki/Special:FilePath/Caulophryne%20pelagica.jpg
-human,Homo sapiens,770315,https://www.onezoom.org/OZtree/static/FinalOutputs/img/2/46/46.jpg
-goldfish,Carassius auratus,1005907,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/386/25623386.jpg
-turkey,Meleagris gallopavo,446482,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/844/32577844.jpg
-goose,Anser anser,190887,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/840/27690840.jpg
-parrot,Psittacus erithacus,285641,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/854/25627854.jpg
-penguin,Aptenodytes forsteri,494370,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/116/25605116.jpg
-owl,Bubo bubo,402453,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/165/26222165.jpg
-eagle,Haliaeetus leucocephalus,1012350,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/939/26834939.jpg
-peacock,Pavo cristatus,453575,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/953/26890953.jpg
-flamingo,Phoenicopterus roseus,595567,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/570/7341570.jpg
-crow,Corvus brachyrhynchos,331952,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/080/25637080.jpg
-robin,Erithacus rubecula,507122,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/881/7509881.jpg
-snake,Python regius,737820,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/829/26851829.jpg
-lizard,Iguana iguana,608972,http://commons.wikimedia.org/wiki/Special:FilePath/Curacao%20Iguana%20iguana%202021%203.jpg
-crocodile,Crocodylus niloticus,35864,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/759/26840759.jpg
-alligator,Alligator mississippiensis,335590,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/639/26887639.jpg
-tortoise,Testudo graeca,207423,http://commons.wikimedia.org/wiki/Special:FilePath/Nabeulensis%20sarda.JPG
-chameleon,Chamaeleo chamaeleon,824527,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/004/31792004.jpg
-gecko,Gekko gecko,953907,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/053/27727053.jpg
-ant,Formica rufa,744114,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/792/26875792.jpg
-bee,Apis mellifera,461645,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/917/31920917.jpg
-ladybug,Coccinella septempunctata,343294,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/256/-26781256.jpg
-spider,Araneus diadematus,725241,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/582/5815582.jpg
-grasshopper,Schistocerca gregaria,330338,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/094/16895094.jpg
-dragonfly,Anax imperator,485521,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/816/31325816.jpg
-mosquito,Aedes aegypti,269666,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/998/3601998.jpg
-housefly,Musca domestica,1011010,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/983/32386983.jpg
-snail,Cornu aspersum,349699,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/129/25636129.jpg
-worm,Lumbricus terrestris,316441,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/092/29674092.jpg
-apple tree,Malus domestica,3902985,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/278/25590278.jpg
-banana,Musa acuminata,207474,https://www.onezoom.org/OZtree/static/FinalOutputs/img/2/34/34.jpg
-strawberry,Fragaria × ananassa,208027,http://commons.wikimedia.org/wiki/Special:FilePath/Strawberries.JPG
-blueberry,Vaccinium corymbosum,567253,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/396/32156396.jpg
-watermelon,Citrullus lanatus,1006251,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/294/2445294.jpg
-pumpkin,Cucurbita pepo,379282,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/780/26781780.jpg
-carrot,Daucus carota,372836,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/728/26800728.jpg
-tomato,Solanum lycopersicum,378964,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/506/26923506.jpg
-corn,Zea mays,605194,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/580/32354580.jpg
-grass,Poa pratensis,1079463,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/538/5818538.jpg
-cactus,Carnegiea gigantea,897402,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/173/32541173.jpg
-pine tree,Pinus sylvestris,568619,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/900/27739900.jpg
-mushroom,Agaricus bisporus,564405,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/214/27740214.jpg
-swan,Cygnus olor,140314,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/25805297.jpg
-tuna,Thunnus albacares,833188,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/679/20838679.jpg
-salmon,Salmo salar,688328,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/304/31421304.jpg
-killer whale,Orcinus orca,124215,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/368/27795368.jpg
-shrimp,Litopenaeus vannamei,169168,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/605/31799605.jpg
-coral,Acropora cervicornis,507951,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/740/26821740.jpg
-pigeon,Columba livia,938416,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/837/34214837.jpg
-donkey,Equus africanus asinus,519153,http://commons.wikimedia.org/wiki/Special:FilePath/Donkey%20in%20Clovelly%2C%20North%20Devon%2C%20England.jpg
-aardvark,Orycteropus afer,561087,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/713/27322713.jpg
-giant anteater,Myrmecophaga tridactyla,490538,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/796/26879796.jpg
-echidna,Tachyglossus aculeatus,16038,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/190/26789190.jpg
-tapir,Tapirus terrestris,1034223,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/191/32450191.jpg
-bison,Bison bison,907693,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/781/26852781.jpg
-red panda,Ailurus fulgens,872562,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/974/24158974.jpg
-weasel,Mustela nivalis,354525,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/964/27768964.jpg
-badger,Meles meles,923113,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/158/32156158.jpg
-opossum,Didelphis virginiana,919171,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/200/13153200.jpg
-capybara,Hydrochoerus hydrochaeris,744018,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/379/27770379.jpg
-ostrich,Struthio camelus,647692,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/602/6687602.jpg
-kiwi,Apteryx mantelli,748998,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/504/26829504.jpg
-pelican,Pelecanus onocrotalus,427899,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/934/27710934.jpg
-heron,Ardea cinerea,119222,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/346/24897346.jpg
-hummingbird,Archilochus colubris,759410,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/430/27814430.jpg
-woodpecker,Dendrocopos major,348848,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/338/5830338.jpg
-toucan,Ramphastos toco,640527,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/631/33160631.jpg
-albatross,Diomedea exulans,71459,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/225/26890225.jpg
-vulture,Gyps fulvus,549517,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/675/26222675.jpg
-kingfisher,Alcedo atthis,549519,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/186/26797186.jpg
-salamander,Salamandra salamandra,689975,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/767/26796767.jpg
-axolotl,Ambystoma mexicanum,984726,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/127/31918127.jpg
-newt,Triturus cristatus,1041796,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/800/26854800.jpg
-komodo dragon,Varanus komodoensis,1091028,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/642/26916642.jpg
-tuatara,Sphenodon punctatus,35890,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/822/26796822.jpg
-cobra,Naja naja,217478,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/259/27769259.jpg
-manta ray,Mobula birostris,920351,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/737/26792737.jpg
-coelacanth,Latimeria chalumnae,773491,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/823/25629823.jpg
-lungfish,Protopterus annectens,199334,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/705/27699705.jpg
-sea anemone,Actinia equina,1084476,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/818/31920818.jpg
-sea urchin,Strongylocentrotus purpuratus,564702,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/353/32391353.jpg
-sea cucumber,Holothuria atra,920160,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/001/27789001.jpg
-sponge,Spongia officinalis,373931,http://commons.wikimedia.org/wiki/Special:FilePath/Spongia%20officinalis.jpg
-clam,Mercenaria mercenaria,80121,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/219/19679219.jpg
-oyster,Crassostrea gigas,987409,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/841/19678841.jpg
-mussel,Mytilus edulis,499751,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/801/19678801.jpg
-nautilus,Nautilus pompilius,616359,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/671/27779671.jpg
-cuttlefish,Sepia officinalis,528817,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/862/27070862.jpg
-horseshoe crab,Limulus polyphemus,511973,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/378/31335378.jpg
-scorpion,Pandinus imperator,990944,http://commons.wikimedia.org/wiki/Special:FilePath/Emperor%20scorpion%20or%20Imperial%20scorpion%20%28Pandinus%20imperator%29.jpg
-centipede,Scolopendra gigantea,3518397,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/810/31474810.jpg
-millipede,Archispirostreptus gigas,81620,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/554/27715554.jpg
-termite,Macrotermes bellicosus,213031,http://commons.wikimedia.org/wiki/Special:FilePath/Macrotermes%20bellicosus%20minor%20soldier.jpg
-praying mantis,Mantis religiosa,656298,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/026/25364026.jpg
-stag beetle,Lucanus cervus,867953,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/765/29212765.jpg
-moth,Actias luna,180968,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/715/34040715.jpg
-tick,Ixodes ricinus,493144,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/625/32368625.jpg
-barnacle,Balanus balanus,323642,http://commons.wikimedia.org/wiki/Special:FilePath/Balanus%20balanus%20%28YPM%20IZ%20030315%29.jpeg
-orange,Citrus sinensis,3942433,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/812/25584812.jpg
-grape,Vitis vinifera,756728,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/656/26783656.jpg
-cherry,Prunus avium,162547,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/307/5818307.jpg
-peach,Prunus persica,259054,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/544/25590544.jpg
-pear,Pyrus communis,972654,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/733/26780733.jpg
-lemon,Citrus limon,3942422,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/377/32354377.jpg
-pineapple,Ananas comosus,627039,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/470/1993470.jpg
-coconut palm,Cocos nucifera,366250,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/920/32354920.jpg
-mango,Mangifera indica,807634,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/128/26843128.jpg
-raspberry,Rubus idaeus,156929,http://commons.wikimedia.org/wiki/Special:FilePath/20130714Rubus%20idaeus2.jpg
-avocado,Persea americana,913249,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/683/29256683.jpg
-plum,Prunus domestica,731554,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/183/2447183.jpg
-potato,Solanum tuberosum,494835,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/155/2444155.jpg
-broccoli,Brassica oleracea,833642,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/501/26826501.jpg
-lettuce,Lactuca sativa,515700,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/074/1992074.jpg
-onion,Allium cepa,781600,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/643/1993643.jpg
-pea,Pisum sativum,359905,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/229/32382229.jpg
-cucumber,Cucumis sativus,1006246,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/299/2445299.jpg
-celery,Apium graveolens,2472,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/323/27319323.jpg
-spinach,Spinacia oleracea,317784,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/419/31348419.jpg
-sweet potato,Ipomoea batatas,1071040,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/379/24989379.jpg
-garlic,Allium sativum,748370,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/625/1993625.jpg
-bell pepper,Capsicum annuum,473836,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/193/26790193.jpg
-green bean,Phaseolus vulgaris,825707,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/931/2447931.jpg
-tulip,Tulipa,878709,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/005/31656005.jpg
-daisy,Bellis perennis,792843,http://commons.wikimedia.org/wiki/Special:FilePath/Belis%20peremnis%20-%20panoramio.jpg
-dandelion,Taraxacum officinale,451182,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/784/26789784.jpg
-daffodil,Narcissus,592259,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/760/31330760.jpg
-lily,Lilium,748393,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/737/26789737.jpg
-orchid,Orchidaceae,568878,http://commons.wikimedia.org/wiki/Special:FilePath/PhalaenopsisOphrysPaphiopedilumMaxillaria.jpg
-marigold,Tagetes,717598,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/468/25478468.jpg
-lavender,Lavandula,839065,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/943/27718943.jpg
-violet,Viola odorata,1039231,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/250/2446250.jpg
-poppy,Papaver rhoeas,867221,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/140/26784140.jpg
-hibiscus,Hibiscus rosa-sinensis,378513,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/177/26790177.jpg
-maple tree,Acer,948922,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/809/27764809.jpg
-willow tree,Salix,458856,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/119/32373119.jpg
-birch tree,Betula,267715,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/248/32801248.jpg
-palm tree,Arecaceae,526437,http://commons.wikimedia.org/wiki/Special:FilePath/Manila%20dwarf%20coconut%20palm.jpg
-cherry blossom,Prunus serrulata,746756,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/027/25799027.jpg
-bamboo,Bambusa,618937,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/630/27076630.jpg
-fern,Polypodiopsida,166292,http://commons.wikimedia.org/wiki/Special:FilePath/Dicksonia%20antarctica%20in%20Nunniong%2C%20Australia.jpg
-clover,Trifolium,935477,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/338/31335338.jpg
-moss,Bryophyta,246594,http://commons.wikimedia.org/wiki/Special:FilePath/Haeckel%20Muscinae.jpg
-ivy,Hedera helix,524074,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/864/31652864.jpg
-venus flytrap,Dionaea muscipula,14971,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/264/-26836264.jpg
-mint,Mentha,55626,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/569/29729569.jpg
-wheat,Triticum aestivum,31926,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/379/32796379.jpg
-rice,Oryza sativa,709894,http://commons.wikimedia.org/wiki/Special:FilePath/Reis-Rispe.jpg
-aloe vera,Aloe vera,62303,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/545/1993545.jpg
+name,scientific_name,ott_id,node_id,image_url,comments
+cat,Felis catus,563166,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/404/32374404.jpg,
+dog,Canis lupus,247341,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/938/27815938.jpg,
+rabbit,Oryctolagus cuniculus,864596,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/181/7530181.jpg,
+horse,Equus caballus,1068218,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/000/31662000.jpg,
+cow,Bos taurus,490099,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/693/32368693.jpg,
+chicken,Gallus gallus,153563,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/919/24875919.jpg,
+duck,Anas platyrhynchos,765167,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/025/31925025.jpg,
+frog,Anura,991547,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/846/27735846.jpg,
+butterfly,Lepidoptera,965954,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/175/26875175.jpg,
+sunflower,Helianthus annuus,515712,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/270/25593270.jpg,
+rose,Rosa,259066,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/851/26800851.jpg,
+dolphin,Delphinidae,698406,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/415/31956415.jpg,
+elephant,Elephantidae,541924,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/726/32633726.jpg,
+lion,Panthera leo,563151,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/140/140.jpg,
+oak,Quercus,791121,mrcaott37377ott106844,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/313/31644313.jpg,Oak (Quercus) is not monophyletic in the synthetic tree. Placed at Fagales instead.
+bear,Ursus arctos,872567,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/880/26787880.jpg,
+pig,Sus scrofa,730013,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/006/31653006.jpg,
+sheep,Ovis aries,70819,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/916/32632916.jpg,
+goat,Capra hircus,19017,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/251/31924251.jpg,
+mouse,Mus musculus,542509,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/310/83310.jpg,
+rat,Rattus norvegicus,271555,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/920/27718920.jpg,
+hamster,Mesocricetus auratus,391631,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/672/25631672.jpg,
+guinea pig,Cavia porcellus,744000,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/350/31811350.jpg,
+giraffe,Giraffa camelopardalis,768674,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/387/26880387.jpg,
+zebra,Equus quagga,124776,,http://commons.wikimedia.org/wiki/Special:FilePath/Cebra%20de%20Burchell%20%28Equus%20quagga%20burchellii%29%2C%20parque%20nacional%20Kruger%2C%20Sud%C3%A1frica%2C%202018-07-24%2C%20DD%2001.jpg,
+hippopotamus,Hippopotamus amphibius,510762,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/309/27779309.jpg,
+rhinoceros,Rhinocerotidae,1034218,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/666/25657666.jpg,
+gorilla,Gorilla gorilla,417965,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/478/31326478.jpg,
+chimpanzee,Pan troglodytes,417950,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/520/27252520.jpg,
+orangutan,Pongo pygmaeus,770302,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/933/28685933.jpg,
+tiger,Panthera tigris,42314,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/050/13145050.jpg,
+leopard,Panthera pardus,42324,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/706/32525706.jpg,
+cheetah,Acinonyx jubatus,752759,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/168/25602168.jpg,
+fox,Vulpes vulpes,821964,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/525/27291525.jpg,
+deer,Cervidae,460505,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/985/27770985.jpg,
+moose,Alces alces,460509,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/314/26821314.jpg,
+camel,Camelus,510767,,http://commons.wikimedia.org/wiki/Special:FilePath/Chameau%20de%20bactriane.JPG,
+llama,Lama glama,986973,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/118/26928118.jpg,
+kangaroo,Macropus,42495,mrcaott42481ott42493,http://commons.wikimedia.org/wiki/Special:FilePath/Eastern%20grey%20kangaroo%20dec07%2002.jpg,Kangaroo (Macropus) is not monophyletic in the synthetic tree. Placed at Macropodidae instead.
+koala,Phascolarctos cinereus,327624,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/702/11754702.jpg,
+panda,Ailuropoda melanoleuca,872573,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/539/27693539.jpg,
+polar bear,Ursus maritimus,10732,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/033/31476033.jpg,
+bat,Chiroptera,574724,,http://commons.wikimedia.org/wiki/Special:FilePath/Big-eared-townsend-fledermaus.jpg,
+whale,Balaenoptera,800316,mrcaott44568ott3612259,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/303/31324303.jpg,Whale (Balaenoptera) is not monophyletic in the synthetic tree. Placed at Mysticeti instead.
+seal,Phocidae,749626,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/26886297.jpg,
+otter,Lutra lutra,348036,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/444/28684444.jpg,
+beaver,Castor,1048190,,http://commons.wikimedia.org/wiki/Special:FilePath/American%20Beaver.jpg,
+squirrel,Sciuridae,384218,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/904/26818904.jpg,
+raccoon,Procyon lotor,348040,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/194/26870194.jpg,
+skunk,Mephitis mephitis,231602,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/120/32389120.jpg,
+hedgehog,Erinaceus europaeus,796660,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/913/5817913.jpg,
+porcupine,Erethizon dorsatum,848921,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/337/27690337.jpg,
+armadillo,Dasypus novemcinctus,796672,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/021/26853021.jpg,
+sloth,Folivora,495015,,http://commons.wikimedia.org/wiki/Special:FilePath/Bradypus.jpg,
+monkey,Simiiformes,386195,,http://commons.wikimedia.org/wiki/Special:FilePath/Simiiformes.png,
+lemur,Lemuridae,913933,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/330/27748330.jpg,
+jaguar,Panthera onca,42322,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/695/33154695.jpg,
+hyena,Crocuta crocuta,397157,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/377/26849377.jpg,
+meerkat,Suricata suricatta,803645,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/836/27761836.jpg,
+wombat,Vombatus ursinus,835328,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/658/2005658.jpg,
+platypus,Ornithorhynchus anatinus,962377,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/046/31655046.jpg,
+narwhal,Monodon monoceros,306757,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/458/26794458.jpg,
+walrus,Odobenus rosmarus,749644,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/217/26790217.jpg,
+manatee,Trichechus,226189,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/943/31958943.jpg,
+flying squirrel,Pteromyini,23775,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/390/27162390.jpg,
+shark,Selachimorpha,78477,,http://commons.wikimedia.org/wiki/Special:FilePath/Great%20white%20shark%20south%20africa.jpg,
+octopus,Octopoda,478542,,http://commons.wikimedia.org/wiki/Special:FilePath/Octopus2.jpg,
+squid,Decapodiformes,854107,,http://commons.wikimedia.org/wiki/Special:FilePath/Loligo%20vulgaris.jpg,
+jellyfish,Scyphozoa,983579,,http://commons.wikimedia.org/wiki/Special:FilePath/Cauliflour%20Jellyfish%2C%20Cephea%20cephea%20at%20Marsa%20Shouna%2C%20Red%20Sea%2C%20Egypt%20SCUBA.jpg,
+starfish,Asteroidea,451009,,http://commons.wikimedia.org/wiki/Special:FilePath/Royal%20starfish%20%28Astropecten%20articulatus%29%20on%20the%20beach.jpg,
+crab,Brachyura,935379,,http://commons.wikimedia.org/wiki/Special:FilePath/Liocarcinus%20vernalis.jpg,
+lobster,Nephropidae,28241,ott443203,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/773/31917773.jpg,Lobster (Nephropidae) is not monophyletic in the synthetic tree. Placed at Nephropoidea (ott443203) instead.
+seahorse,Hippocampus,1007058,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/803/27220803.jpg,
+clownfish,Amphiprion ocellaris,674643,,http://commons.wikimedia.org/wiki/Special:FilePath/Clownfisch%20%28Amphiprion%20ocellaris%29.jpg,
+sea turtle,Chelonioidea,243396,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/924/24909924.jpg,
+stingray,Dasyatidae,644001,mrcaott1941ott18608,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/682/27743682.jpg,Stingray (Myliobatidae) is not monophyletic in the synthetic tree. Placed at Myliobatiformes instead.
+eel,Anguilliformes,854188,mrcaott13841ott64982,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/108/27185108.jpg,Eel (Anguilla) is not monophyletic in the synthetic tree. Placed at Elopomorpha instead.
+pufferfish,Tetraodontidae,65336,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/580/27157580.jpg,
+swordfish,Xiphias gladius,358621,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/610/31655610.jpg,
+anglerfish,Lophiiformes,583640,,http://commons.wikimedia.org/wiki/Special:FilePath/Caulophryne%20pelagica.jpg,
+human,Homo sapiens,770315,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/2/46/46.jpg,
+goldfish,Carassius auratus,1005907,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/386/25623386.jpg,
+turkey,Meleagris gallopavo,446482,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/844/32577844.jpg,
+goose,Anser anser,190887,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/840/27690840.jpg,
+parrot,Psittacus erithacus,285641,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/854/25627854.jpg,
+penguin,Aptenodytes forsteri,494370,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/116/25605116.jpg,
+owl,Bubo bubo,402453,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/165/26222165.jpg,
+eagle,Haliaeetus leucocephalus,1012350,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/939/26834939.jpg,
+peacock,Pavo cristatus,453575,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/953/26890953.jpg,
+flamingo,Phoenicopterus roseus,595567,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/570/7341570.jpg,
+crow,Corvus brachyrhynchos,331952,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/080/25637080.jpg,
+robin,Erithacus rubecula,507122,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/881/7509881.jpg,
+snake,Python regius,737820,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/829/26851829.jpg,
+lizard,Iguana iguana,608972,,http://commons.wikimedia.org/wiki/Special:FilePath/Curacao%20Iguana%20iguana%202021%203.jpg,
+crocodile,Crocodylus niloticus,35864,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/759/26840759.jpg,
+alligator,Alligator mississippiensis,335590,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/639/26887639.jpg,
+tortoise,Testudo graeca,207423,,http://commons.wikimedia.org/wiki/Special:FilePath/Nabeulensis%20sarda.JPG,
+chameleon,Chamaeleo chamaeleon,824527,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/004/31792004.jpg,
+gecko,Gekko gecko,953907,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/053/27727053.jpg,
+ant,Formica rufa,744114,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/792/26875792.jpg,
+bee,Apis mellifera,461645,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/917/31920917.jpg,
+ladybug,Coccinella septempunctata,343294,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/256/-26781256.jpg,
+spider,Araneus diadematus,725241,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/582/5815582.jpg,
+grasshopper,Schistocerca gregaria,330338,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/094/16895094.jpg,
+dragonfly,Anax imperator,485521,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/816/31325816.jpg,
+mosquito,Aedes aegypti,269666,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/998/3601998.jpg,
+housefly,Musca domestica,1011010,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/983/32386983.jpg,
+snail,Cornu aspersum,349699,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/129/25636129.jpg,
+worm,Lumbricus terrestris,316441,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/092/29674092.jpg,
+apple tree,Malus domestica,3902985,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/278/25590278.jpg,
+banana,Musa acuminata,207474,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/2/34/34.jpg,
+strawberry,Fragaria × ananassa,208027,,http://commons.wikimedia.org/wiki/Special:FilePath/Strawberries.JPG,
+blueberry,Vaccinium corymbosum,567253,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/396/32156396.jpg,
+watermelon,Citrullus lanatus,1006251,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/294/2445294.jpg,
+pumpkin,Cucurbita pepo,379282,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/780/26781780.jpg,
+carrot,Daucus carota,372836,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/728/26800728.jpg,
+tomato,Solanum lycopersicum,378964,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/506/26923506.jpg,
+corn,Zea mays,605194,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/580/32354580.jpg,
+grass,Poa pratensis,1079463,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/538/5818538.jpg,
+cactus,Carnegiea gigantea,897402,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/173/32541173.jpg,
+pine tree,Pinus sylvestris,568619,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/900/27739900.jpg,
+mushroom,Agaricus bisporus,564405,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/214/27740214.jpg,
+swan,Cygnus olor,140314,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/25805297.jpg,
+tuna,Thunnus albacares,833188,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/679/20838679.jpg,
+salmon,Salmo salar,688328,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/304/31421304.jpg,
+killer whale,Orcinus orca,124215,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/368/27795368.jpg,
+shrimp,Litopenaeus vannamei,169168,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/605/31799605.jpg,
+coral,Acropora cervicornis,507951,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/740/26821740.jpg,
+pigeon,Columba livia,938416,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/837/34214837.jpg,
+donkey,Equus africanus asinus,519153,,http://commons.wikimedia.org/wiki/Special:FilePath/Donkey%20in%20Clovelly%2C%20North%20Devon%2C%20England.jpg,
+aardvark,Orycteropus afer,561087,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/713/27322713.jpg,
+giant anteater,Myrmecophaga tridactyla,490538,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/796/26879796.jpg,
+echidna,Tachyglossus aculeatus,16038,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/190/26789190.jpg,
+tapir,Tapirus terrestris,1034223,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/191/32450191.jpg,
+bison,Bison bison,907693,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/781/26852781.jpg,
+red panda,Ailurus fulgens,872562,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/974/24158974.jpg,
+weasel,Mustela nivalis,354525,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/964/27768964.jpg,
+badger,Meles meles,923113,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/158/32156158.jpg,
+opossum,Didelphis virginiana,919171,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/200/13153200.jpg,
+capybara,Hydrochoerus hydrochaeris,744018,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/379/27770379.jpg,
+ostrich,Struthio camelus,647692,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/602/6687602.jpg,
+kiwi,Apteryx mantelli,748998,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/504/26829504.jpg,
+pelican,Pelecanus onocrotalus,427899,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/934/27710934.jpg,
+heron,Ardea cinerea,119222,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/346/24897346.jpg,
+hummingbird,Archilochus colubris,759410,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/430/27814430.jpg,
+woodpecker,Dendrocopos major,348848,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/338/5830338.jpg,
+toucan,Ramphastos toco,640527,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/631/33160631.jpg,
+albatross,Diomedea exulans,71459,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/225/26890225.jpg,
+vulture,Gyps fulvus,549517,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/675/26222675.jpg,
+kingfisher,Alcedo atthis,549519,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/186/26797186.jpg,
+salamander,Salamandra salamandra,689975,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/767/26796767.jpg,
+axolotl,Ambystoma mexicanum,984726,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/127/31918127.jpg,
+newt,Triturus cristatus,1041796,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/800/26854800.jpg,
+komodo dragon,Varanus komodoensis,1091028,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/642/26916642.jpg,
+tuatara,Sphenodon punctatus,35890,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/822/26796822.jpg,
+cobra,Naja naja,217478,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/259/27769259.jpg,
+manta ray,Mobula birostris,920351,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/737/26792737.jpg,
+coelacanth,Latimeria chalumnae,773491,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/823/25629823.jpg,
+lungfish,Protopterus annectens,199334,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/705/27699705.jpg,
+sea anemone,Actinia equina,1084476,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/818/31920818.jpg,
+sea urchin,Strongylocentrotus purpuratus,564702,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/353/32391353.jpg,
+sea cucumber,Holothuria atra,920160,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/001/27789001.jpg,
+sponge,Spongia officinalis,373931,,http://commons.wikimedia.org/wiki/Special:FilePath/Spongia%20officinalis.jpg,
+clam,Mercenaria mercenaria,80121,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/219/19679219.jpg,
+oyster,Crassostrea gigas,987409,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/841/19678841.jpg,
+mussel,Mytilus edulis,499751,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/801/19678801.jpg,
+nautilus,Nautilus pompilius,616359,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/671/27779671.jpg,
+cuttlefish,Sepia officinalis,528817,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/862/27070862.jpg,
+horseshoe crab,Limulus polyphemus,511973,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/378/31335378.jpg,
+scorpion,Pandinus imperator,990944,,http://commons.wikimedia.org/wiki/Special:FilePath/Emperor%20scorpion%20or%20Imperial%20scorpion%20%28Pandinus%20imperator%29.jpg,
+centipede,Scolopendra gigantea,3518397,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/810/31474810.jpg,
+millipede,Archispirostreptus gigas,81620,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/554/27715554.jpg,
+termite,Macrotermes bellicosus,213031,,http://commons.wikimedia.org/wiki/Special:FilePath/Macrotermes%20bellicosus%20minor%20soldier.jpg,
+praying mantis,Mantis religiosa,656298,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/026/25364026.jpg,
+stag beetle,Lucanus cervus,867953,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/765/29212765.jpg,
+moth,Actias luna,180968,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/715/34040715.jpg,
+tick,Ixodes ricinus,493144,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/625/32368625.jpg,
+barnacle,Balanus balanus,323642,,http://commons.wikimedia.org/wiki/Special:FilePath/Balanus%20balanus%20%28YPM%20IZ%20030315%29.jpeg,
+orange,Citrus sinensis,3942433,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/812/25584812.jpg,
+grape,Vitis vinifera,756728,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/656/26783656.jpg,
+cherry,Prunus avium,162547,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/307/5818307.jpg,
+peach,Prunus persica,259054,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/544/25590544.jpg,
+pear,Pyrus communis,972654,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/733/26780733.jpg,
+lemon,Citrus limon,3942422,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/377/32354377.jpg,
+pineapple,Ananas comosus,627039,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/470/1993470.jpg,
+coconut palm,Cocos nucifera,366250,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/920/32354920.jpg,
+mango,Mangifera indica,807634,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/128/26843128.jpg,
+raspberry,Rubus idaeus,156929,,http://commons.wikimedia.org/wiki/Special:FilePath/20130714Rubus%20idaeus2.jpg,
+avocado,Persea americana,913249,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/683/29256683.jpg,
+plum,Prunus domestica,731554,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/183/2447183.jpg,
+potato,Solanum tuberosum,494835,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/155/2444155.jpg,
+broccoli,Brassica oleracea,833642,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/501/26826501.jpg,
+lettuce,Lactuca sativa,515700,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/074/1992074.jpg,
+onion,Allium cepa,781600,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/643/1993643.jpg,
+pea,Pisum sativum,359905,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/229/32382229.jpg,
+cucumber,Cucumis sativus,1006246,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/299/2445299.jpg,
+celery,Apium graveolens,2472,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/323/27319323.jpg,
+spinach,Spinacia oleracea,317784,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/419/31348419.jpg,
+sweet potato,Ipomoea batatas,1071040,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/379/24989379.jpg,
+garlic,Allium sativum,748370,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/625/1993625.jpg,
+bell pepper,Capsicum annuum,473836,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/193/26790193.jpg,
+green bean,Phaseolus vulgaris,825707,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/931/2447931.jpg,
+tulip,Tulipa,878709,mrcaott19156ott48915,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/005/31656005.jpg,Tulip (Tulipa) is not monophyletic in the synthetic tree. Placed at Mesangiospermae instead.
+daisy,Bellis perennis,792843,,http://commons.wikimedia.org/wiki/Special:FilePath/Belis%20peremnis%20-%20panoramio.jpg,
+dandelion,Taraxacum officinale,451182,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/784/26789784.jpg,
+daffodil,Narcissus,592259,mrcaott14066ott52001,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/760/31330760.jpg,Daffodil (Narcissus) is not monophyletic in the synthetic tree. Placed at Amaryllidoideae instead.
+lily,Lilium,748393,mrcaott19147ott27372,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/737/26789737.jpg,Lily (Lilium) is not monophyletic in the synthetic tree. Placed at Mesangiospermae instead.
+orchid,Orchidaceae,568878,ott5298374,http://commons.wikimedia.org/wiki/Special:FilePath/PhalaenopsisOphrysPaphiopedilumMaxillaria.jpg,Orchid (Orchidaceae) is not monophyletic in the synthetic tree. Placed at Mesangiospermae (ott5298374) instead.
+marigold,Tagetes,717598,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/468/25478468.jpg,
+lavender,Lavandula,839065,ott5263556,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/943/27718943.jpg,Lavender (Lavandula) is not monophyletic in the synthetic tree. Placed at Core Lamiales (ott5263556) instead.
+violet,Viola odorata,1039231,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/250/2446250.jpg,
+poppy,Papaver rhoeas,867221,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/140/26784140.jpg,
+hibiscus,Hibiscus rosa-sinensis,378513,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/177/26790177.jpg,
+maple tree,Acer,948922,mrcaott9337ott11461,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/809/27764809.jpg,Maple tree (Acer) is not monophyletic in the synthetic tree. Placed at Mesangiospermae instead.
+willow tree,Salix,458856,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/119/32373119.jpg,
+birch tree,Betula,267715,ott267709,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/248/32801248.jpg,Birch (Betula) is not monophyletic in the synthetic tree. Placed at Fagales (ott267709) instead.
+palm tree,Arecaceae,526437,,http://commons.wikimedia.org/wiki/Special:FilePath/Manila%20dwarf%20coconut%20palm.jpg,
+cherry blossom,Prunus serrulata,746756,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/027/25799027.jpg,
+bamboo,Bambusa,618937,mrcaott4716ott34798,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/630/27076630.jpg,Bamboo (Bambusoideae) is not monophyletic in the synthetic tree. Placed at Poaceae instead.
+fern,Polypodiopsida,166292,,http://commons.wikimedia.org/wiki/Special:FilePath/Dicksonia%20antarctica%20in%20Nunniong%2C%20Australia.jpg,
+clover,Trifolium,935477,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/338/31335338.jpg,
+moss,Bryophyta,246594,,http://commons.wikimedia.org/wiki/Special:FilePath/Haeckel%20Muscinae.jpg,
+ivy,Hedera helix,524074,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/864/31652864.jpg,
+venus flytrap,Dionaea muscipula,14971,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/264/-26836264.jpg,
+mint,Mentha,55626,mrcaott60108ott95353,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/569/29729569.jpg,Mint (Mentha) is not monophyletic in the synthetic tree. Placed at Core Lamiales instead.
+wheat,Triticum aestivum,31926,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/379/32796379.jpg,
+rice,Oryza sativa,709894,,http://commons.wikimedia.org/wiki/Special:FilePath/Reis-Rispe.jpg,
+aloe vera,Aloe vera,62303,,https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/545/1993545.jpg,
