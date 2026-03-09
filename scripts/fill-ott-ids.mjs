@@ -20,26 +20,70 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CSV_PATH = path.resolve(__dirname, "..", "species.csv");
 
 // ---------------------------------------------------------------------------
-// CSV helpers  (shared pattern with fill-image-urls.mjs)
+// CSV helpers – handles double-quoted fields (RFC 4180)
 // ---------------------------------------------------------------------------
+
+function parseCsvLine(line) {
+  const fields = [];
+  let i = 0;
+  while (i <= line.length) {
+    if (i === line.length) {
+      fields.push("");
+      break;
+    }
+    if (line[i] === '"') {
+      let val = "";
+      i++;
+      while (i < line.length) {
+        if (line[i] === '"') {
+          if (i + 1 < line.length && line[i + 1] === '"') {
+            val += '"';
+            i += 2;
+          } else {
+            i++;
+            break;
+          }
+        } else {
+          val += line[i++];
+        }
+      }
+      fields.push(val);
+      if (i < line.length && line[i] === ",") i++;
+    } else {
+      let val = "";
+      while (i < line.length && line[i] !== ",") {
+        val += line[i++];
+      }
+      fields.push(val);
+      if (i < line.length) i++;
+    }
+  }
+  return fields;
+}
 
 function parseCsv(text) {
   const lines = text.trim().split("\n");
-  const header = lines[0].split(",");
-  return lines.slice(1).map((line) => {
-    const vals = line.split(",");
+  const header = parseCsvLine(lines[0]).map((h) => h.trim());
+  return { header, rows: lines.slice(1).map((line) => {
+    const vals = parseCsvLine(line);
     const obj = {};
-    header.forEach((h, i) => (obj[h.trim()] = vals[i]?.trim() ?? ""));
+    header.forEach((h, i) => (obj[h] = vals[i]?.trim() ?? ""));
     return obj;
-  });
+  })};
 }
 
-function writeCsv(rows, filePath) {
-  if (rows.length === 0) return;
-  const header = Object.keys(rows[0]);
+function csvEscape(val) {
+  if (!val) return "";
+  if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+    return '"' + val.replace(/"/g, '""') + '"';
+  }
+  return val;
+}
+
+function writeCsv(header, rows, filePath) {
   const lines = [header.join(",")];
   for (const row of rows) {
-    lines.push(header.map((h) => row[h] ?? "").join(","));
+    lines.push(header.map((h) => csvEscape(row[h] ?? "")).join(","));
   }
   fs.writeFileSync(filePath, lines.join("\n") + "\n");
 }
@@ -90,8 +134,8 @@ async function matchNames(names) {
 
 async function main() {
   const csvText = fs.readFileSync(CSV_PATH, "utf-8");
-  const rows = parseCsv(csvText);
-  console.log(`Read ${rows.length} species from ${CSV_PATH}`);
+  const { header, rows } = parseCsv(csvText);
+  console.log(`Read ${rows.length} taxa from ${CSV_PATH}`);
 
   const missing = rows.filter((r) => !r.ott_id);
   if (missing.length === 0) {
@@ -130,11 +174,26 @@ async function main() {
   }
 
   if (updated > 0) {
-    writeCsv(rows, CSV_PATH);
+    writeCsv(header, rows, CSV_PATH);
     console.log(`\nUpdated ${updated} OTT ID(s) in ${CSV_PATH}`);
   } else {
     console.log("\nNo new OTT IDs found.");
   }
+
+  // Check for duplicate OTT IDs — every row must have a unique ID
+  const seen = new Map();
+  for (const row of rows) {
+    if (!row.ott_id) continue;
+    const id = String(row.ott_id);
+    if (seen.has(id)) {
+      console.error(
+        `\n❌  Duplicate OTT ID ${id}: "${row.name}" and "${seen.get(id)}"`
+      );
+      process.exit(1);
+    }
+    seen.set(id, row.name);
+  }
+  console.log("✅ No duplicate OTT IDs.");
 }
 
 main().catch((err) => {

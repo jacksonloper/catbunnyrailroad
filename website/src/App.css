@@ -311,7 +311,7 @@ h2 {
   border: 1px solid #444;
   border-radius: 12px;
   width: 100%;
-  max-width: 600px;
+  max-width: 90vw;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -347,40 +347,107 @@ h2 {
 
 .subtree-content {
   padding: 1rem;
-  overflow-y: auto;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.subtree-node {
-  border-left: 2px solid #555;
-  padding-left: 12px;
-  margin-top: 4px;
+.subtree-svg {
+  display: block;
 }
 
-.subtree-label {
+.subtree-leaf-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  fill: currentColor;
+}
+
+.subtree-header-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 4px 0;
 }
 
-.subtree-internal .subtree-name {
+.subtree-copy-btn {
+  padding: 0.35rem 0.8rem;
   font-size: 0.85rem;
-  color: #999;
-  font-style: italic;
-}
-
-.subtree-leaf .subtree-name {
-  font-size: 0.95rem;
   font-weight: 600;
-  text-transform: capitalize;
+  border: 1px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #2a2a2a;
+  color: inherit;
 }
 
-.subtree-img {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  object-fit: cover;
+.subtree-copy-btn:hover {
+  background: #333;
+}
+
+/* ------ Import flow ------ */
+
+.import-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.import-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+.import-btn:hover {
+  background: #333;
+}
+
+.import-panel {
+  max-width: 480px;
+}
+
+.import-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.import-hint {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 0;
+}
+
+.import-textarea {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  font-family: monospace;
+  border: 2px solid #444;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: inherit;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.import-textarea:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.import-go-btn {
+  align-self: center;
+}
+
+.import-error {
+  color: #e55;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .species-img {
@@ -405,11 +472,219 @@ h2 {
   text-transform: capitalize;
 }
 
-.broken-badge {
-  font-size: 0.7rem;
-  color: #999;
-  font-style: italic;
+/* ------ Comment star / popup ------ */
+
+.comment-star {
+  background: none;
+  border: none;
+  color: #c90;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.4rem;
+  vertical-align: super;
+  line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.comment-star:hover {
+  color: #fb0;
+}
+
+.comment-star-inline {
+  color: #c90;
+  font-size: 0.75rem;
   cursor: help;
+  vertical-align: super;
+  line-height: 1;
+}
+
+.comment-popup {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: #ddd;
+  width: max-content;
+  max-width: 260px;
+  z-index: 50;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  text-align: left;
+  text-transform: none;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.comment-popup p {
+  margin: 0;
+}
+
+.comment-close {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0;
+}
+
+.comment-close:hover {
+  color: #fff;
+}
+
+.subtree-comment-star {
+  fill: #c90;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.subtree-comment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.subtree-comment-modal {
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  color: #ddd;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.subtree-comment-modal h4 {
+  margin: 0 0 0.5rem;
+  color: #c90;
+  font-size: 1rem;
+}
+
+.subtree-comment-modal p {
+  margin: 0 0 1rem;
+}
+
+.subtree-comment-modal button {
+  display: block;
+  margin: 0 auto;
+  padding: 0.4rem 1.6rem;
+  background: #444;
+  border: 1px solid #666;
+  border-radius: 6px;
+  color: #ddd;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.subtree-comment-modal button:hover {
+  background: #555;
+}
+
+/* ------ Form error ------ */
+
+.form-error {
+  text-align: center;
+  color: #e55;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+}
+
+/* ------ Error console overlay ------ */
+
+.error-console {
+  position: fixed;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: min(360px, calc(100vw - 1rem));
+  max-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  background: #2a0a0a;
+  border: 1px solid #c44;
+  border-radius: 8px;
+  z-index: 200;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.error-console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.6rem;
+  background: #3a0e0e;
+  color: #f99;
+  font-weight: 600;
+  border-bottom: 1px solid #c44;
+}
+
+.error-console-header button {
+  background: none;
+  border: 1px solid #c44;
+  color: #f99;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0.15rem 0.5rem;
+}
+
+.error-console-body {
+  overflow-y: auto;
+  max-height: 35vh;
+}
+
+.error-console-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-bottom: 1px solid rgba(200, 60, 60, 0.2);
+  color: #fcc;
+  word-break: break-word;
+}
+
+.error-console-warn {
+  color: #fd9;
+  background: rgba(100, 80, 0, 0.15);
+}
+
+.error-console-text {
+  flex: 1;
+}
+
+.error-console-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #f99;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  line-height: 1;
 }
 
 /* ------ Light mode ------ */
@@ -469,7 +744,57 @@ h2 {
   .subtree-close:hover {
     background: #f0f0f0;
   }
-  .subtree-node {
-    border-left-color: #ccc;
+  .subtree-copy-btn {
+    background: #f0f0f0;
+    border-color: #ccc;
+  }
+  .subtree-copy-btn:hover {
+    background: #e8e8e8;
+  }
+  .import-btn {
+    border-color: #ccc;
+  }
+  .import-btn:hover {
+    background: #f0f0f0;
+  }
+  .import-textarea {
+    background: #fff;
+    border-color: #ccc;
+  }
+  .error-console {
+    background: #fff0f0;
+    border-color: #c44;
+  }
+  .error-console-header {
+    background: #ffe5e5;
+    color: #900;
+  }
+  .error-console-msg {
+    color: #600;
+  }
+  .error-console-warn {
+    color: #630;
+    background: rgba(200, 180, 0, 0.1);
+  }
+  .error-console-dismiss {
+    color: #900;
+  }
+  .comment-popup {
+    background: #fff;
+    border-color: #ccc;
+    color: #333;
+  }
+  .subtree-comment-modal {
+    background: #fff;
+    border-color: #ccc;
+    color: #333;
+  }
+  .subtree-comment-modal button {
+    background: #e8e8e8;
+    border-color: #ccc;
+    color: #333;
+  }
+  .subtree-comment-modal button:hover {
+    background: #ddd;
   }
 }

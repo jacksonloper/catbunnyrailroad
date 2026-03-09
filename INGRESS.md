@@ -1,29 +1,32 @@
-# Ingressing New Species
+# Ingressing New Taxa
 
-This document describes the process for adding new organisms to the Cat Bunny Railroad dataset.
+This document describes the process for adding new organisms (taxa) to the Cat Bunny Railroad dataset.
 
 ## Step 1: Add Rows to `species.csv`
 
-Open `species.csv` and add one row per new organism. You only need to fill in two columns:
+Open `species.csv` and add one row per new organism. You need to fill in at least:
 
 | Column | Required | What to put |
 |--------|----------|-------------|
 | `name` | ✓ | Common English name (e.g. `cat`, `strawberry`) |
 | `scientific_name` | ✓ | Binomial name, genus, family, or order (e.g. `Felis catus`, `Rosa`, `Chiroptera`) |
 | `ott_id` | | Leave empty — filled automatically in Step 2 |
+| `node_id` | | Leave empty unless needed (see Step 4) |
 | `image_url` | | Leave empty — filled automatically in Step 3 |
+| `comments` | | Leave empty unless needed (see Step 4) |
 
 Example new rows:
 
 ```
-axolotl,Ambystoma mexicanum,,
-red panda,Ailurus fulgens,,
+axolotl,Ambystoma mexicanum,,,,
+red panda,Ailurus fulgens,,,,
 ```
 
 **Tips:**
-- Higher-level taxa (families like `Delphinidae`, orders like `Lepidoptera`, genera like `Rosa`) are fine to use as `scientific_name` when the common name refers to a broad group.
+- Higher-level taxa (families like `Delphinidae`, orders like `Lepidoptera`, genera like `Rosa`) are fine to use as `scientific_name` when the common name refers to a broad group.  These will become **internal nodes** in the tree — the website handles this correctly.
 - For hybrid species, include the `×` symbol (e.g. `Fragaria × ananassa`).
 - The scripts use `scientific_name` (not `name`) for lookups, so getting the scientific name right matters most.
+- **Every row must have a unique OTT ID.**  Two rows with the same OTT ID will fail CI and the build.  If you want two common names for the same organism, pick the one you prefer.
 
 ## Step 2: Fill OTT IDs
 
@@ -33,7 +36,7 @@ Run:
 node scripts/fill-ott-ids.mjs
 ```
 
-This queries the Open Tree of Life TNRS (Taxonomic Name Resolution Service) API and fills in the `ott_id` column for any rows that are missing one.
+This queries the Open Tree of Life TNRS (Taxonomic Name Resolution Service) API and fills in the `ott_id` column for any rows that are missing one.  After filling, it also checks for duplicate OTT IDs.
 
 **What to look for:**
 - `✓` lines mean a match was found — good.
@@ -42,6 +45,7 @@ This queries the Open Tree of Life TNRS (Taxonomic Name Resolution Service) API 
   - The name is too informal or ambiguous — use a more precise scientific name.
   - The organism is not in the Open Tree of Life taxonomy — rare, but possible. You may need to look up the OTT ID manually at <https://tree.opentreeoflife.org/taxonomy/browse> and enter it by hand.
 - `"All rows already have OTT IDs. Nothing to do."` means every row already has an ID.
+- `❌ Duplicate OTT ID` — two rows have the same OTT ID.  Remove one of them or use a different OTT ID.
 
 ## Step 3: Fill Image URLs
 
@@ -73,10 +77,33 @@ npm run build
 ```
 
 **What to look for in the build output:**
-- `Skipping row with invalid ott_id: <name>` — a row has a non-numeric or missing OTT ID. Go back and fix it in `species.csv`.
-- `Skipping duplicate ott_id <id> (<name>)` — two rows share the same OTT ID. This is expected in some cases (e.g. dog and wolf are both *Canis lupus*) but unexpected duplicates should be investigated.
-- `Broken taxon: ott<id> mapped to node <label>` — the taxon is not monophyletic in the synthetic tree. The build handles this automatically by mapping it to its MRCA, but the species will display with an `≈` marker. This is informational, not an error.
-- `Warning: could not resolve <name>` — MRCA name resolution failed. Usually non-fatal, but worth a look.
+- `❌ Row with invalid ott_id: <name>` — a row has a non-numeric or missing OTT ID. Go back and fix it in `species.csv`.
+- `❌ Duplicate ott_id <id>` — two rows share the same OTT ID. Every row must have a unique ID. Remove one of the duplicates.
+- `❌ The API reported broken (non-monophyletic) taxa:` — the taxon's OTT ID is not monophyletic in the synthetic tree.  **You need to add a `node_id`** for this row.  The error message tells you what replacement node ID to use.  See "Fixing broken taxa" below.
+- `❌ Duplicate tree placement ID` — two rows would map to the same tree node. Adjust the `node_id` values to avoid the collision.
+- `❌ taxa not found in tree` — a taxon could not be placed in the tree.  Check the OTT ID or node ID is correct.
+
+### Fixing broken taxa
+
+When a taxon is "broken" (non-monophyletic), the build will fail with a message like:
+
+```
+❌ The API reported broken (non-monophyletic) taxa:
+   ott791121 (oak) → mapped to mrcaott37377ott106844
+   Fix: add node_id="mrcaott37377ott106844" to this row in species.csv
+```
+
+To fix this:
+1. Copy the replacement node ID from the error message
+2. Add it to the `node_id` column for that row
+3. Add a comment explaining the situation to the `comments` column
+
+For example:
+```csv
+oak,Quercus,791121,mrcaott37377ott106844,https://...,"Oak (Quercus) is not monophyletic in the synthetic tree. Placed at Fagales instead."
+```
+
+The `comments` field will show as a clickable ★ footnote on the website.
 
 ## Step 5: Fixing Edge Cases by Hand
 
@@ -91,4 +118,4 @@ Most errors should be fixable by correcting `species.csv` and rerunning the scri
 
 ## Meta: Revisit This Document
 
-**This file (INGRESS.md) should itself be revisited each time you ingress new species.** If you discover new edge cases, new failure modes, or better workflows, update this document so the next person benefits.
+**This file (INGRESS.md) should itself be revisited each time you ingress new taxa.** If you discover new edge cases, new failure modes, or better workflows, update this document so the next person benefits.

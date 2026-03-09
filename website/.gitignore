@@ -13,7 +13,7 @@ dist-ssr
 *.local
 
 # Generated data files (rebuilt during build from species.csv + API)
-src/data/species.json
+src/data/taxa.json
 src/data/tree.json
 
 # Editor directories and files
