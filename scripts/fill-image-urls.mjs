@@ -3,14 +3,14 @@
 /**
  * fill-image-urls.mjs
  *
- * Reads species.csv and looks for rows where image_url is missing.
+ * Reads taxa.csv and looks for rows where image_url is missing.
  * For each such row, attempts to fetch an image URL from the OneZoom API.
  *
  * For higher taxa (families, genera, orders) OneZoom may not have a direct
  * image.  In that case we do a "recursive descent" via the Open Tree of Life
  * taxonomy API to find descendant species, then try OneZoom for those.
  *
- * Updates species.csv in place with any newly-found URLs.
+ * Updates taxa.csv in place with any newly-found URLs.
  *
  * Usage:  node scripts/fill-image-urls.mjs
  */
@@ -20,7 +20,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CSV_PATH = path.resolve(__dirname, "..", "species.csv");
+const CSV_PATH = path.resolve(__dirname, "..", "taxa.csv");
 
 // ---------------------------------------------------------------------------
 // CSV helpers – handles double-quoted fields (RFC 4180)

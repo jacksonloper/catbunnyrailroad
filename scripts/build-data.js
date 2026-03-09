@@ -1,11 +1,13 @@
 /**
- * Build-time script: reads species.csv (with image_url, node_id, comments
- * columns) and fetches the phylogenetic tree from Open Tree of Life's
- * induced_subtree API.
+ * Build-data script: reads taxa.csv and fetches the phylogenetic tree
+ * from Open Tree of Life's induced_subtree API.
  *
  * Outputs:
- *   - src/data/taxa.json   (taxa list with image URLs and comments)
- *   - src/data/tree.json   (phylogenetic tree for MRCA lookups)
+ *   - website/src/data/taxa.json   (taxa list with image URLs and comments)
+ *   - website/src/data/tree.json   (phylogenetic tree for MRCA lookups)
+ *
+ * The generated JSON files should be committed to the repository so that
+ * the website build does not need to call the Open Tree API.
  *
  * Usage: node scripts/build-data.js
  */
@@ -16,8 +18,8 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const CSV_PATH = path.resolve(ROOT, "..", "species.csv");
-const OUT_DIR = path.resolve(ROOT, "src", "data");
+const CSV_PATH = path.resolve(ROOT, "taxa.csv");
+const OUT_DIR = path.resolve(ROOT, "website", "src", "data");
 
 // ---------------------------------------------------------------------------
 // CSV parsing – handles double-quoted fields (RFC 4180)
@@ -144,8 +146,7 @@ function parseNewick(nwk) {
 // ---------------------------------------------------------------------------
 // Tree simplification – prune branches that contain no taxa of interest.
 // Taxa may sit on internal nodes; we do NOT force them to be leaves.
-// With the node_id approach, no broken taxa should exist in the API response,
-// so we do not need to handle them here.
+// Only monophyletic taxa are allowed, so no broken-taxa handling is needed.
 // ---------------------------------------------------------------------------
 
 function simplifyTree(node, idSet) {
@@ -197,7 +198,7 @@ function treeToCompact(node, taxaByTreeId) {
 
 // ---------------------------------------------------------------------------
 // Fetch phylogenetic tree from Open Tree of Life
-// Uses node_ids (strings) which can be "ottNNN" or "mrcaottNNNottNNN".
+// Uses the node_ids API parameter with "ottNNN" strings.
 // ---------------------------------------------------------------------------
 
 async function fetchTree(nodeIds) {
@@ -246,22 +247,13 @@ async function main() {
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  // For each taxon, compute the tree ID to send to the API:
-  // use node_id if present, otherwise "ott" + ott_id
+  // For each taxon, compute the tree ID to send to the API: "ott" + ott_id
+  // (no node_id fallback — broken taxa are not allowed)
   const treeIds = [];          // ordered list of tree IDs
   const treeIdToTaxon = {};    // tree ID string -> CSV row
-  const seenTreeIds = new Map();
 
   for (const t of taxa) {
-    const treeId = t.node_id || ("ott" + t.ott_id);
-    if (seenTreeIds.has(treeId)) {
-      console.error(
-        `❌ Duplicate tree placement ID "${treeId}": ` +
-        `"${t.name}" and "${seenTreeIds.get(treeId)}"`
-      );
-      process.exit(1);
-    }
-    seenTreeIds.set(treeId, t.name);
+    const treeId = "ott" + t.ott_id;
     treeIds.push(treeId);
     treeIdToTaxon[treeId] = t;
   }
@@ -276,14 +268,12 @@ async function main() {
   if (treeData.broken && Object.keys(treeData.broken).length > 0) {
     console.error("❌ The API reported broken (non-monophyletic) taxa:");
     for (const [key, replacement] of Object.entries(treeData.broken)) {
-      const name = seenTreeIds.get(key) || seenOtts.get(parseInt(key.replace("ott", ""))) || "?";
+      const name = seenOtts.get(parseInt(key.replace("ott", ""))) || "?";
       console.error(`   ${key} (${name}) → mapped to ${replacement}`);
-      console.error(
-        `   Fix: add node_id="${replacement}" to this row in species.csv`
-      );
     }
     console.error(
-      "\nAdd a node_id column value for each broken taxon and re-run the build."
+      "\nBroken taxa are not allowed.  Remove them from taxa.csv or " +
+      "use a monophyletic alternative."
     );
     process.exit(1);
   }
