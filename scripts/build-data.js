@@ -175,6 +175,46 @@ function simplifyTree(node, idSet) {
 }
 
 // ---------------------------------------------------------------------------
+// Resolve polytomies – ensure every internal node has at most 2 children.
+// The Open Tree API may return "soft polytomies" where evolutionary
+// relationships are unresolved.  We resolve them by iteratively grouping
+// the last two children into a new unnamed internal node.
+// ---------------------------------------------------------------------------
+
+function resolvePolytomies(node) {
+  for (const child of node.children) {
+    resolvePolytomies(child);
+  }
+  while (node.children.length > 2) {
+    const right = node.children.pop();
+    const left = node.children.pop();
+    node.children.push({ label: "", children: [left, right] });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Verify the final tree is binary – no node may have more than 2 children.
+// ---------------------------------------------------------------------------
+
+function checkBinaryTree(node) {
+  const violations = [];
+  function walk(n) {
+    if (n.children.length > 2) {
+      violations.push({
+        name: n.name || n.label || "(unnamed)",
+        numChildren: n.children.length,
+        childNames: n.children.map((c) => c.name || c.label || "(unnamed)"),
+      });
+    }
+    for (const child of n.children) {
+      walk(child);
+    }
+  }
+  walk(node);
+  return violations;
+}
+
+// ---------------------------------------------------------------------------
 // Convert simplified tree to a compact JSON format suitable for the browser.
 // Each node has:  { name, ott_id, children: [...] }
 // Taxa nodes also have:  { isTaxon: true }
@@ -283,7 +323,22 @@ async function main() {
   const idSet = new Set(treeIds);
   const simplified = simplifyTree(rawTree, idSet);
 
+  // Resolve any polytomies so the tree is strictly binary
+  resolvePolytomies(simplified);
+
   const compactTree = treeToCompact(simplified, treeIdToTaxon);
+
+  // Verify the tree is binary (no node has more than 2 children)
+  const binaryViolations = checkBinaryTree(compactTree);
+  if (binaryViolations.length > 0) {
+    console.error("❌ Tree is not binary! Nodes with >2 children:");
+    for (const v of binaryViolations) {
+      console.error(
+        `   ${v.name}: ${v.numChildren} children (${v.childNames.join(", ")})`
+      );
+    }
+    process.exit(1);
+  }
 
   // Verify that every taxon appears exactly once in the tree
   const treeOtts = new Map();
