@@ -8,7 +8,13 @@
  * Resolution Service) match_names endpoint to look up the OTT ID.
  *
  * Also fills in the ott_name and uniqname columns for every row that
- * has an OTT ID (using the taxonomy/taxon_info endpoint).
+ * has an OTT ID (using the taxonomy/taxon_info endpoint), and
+ * **overwrites** the scientific_name column with the official OTT name.
+ *
+ * The log shows the front-facing name, the original scientific name
+ * that was used to query, and the canonical OTT name so you can spot
+ * mismatches (e.g. "frog" queried as "Anura" — Anura really means
+ * frogs AND toads, so the front-facing name might need adjusting).
  *
  * After filling, validates that none of the OTT IDs are broken
  * (non-monophyletic) in the synthetic tree.  Broken taxa are not
@@ -232,10 +238,14 @@ async function main() {
         const queryName = (row.scientific_name || row.name).toLowerCase();
         const match = idMap.get(queryName);
         if (match) {
-          console.log(`  ✓ ${row.name} (${queryName}) → ott_id=${match.ott_id}`);
+          const origSci = row.scientific_name || row.name;
           row.ott_id = String(match.ott_id);
+          row.scientific_name = match.ott_name;
           row.ott_name = match.ott_name;
           row.uniqname = match.uniqname;
+          console.log(
+            `  ✓ name="${row.name}"  queried="${origSci}"  ott="${match.ott_name}"  (${match.uniqname})`
+          );
           updated++;
         } else {
           console.log(`  ✗ ${row.name} (${queryName}) — no match found`);
@@ -252,7 +262,8 @@ async function main() {
     console.log("All rows already have OTT IDs.");
   }
 
-  // --- Phase 2: Fill missing ott_name / uniqname via taxon_info ---
+  // --- Phase 2: Fill missing ott_name / uniqname via taxon_info,
+  //               and overwrite scientific_name with the canonical OTT name ---
   const needInfo = rows.filter(
     (r) => r.ott_id && (!r.ott_name || !r.uniqname)
   );
@@ -261,15 +272,35 @@ async function main() {
       `\nFilling ott_name/uniqname for ${needInfo.length} row(s)...`
     );
     for (const row of needInfo) {
+      const origSci = row.scientific_name;
       const info = await fetchTaxonInfo(row.ott_id);
       if (info) {
         row.ott_name = info.ott_name;
         row.uniqname = info.uniqname;
-        console.log(`  ✓ ${row.name} → ${info.ott_name} (${info.uniqname})`);
+        row.scientific_name = info.ott_name;
+        console.log(
+          `  ✓ name="${row.name}"  queried="${origSci}"  ott="${info.ott_name}"  (${info.uniqname})`
+        );
       } else {
         console.log(`  ✗ ${row.name} — taxon_info lookup failed`);
       }
     }
+  }
+
+  // Sync scientific_name ← ott_name for any remaining rows where they differ
+  let synced = 0;
+  for (const row of rows) {
+    if (row.ott_name && row.scientific_name !== row.ott_name) {
+      const origSci = row.scientific_name;
+      row.scientific_name = row.ott_name;
+      console.log(
+        `  → name="${row.name}"  scientific_name updated: "${origSci}" → "${row.ott_name}"`
+      );
+      synced++;
+    }
+  }
+  if (synced > 0) {
+    console.log(`Synced scientific_name for ${synced} row(s).`);
   }
 
   // Write back (always, so that new columns are populated)

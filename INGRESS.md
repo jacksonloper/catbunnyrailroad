@@ -11,9 +11,9 @@ Open `taxa.csv` and add one row per new organism. You need to fill in at least:
 | Column | Required | What to put |
 |--------|----------|-------------|
 | `name` | ✓ | A friendly common name simple enough for a 6-year-old (e.g. `cat`, `strawberry`). Must still be precise enough that it is not misleading about what the OTT actually represents. |
-| `scientific_name` | ✓ | Binomial name, genus, family, or order (e.g. `Felis catus`, `Rosa`, `Chiroptera`) |
+| `scientific_name` | ✓ | Binomial name, genus, family, or order (e.g. `Felis catus`, `Rosa`, `Chiroptera`). **Overwritten** in Step 2 with the canonical OTT name — your initial value is just used as the search query. |
 | `ott_id` | | Leave empty — filled automatically in Step 2 |
-| `ott_name` | | Leave empty — filled automatically in Step 2 |
+| `ott_name` | | Leave empty — filled automatically in Step 2 (same value as `scientific_name` after the script runs) |
 | `uniqname` | | Leave empty — filled automatically in Step 2 |
 | `image_url` | | Leave empty — filled automatically in Step 3 |
 | `comments` | | Leave empty unless needed |
@@ -40,18 +40,36 @@ Run:
 node scripts/fill-ott-ids.mjs
 ```
 
-This does three things:
+This does four things:
 
 1. **Fills `ott_id`** for any rows that are missing one (via the Open Tree TNRS API).
-2. **Fills `ott_name` and `uniqname`** for every row — these are the canonical name and unique (disambiguated) name from the Open Tree taxonomy.  They serve as an audit trail so you can verify each OTT ID matches the intended taxon.
-3. **Validates against the synthetic tree** — checks that none of the OTT IDs are broken (non-monophyletic).  If any are, the script exits with an error listing the offending taxa.
+2. **Fills `ott_name` and `uniqname`** for every row — these are the canonical name and unique (disambiguated) name from the Open Tree taxonomy.
+3. **Overwrites `scientific_name`** with the canonical OTT name.  Your original value is only used as the query — after the script runs, `scientific_name` always equals `ott_name`.
+4. **Validates against the synthetic tree** — checks that none of the OTT IDs are broken (non-monophyletic).  If any are, the script exits with an error listing the offending taxa.
 
-**What to look for:**
-- `✓` lines mean a match was found — good.
+**Reading the log output:**
+
+The log shows three values per taxon so you can judge whether the
+front-facing `name` is appropriate:
+
+```
+  ✓ name="frog"  queried="Anura"  ott="Anura"  (Anura)
+```
+
+- **name** — the front-facing common name (what kids will see)
+- **queried** — the scientific name you entered (used as the TNRS search query)
+- **ott** — the official canonical name in the Open Tree taxonomy (what `scientific_name` is set to)
+
+If the OTT name covers more than the common name implies, consider
+updating `name`.  For example, Anura includes both frogs *and* toads,
+so "frog" alone might be misleading — "frog and toad" is more accurate.
+
+**What else to look for:**
 - `✗` lines mean no match was found for that name. Common causes:
   - Misspelled scientific name — fix the spelling in `taxa.csv` and rerun.
   - The name is too informal or ambiguous — use a more precise scientific name.
   - The organism is not in the Open Tree of Life taxonomy — rare, but possible. You may need to look up the OTT ID manually at <https://tree.opentreeoflife.org/taxonomy/browse> and enter it by hand.
+- `→ scientific_name updated` lines mean the script overwrote the `scientific_name` column to match the OTT canonical name.  This is expected and correct.
 - `❌ Duplicate OTT ID` — two rows have the same OTT ID.  Remove one of them or use a different OTT ID.
 - `❌ The following taxa are broken` — the taxon is not monophyletic.  Remove it or use a monophyletic alternative.
 
@@ -112,7 +130,7 @@ Most errors should be fixable by correcting `taxa.csv` and rerunning the scripts
 - **Hybrid species with pruned OTT IDs**: Some hybrids (e.g. `Fragaria × ananassa`, OTT 3904118) have OTT IDs that are "pruned" from the synthetic tree. The fix is to use the parent genus OTT ID instead (e.g. `208027` for `Fragaria`). You'll know this happened if the build fails with an error like `"'ott<id>' was not found! pruned_ott_id"`.
 - **No image from any automated source**: If `fill-image-urls.mjs` reports `✗ No image found`, find an appropriate image URL on Wikimedia Commons and paste it directly into the `image_url` column.
 - **Wrong image**: The automated lookup sometimes picks a less-than-ideal representative image (especially for higher taxa via recursive descent). Replace the `image_url` with a better one by hand.
-- **TNRS returns the wrong taxon**: Occasionally the name resolution picks a different organism than intended (e.g. a homonym in a different kingdom). Check the OTT ID at <https://tree.opentreeoflife.org/taxonomy/browse?id=OTTID> and replace it manually if it's wrong.  The `ott_name` and `uniqname` columns can help you spot mismatches.
+- **TNRS returns the wrong taxon**: Occasionally the name resolution picks a different organism than intended (e.g. a homonym in a different kingdom). Check the OTT ID at <https://tree.opentreeoflife.org/taxonomy/browse?id=OTTID> and replace it manually if it's wrong.  The log output (showing queried name vs OTT name) and the `uniqname` column can help you spot mismatches.
 
 **Rule of thumb**: If a problem is a weird one-off, fix it by hand in `taxa.csv`. If it's a systematic issue (e.g. a whole class of names failing), fix it in the scripts instead.
 

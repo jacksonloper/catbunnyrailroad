@@ -37,12 +37,16 @@ Columns:
 the same OTT ID, the build fails immediately.  A CI workflow
 (`.github/workflows/check-csv.yml`) also catches duplicates on PRs.
 
-### The `ott_name` and `uniqname` columns
+### The `scientific_name`, `ott_name`, and `uniqname` columns
 
-These columns store the canonical name and unique (disambiguated) name
-from the Open Tree of Life taxonomy.  They are filled automatically by
-`scripts/fill-ott-ids.mjs` and serve as an audit trail — you can check
-that each OTT ID actually corresponds to the intended organism.
+The `scientific_name` column is **overwritten** by `fill-ott-ids.mjs`
+with the canonical name from the Open Tree of Life taxonomy.  Whatever
+you initially enter is only used as the search query.  After the
+script runs, `scientific_name` always equals `ott_name`.
+
+`ott_name` stores the same canonical name (for redundancy / audit),
+and `uniqname` stores the disambiguated name (e.g. including "species
+in domain Eukaryota" when needed to distinguish homonyms).
 
 ### No broken taxa
 
