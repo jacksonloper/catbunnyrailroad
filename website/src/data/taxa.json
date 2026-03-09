@@ -208,7 +208,8 @@
   {
     "name": "seal",
     "ott_id": 749626,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/26886297.jpg"
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/26886297.jpg",
+    "comments": "Phocidae are the true (earless) seals. This does not include sea lions or fur seals, which belong to Otariidae."
   },
   {
     "name": "otter",
@@ -256,7 +257,7 @@
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Bradypus.jpg"
   },
   {
-    "name": "monkey",
+    "name": "monkey and ape",
     "ott_id": 386195,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Simiiformes.png"
   },
@@ -321,7 +322,7 @@
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Octopus2.jpg"
   },
   {
-    "name": "squid",
+    "name": "squid and cuttlefish",
     "ott_id": 854107,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Loligo%20vulgaris.jpg"
   },
@@ -336,7 +337,7 @@
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Royal%20starfish%20%28Astropecten%20articulatus%29%20on%20the%20beach.jpg"
   },
   {
-    "name": "crab",
+    "name": "true crab",
     "ott_id": 935379,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Liocarcinus%20vernalis.jpg"
   },
@@ -436,7 +437,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/829/26851829.jpg"
   },
   {
-    "name": "lizard",
+    "name": "green iguana",
     "ott_id": 608972,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Curacao%20Iguana%20iguana%202021%203.jpg"
   },
@@ -561,7 +562,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/580/32354580.jpg"
   },
   {
-    "name": "grass",
+    "name": "Kentucky bluegrass",
     "ott_id": 1079463,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/538/5818538.jpg"
   },
@@ -606,7 +607,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/605/31799605.jpg"
   },
   {
-    "name": "coral",
+    "name": "staghorn coral",
     "ott_id": 507951,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/740/26821740.jpg"
   },

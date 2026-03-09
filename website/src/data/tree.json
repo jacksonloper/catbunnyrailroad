@@ -531,7 +531,7 @@
                                                   "ott_id": null,
                                                   "children": [
                                                     {
-                                                      "name": "grass",
+                                                      "name": "Kentucky bluegrass",
                                                       "ott_id": 1079463,
                                                       "children": [],
                                                       "isTaxon": true
@@ -829,7 +829,7 @@
                                                                       "ott_id": null,
                                                                       "children": [
                                                                         {
-                                                                          "name": "monkey",
+                                                                          "name": "monkey and ape",
                                                                           "ott_id": 386195,
                                                                           "children": [
                                                                             {
@@ -1870,7 +1870,7 @@
                                                                           "isTaxon": true
                                                                         },
                                                                         {
-                                                                          "name": "lizard",
+                                                                          "name": "green iguana",
                                                                           "ott_id": 608972,
                                                                           "children": [],
                                                                           "isTaxon": true
@@ -2174,7 +2174,7 @@
                                       "ott_id": 329546,
                                       "children": [
                                         {
-                                          "name": "squid",
+                                          "name": "squid and cuttlefish",
                                           "ott_id": 854107,
                                           "children": [
                                             {
@@ -2371,7 +2371,7 @@
                                           "ott_id": 169205,
                                           "children": [
                                             {
-                                              "name": "crab",
+                                              "name": "true crab",
                                               "ott_id": 935379,
                                               "children": [],
                                               "isTaxon": true
@@ -2471,7 +2471,7 @@
                       "ott_id": null,
                       "children": [
                         {
-                          "name": "coral",
+                          "name": "staghorn coral",
                           "ott_id": 507951,
                           "children": [],
                           "isTaxon": true
