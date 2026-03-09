@@ -39,15 +39,16 @@ function findNodePath(root, target, path = []) {
   return null;
 }
 
-/** Find the MRCA node for two taxa (by ott_id) */
-function findMRCA(treeRoot, ottA, ottB) {
-  const pathA = findPath(treeRoot, ottA);
-  const pathB = findPath(treeRoot, ottB);
-  if (!pathA || !pathB) return null;
+/** Find the MRCA node for N taxa (by ott_id) */
+function findMRCAMultiple(treeRoot, ottIds) {
+  if (ottIds.length === 0) return null;
+  const paths = ottIds.map((id) => findPath(treeRoot, id)).filter(Boolean);
+  if (paths.length < 2) return null;
 
   let mrca = treeRoot;
-  for (let i = 0; i < Math.min(pathA.length, pathB.length); i++) {
-    if (pathA[i] === pathB[i]) mrca = pathA[i];
+  const minLen = Math.min(...paths.map((p) => p.length));
+  for (let i = 0; i < minLen; i++) {
+    if (paths.every((p) => p[i] === paths[0][i])) mrca = paths[0][i];
     else break;
   }
   return mrca;
@@ -186,47 +187,7 @@ const taxaByName = new Map(taxa.map((t) => [t.name, t]));
 const taxaByOttId = new Map(taxa.map((t) => [t.ott_id, t]));
 
 const OUTSIDE_PAGE_SIZE = 20;
-
-function SpeciesCard({ sp }) {
-  const taxonData = taxaByName.get(sp);
-  const [showComment, setShowComment] = useState(false);
-  return (
-    <li className="species-card">
-      {taxonData?.image_url ? (
-        <img
-          className="species-img"
-          src={taxonData.image_url}
-          alt={sp}
-          loading="lazy"
-        />
-      ) : (
-        <div className="species-img placeholder">?</div>
-      )}
-      <span className="species-name">
-        {sp}
-        {taxonData?.comments && (
-          <button
-            className="comment-star"
-            onClick={(e) => { e.stopPropagation(); setShowComment(!showComment); }}
-            aria-label={showComment ? "Hide note" : "Show note"}
-            aria-expanded={showComment}
-            title="Click for details"
-          >★</button>
-        )}
-      </span>
-      {showComment && taxonData?.comments && (
-        <div className="comment-popup">
-          <p>{taxonData.comments}</p>
-          <button
-            className="comment-close"
-            onClick={(e) => { e.stopPropagation(); setShowComment(false); }}
-            aria-label="Close"
-          >✕</button>
-        </div>
-      )}
-    </li>
-  );
-}
+const INGROUP_PAGE_SIZE = 20;
 
 // ---------------------------------------------------------------------------
 // SVG tree layout – topology-only cladogram (no internal labels)
@@ -559,120 +520,45 @@ function ErrorConsole() {
 function App() {
   const trie = useMemo(() => buildTrie(taxa), []);
 
-  const [inputA, setInputA] = useState("");
-  const [inputB, setInputB] = useState("");
-  const [selectedA, setSelectedA] = useState(null);
-  const [selectedB, setSelectedB] = useState(null);
-  const [cladeSpecies, setCladeSpecies] = useState(null);
-  const [mrcaNode, setMrcaNode] = useState(null);
-  const [showIncluded, setShowIncluded] = useState(false);
-  const [showOutside, setShowOutside] = useState(false);
-  const [outsideLimit, setOutsideLimit] = useState(OUTSIDE_PAGE_SIZE);
+  // Central list state
+  const [listInput, setListInput] = useState("");
   const [selectedOrganisms, setSelectedOrganisms] = useState(new Set());
+
+  // Display state
+  const [showIncluded, setShowIncluded] = useState(true);
+  const [showOutside, setShowOutside] = useState(true);
+  const [inGroupLimit, setInGroupLimit] = useState(INGROUP_PAGE_SIZE);
+  const [outsideLimit, setOutsideLimit] = useState(OUTSIDE_PAGE_SIZE);
   const [showSubtree, setShowSubtree] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
-  const [formError, setFormError] = useState("");
 
-  function handleImportTree() {
-    const ids = importText
-      .split(/[\s,]+/)
-      .map((s) => parseInt(s.trim(), 10))
-      .filter((n) => !isNaN(n) && n > 0);
-    if (ids.length < 2) {
-      setImportError("Please enter at least 2 valid OTT IDs.");
-      return;
-    }
-    // Match OTT IDs to taxa names
-    const names = new Set();
-    for (const id of ids) {
-      const sp = taxaByOttId.get(id);
-      if (sp) names.add(sp.name);
-    }
-    if (names.size < 2) {
-      setImportError(`Only ${names.size} of the entered OTT IDs matched known organisms. Need at least 2.`);
-      return;
-    }
-    setImportError("");
-    setSelectedOrganisms(names);
-    setShowSubtree(true);
-    setShowImport(false);
-    setImportText("");
-  }
-
-  function toggleOrganism(name) {
-    setSelectedOrganisms((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
-      return next;
-    });
-  }
-
-  // Build subtree from selected organisms (+ the pair if in MRCA flow)
-  const subtree = useMemo(() => {
-    if (!showSubtree || selectedOrganisms.size === 0) return null;
-    const ottIds = new Set();
+  // Compute OTT IDs from the list
+  const listOttIds = useMemo(() => {
+    const ids = [];
     for (const name of selectedOrganisms) {
       const sp = taxaByName.get(name);
-      if (sp) ottIds.add(sp.ott_id);
+      if (sp) ids.push(sp.ott_id);
     }
-    // Include the user-entered pair if in the find MRCA flow
-    if (selectedA) ottIds.add(selectedA.ott_id);
-    if (selectedB) ottIds.add(selectedB.ott_id);
-    if (ottIds.size < 2) return null;
-    return extractSubtree(tree, ottIds);
-  }, [showSubtree, selectedOrganisms, selectedA, selectedB]);
+    return ids;
+  }, [selectedOrganisms]);
 
-  // Compute in-clade taxa with distances to A and B, sorted from A to B
-  const enrichedCladeSpecies = useMemo(() => {
-    if (!cladeSpecies || !selectedA || !selectedB) return [];
+  // Compute MRCA from the list (needs 2+)
+  const mrcaNode = useMemo(() => {
+    if (listOttIds.length < 2) return null;
+    return findMRCAMultiple(tree, listOttIds);
+  }, [listOttIds]);
 
-    const pathA = findPath(tree, selectedA.ott_id);
-    const pathB = findPath(tree, selectedB.ott_id);
-    if (!pathA || !pathB) return [];
+  // In-group: all taxa under the MRCA
+  const cladeSpecies = useMemo(() => {
+    if (!mrcaNode) return [];
+    return getTaxa(mrcaNode);
+  }, [mrcaNode]);
 
-    return cladeSpecies
-      .map((name) => {
-        const sp = taxaByName.get(name);
-        if (!sp) return null;
-
-        const pathSp = findPath(tree, sp.ott_id);
-        if (!pathSp) return null;
-
-        // depth of LCA(A, taxon) — bigger = more A-like
-        let lcaDepthA = 0;
-        for (let i = 0; i < Math.min(pathSp.length, pathA.length); i++) {
-          if (pathSp[i] === pathA[i]) lcaDepthA = i;
-          else break;
-        }
-
-        // depth of LCA(B, taxon) — bigger = more B-like
-        let lcaDepthB = 0;
-        for (let i = 0; i < Math.min(pathSp.length, pathB.length); i++) {
-          if (pathSp[i] === pathB[i]) lcaDepthB = i;
-          else break;
-        }
-
-        // Tree distance: edges up from taxon to LCA + edges down from LCA to target
-        const levelA = (pathSp.length - 1 - lcaDepthA) + (pathA.length - 1 - lcaDepthA);
-        const levelB = (pathSp.length - 1 - lcaDepthB) + (pathB.length - 1 - lcaDepthB);
-
-        return { name, levelA, levelB, lcaDepthA, lcaDepthB };
-      })
-      .filter(Boolean)
-      .sort((x, y) => {
-        // Sort from A to B using LCA-depth comparison
-        if (x.lcaDepthA !== y.lcaDepthA) return y.lcaDepthA - x.lcaDepthA; // A-like first
-        if (x.lcaDepthB !== y.lcaDepthB) return x.lcaDepthB - y.lcaDepthB; // B-like later
-        return 0;
-      });
-  }, [cladeSpecies, selectedA, selectedB]);
-
-  // Compute outside taxa with distances from the clade
+  // Outside species sorted by distance from MRCA
   const outsideSpecies = useMemo(() => {
-    if (!mrcaNode || !cladeSpecies) return [];
+    if (!mrcaNode || !cladeSpecies.length) return [];
 
     const cladeSet = new Set(cladeSpecies);
     const pathToMRCA = findNodePath(tree, mrcaNode);
@@ -701,96 +587,148 @@ function App() {
     return results;
   }, [mrcaNode, cladeSpecies]);
 
-  function handleSelectA(sp) {
-    setSelectedA(sp);
-    setInputA(sp.name);
-  }
-
-  function handleSelectB(sp) {
-    setSelectedB(sp);
-    setInputB(sp.name);
-  }
-
-  function handleInputAChange(val) {
-    setInputA(val);
-    if (selectedA && val !== selectedA.name) setSelectedA(null);
-    setCladeSpecies(null);
-    setFormError("");
-  }
-
-  function handleInputBChange(val) {
-    setInputB(val);
-    if (selectedB && val !== selectedB.name) setSelectedB(null);
-    setCladeSpecies(null);
-    setFormError("");
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    setFormError("");
-    if (!selectedA || !selectedB) {
-      setFormError("Please select both organisms from the suggestions.");
-      return;
+  // Build subtree from selected organisms
+  const subtree = useMemo(() => {
+    if (!showSubtree || selectedOrganisms.size < 2) return null;
+    const ottIds = new Set();
+    for (const name of selectedOrganisms) {
+      const sp = taxaByName.get(name);
+      if (sp) ottIds.add(sp.ott_id);
     }
-    if (selectedA.ott_id === selectedB.ott_id) {
-      setFormError("Please pick two different organisms.");
-      return;
-    }
+    if (ottIds.size < 2) return null;
+    return extractSubtree(tree, ottIds);
+  }, [showSubtree, selectedOrganisms]);
 
-    try {
-      const mrca = findMRCA(tree, selectedA.ott_id, selectedB.ott_id);
-      if (!mrca) {
-        setFormError(
-          `Could not find the common ancestor of ${selectedA.name} and ${selectedB.name}. ` +
-          "Please try different organisms."
-        );
-        return;
-      }
-
-      const leaves = getTaxa(mrca);
-      setCladeSpecies(leaves);
-      setMrcaNode(mrca);
-      setShowIncluded(false);
-      setShowOutside(false);
-      setOutsideLimit(OUTSIDE_PAGE_SIZE);
-    } catch (err) {
-      console.error("handleSubmit error:", err);
-      setFormError("Something went wrong: " + err.message);
-    }
-  }
-
-  function handleReset() {
-    setInputA("");
-    setInputB("");
-    setSelectedA(null);
-    setSelectedB(null);
-    setCladeSpecies(null);
-    setMrcaNode(null);
-    setShowIncluded(false);
-    setShowOutside(false);
+  function addToList(sp) {
+    setSelectedOrganisms((prev) => {
+      const next = new Set(prev);
+      next.add(sp.name);
+      return next;
+    });
+    setListInput("");
+    setInGroupLimit(INGROUP_PAGE_SIZE);
     setOutsideLimit(OUTSIDE_PAGE_SIZE);
-    setSelectedOrganisms(new Set());
-    setShowSubtree(false);
+  }
+
+  function removeFromList(name) {
+    setSelectedOrganisms((prev) => {
+      const next = new Set(prev);
+      next.delete(name);
+      return next;
+    });
+    setInGroupLimit(INGROUP_PAGE_SIZE);
+    setOutsideLimit(OUTSIDE_PAGE_SIZE);
+  }
+
+  function toggleOrganism(name) {
+    setSelectedOrganisms((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+    setInGroupLimit(INGROUP_PAGE_SIZE);
+    setOutsideLimit(OUTSIDE_PAGE_SIZE);
+  }
+
+  function handleImportTree() {
+    const ids = importText
+      .split(/[\s,]+/)
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !isNaN(n) && n > 0);
+    if (ids.length < 2) {
+      setImportError("Please enter at least 2 valid OTT IDs.");
+      return;
+    }
+    // Match OTT IDs to taxa names
+    const names = new Set();
+    for (const id of ids) {
+      const sp = taxaByOttId.get(id);
+      if (sp) names.add(sp.name);
+    }
+    if (names.size < 2) {
+      setImportError(`Only ${names.size} of the entered OTT IDs matched known organisms. Need at least 2.`);
+      return;
+    }
+    setImportError("");
+    setSelectedOrganisms(names);
+    setShowSubtree(true);
     setShowImport(false);
     setImportText("");
-    setImportError("");
-    setFormError("");
+  }
+
+  function handleClearList() {
+    setSelectedOrganisms(new Set());
+    setShowSubtree(false);
+    setListInput("");
   }
 
   return (
     <div className="app">
       <h1>🐱🐰🚂 Cat Bunny Railroad</h1>
       <p className="subtitle">
-        Pick two living things and discover what they have in common!
+        Build a list of living things and discover what they have in common!
       </p>
 
-      <div className="import-bar">
-        <button
-          className="import-btn"
-          onClick={() => setShowImport(true)}
-        >
-          📥 Import tree from OTT IDs
-        </button>
+      {/* List management section */}
+      <div className="list-section">
+        <div className="list-header">
+          <h2>{selectedOrganisms.size === 0 ? "Start your list" : `Your list (${selectedOrganisms.size})`}</h2>
+          <div className="list-header-actions">
+            <button
+              className="import-btn"
+              onClick={() => setShowImport(true)}
+            >
+              📥 Import OTT IDs
+            </button>
+            {selectedOrganisms.size > 0 && (
+              <button className="clear-selection-btn" onClick={handleClearList}>
+                Clear list
+              </button>
+            )}
+          </div>
+        </div>
+
+        <Autocomplete
+          label="Add an organism"
+          value={listInput}
+          onChange={setListInput}
+          onSelect={addToList}
+          trie={trie}
+          selectedItem={null}
+        />
+
+        {selectedOrganisms.size > 0 && (
+          <div className="list-chips">
+            {[...selectedOrganisms].map((name) => {
+              const data = taxaByName.get(name);
+              return (
+                <span key={name} className="list-chip">
+                  {data?.image_url && (
+                    <img src={data.image_url} alt="" className="chip-img" />
+                  )}
+                  {name}
+                  <button
+                    className="chip-remove"
+                    onClick={() => removeFromList(name)}
+                    aria-label={`Remove ${name}`}
+                  >✕</button>
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+        {selectedOrganisms.size >= 2 && (
+          <div className="list-actions">
+            <button
+              className="make-tree-btn"
+              onClick={() => setShowSubtree(true)}
+            >
+              🌳 Make tree ({selectedOrganisms.size} selected)
+            </button>
+          </div>
+        )}
       </div>
 
       {showImport && (
@@ -828,70 +766,17 @@ function App() {
         </div>
       )}
 
-      {selectedOrganisms.size > 0 && (
-        <div className="make-tree-bar">
-          <button
-            className="make-tree-btn"
-            onClick={() => setShowSubtree(true)}
-            disabled={selectedOrganisms.size + (selectedA ? 1 : 0) + (selectedB ? 1 : 0) < 2}
-          >
-            🌳 Make tree ({selectedOrganisms.size} selected)
-          </button>
-          <button
-            className="clear-selection-btn"
-            onClick={() => { setSelectedOrganisms(new Set()); setShowSubtree(false); }}
-          >
-            Clear selection
-          </button>
-        </div>
-      )}
-
       {showSubtree && subtree && (
         <SubtreeView subtree={subtree} onClose={() => setShowSubtree(false)} />
       )}
 
-      <form className="picker" onSubmit={handleSubmit}>
-        <div className="picker-inputs">
-          <Autocomplete
-            label="First organism"
-            value={inputA}
-            onChange={handleInputAChange}
-            onSelect={handleSelectA}
-            trie={trie}
-            selectedItem={selectedA}
-          />
-          <Autocomplete
-            label="Second organism"
-            value={inputB}
-            onChange={handleInputBChange}
-            onSelect={handleSelectB}
-            trie={trie}
-            selectedItem={selectedB}
-          />
-        </div>
-        <div className="picker-buttons">
-          <button
-            type="submit"
-            disabled={!selectedA || !selectedB || selectedA.ott_id === selectedB.ott_id}
-          >
-            Find their family!
-          </button>
-          <button type="button" className="reset-btn" onClick={handleReset}>
-            Reset
-          </button>
-        </div>
-        {formError && <p className="form-error">{formError}</p>}
-      </form>
-
-      {cladeSpecies && (
+      {/* MRCA results */}
+      {mrcaNode && (
         <div className="results">
-          <h2>
-            The family of{" "}
-            <strong>{selectedA.name}</strong> and{" "}
-            <strong>{selectedB.name}</strong>
-          </h2>
+          <h2>Common ancestor group</h2>
           <p className="clade-info">
-            They belong to a group of {cladeSpecies.length} organisms.
+            Your {selectedOrganisms.size} organisms share a common ancestor
+            {" "}({cladeSpecies.length} organisms in this group).
           </p>
 
           <div className="collapsible-section">
@@ -903,49 +788,58 @@ function App() {
               Organisms in this group ({cladeSpecies.length})
             </button>
             {showIncluded && (
-              <ul className="species-list">
-                {enrichedCladeSpecies.map((sp) => {
-                  const data = taxaByName.get(sp.name);
-                  const isSelected = selectedOrganisms.has(sp.name);
-                  return (
-                    <li
-                      key={sp.name}
-                      className={`species-card ${isSelected ? "selected" : ""}`}
-                      onClick={() => toggleOrganism(sp.name)}
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleOrganism(sp.name); } }}
-                    >
-                      <input
-                        type="checkbox"
-                        className="species-checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleOrganism(sp.name)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      {data?.image_url ? (
-                        <img
-                          className="species-img"
-                          src={data.image_url}
-                          alt={sp.name}
-                          loading="lazy"
+              <>
+                <ul className="species-list">
+                  {cladeSpecies.slice(0, inGroupLimit).map((name) => {
+                    const data = taxaByName.get(name);
+                    const isSelected = selectedOrganisms.has(name);
+                    return (
+                      <li
+                        key={name}
+                        className={`species-card ${isSelected ? "selected" : ""}`}
+                        onClick={() => toggleOrganism(name)}
+                        tabIndex={0}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleOrganism(name); } }}
+                      >
+                        <input
+                          type="checkbox"
+                          className="species-checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleOrganism(name)}
+                          onClick={(e) => e.stopPropagation()}
                         />
-                      ) : (
-                        <div className="species-img placeholder">?</div>
-                      )}
-                      <span className="species-name">{sp.name}</span>
-                      <span className="distance-label">
-                        ↑{sp.levelA} to {selectedA.name}, ↑{sp.levelB} to {selectedB.name}
-                      </span>
-                      {data?.comments && (
-                        <span
-                          className="comment-star-inline"
-                          title={data.comments}
-                        >★</span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+                        {data?.image_url ? (
+                          <img
+                            className="species-img"
+                            src={data.image_url}
+                            alt={name}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="species-img placeholder">?</div>
+                        )}
+                        <span className="species-name">{name}</span>
+                        {data?.comments && (
+                          <span
+                            className="comment-star-inline"
+                            title={data.comments}
+                          >★</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {inGroupLimit < cladeSpecies.length && (
+                  <div className="show-more-container">
+                    <button
+                      className="show-more-btn"
+                      onClick={() => setInGroupLimit((l) => l + INGROUP_PAGE_SIZE)}
+                    >
+                      Show more ({Math.min(INGROUP_PAGE_SIZE, cladeSpecies.length - inGroupLimit)} more)
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -1011,16 +905,7 @@ function App() {
         </div>
       )}
 
-      {!cladeSpecies && (
-        <div className="all-species">
-          <h2>All organisms</h2>
-          <ul className="species-list">
-            {taxa.map((sp) => (
-              <SpeciesCard key={sp.ott_id} sp={sp.name} />
-            ))}
-          </ul>
-        </div>
-      )}
+
       <ErrorConsole />
     </div>
   );
