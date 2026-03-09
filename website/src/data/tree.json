@@ -315,7 +315,7 @@
                                           "isTaxon": true
                                         },
                                         {
-                                          "name": "cactus",
+                                          "name": "saguaro cactus",
                                           "ott_id": 897402,
                                           "children": [],
                                           "isTaxon": true
@@ -628,7 +628,7 @@
                   ]
                 },
                 {
-                  "name": "pine tree",
+                  "name": "Scots pine",
                   "ott_id": 568619,
                   "children": [],
                   "isTaxon": true
@@ -802,7 +802,7 @@
                                                                               ]
                                                                             },
                                                                             {
-                                                                              "name": "squirrel",
+                                                                              "name": "squirrel family",
                                                                               "ott_id": 384218,
                                                                               "children": [
                                                                                 {
@@ -859,7 +859,7 @@
                                                                                       ]
                                                                                     },
                                                                                     {
-                                                                                      "name": "gorilla",
+                                                                                      "name": "western gorilla",
                                                                                       "ott_id": 417965,
                                                                                       "children": [],
                                                                                       "isTaxon": true
@@ -867,7 +867,7 @@
                                                                                   ]
                                                                                 },
                                                                                 {
-                                                                                  "name": "orangutan",
+                                                                                  "name": "Bornean orangutan",
                                                                                   "ott_id": 770302,
                                                                                   "children": [],
                                                                                   "isTaxon": true
@@ -879,7 +879,7 @@
                                                                         },
                                                                         {
                                                                           "name": "lemur",
-                                                                          "ott_id": 913933,
+                                                                          "ott_id": 702142,
                                                                           "children": [],
                                                                           "isTaxon": true
                                                                         }
@@ -1028,7 +1028,7 @@
                                                                                           ]
                                                                                         },
                                                                                         {
-                                                                                          "name": "pig",
+                                                                                          "name": "pig and wild boar",
                                                                                           "ott_id": 730013,
                                                                                           "children": [],
                                                                                           "isTaxon": true
@@ -1064,7 +1064,7 @@
                                                                                       "ott_id": 541951,
                                                                                       "children": [
                                                                                         {
-                                                                                          "name": "zebra",
+                                                                                          "name": "plains zebra",
                                                                                           "ott_id": 124776,
                                                                                           "children": [],
                                                                                           "isTaxon": true
@@ -1152,7 +1152,7 @@
                                                                                                       "ott_id": null,
                                                                                                       "children": [
                                                                                                         {
-                                                                                                          "name": "otter",
+                                                                                                          "name": "Eurasian otter",
                                                                                                           "ott_id": 348036,
                                                                                                           "children": [],
                                                                                                           "isTaxon": true
@@ -1210,7 +1210,7 @@
                                                                                                   "isTaxon": true
                                                                                                 },
                                                                                                 {
-                                                                                                  "name": "bear",
+                                                                                                  "name": "brown bear",
                                                                                                   "ott_id": 872567,
                                                                                                   "children": [],
                                                                                                   "isTaxon": true
@@ -1230,7 +1230,7 @@
                                                                                           "ott_id": null,
                                                                                           "children": [
                                                                                             {
-                                                                                              "name": "seal",
+                                                                                              "name": "true seal",
                                                                                               "ott_id": 749626,
                                                                                               "children": [],
                                                                                               "isTaxon": true
@@ -1252,13 +1252,13 @@
                                                                                   "ott_id": null,
                                                                                   "children": [
                                                                                     {
-                                                                                      "name": "dog",
+                                                                                      "name": "wolf and dog",
                                                                                       "ott_id": 247341,
                                                                                       "children": [],
                                                                                       "isTaxon": true
                                                                                     },
                                                                                     {
-                                                                                      "name": "fox",
+                                                                                      "name": "red fox",
                                                                                       "ott_id": 821964,
                                                                                       "children": [],
                                                                                       "isTaxon": true
@@ -1536,13 +1536,13 @@
                                                                                           "ott_id": null,
                                                                                           "children": [
                                                                                             {
-                                                                                              "name": "robin",
+                                                                                              "name": "European robin",
                                                                                               "ott_id": 507122,
                                                                                               "children": [],
                                                                                               "isTaxon": true
                                                                                             },
                                                                                             {
-                                                                                              "name": "crow",
+                                                                                              "name": "American crow",
                                                                                               "ott_id": 331952,
                                                                                               "children": [],
                                                                                               "isTaxon": true
@@ -1550,7 +1550,7 @@
                                                                                           ]
                                                                                         },
                                                                                         {
-                                                                                          "name": "parrot",
+                                                                                          "name": "African gray parrot",
                                                                                           "ott_id": 285641,
                                                                                           "children": [],
                                                                                           "isTaxon": true
@@ -1570,7 +1570,7 @@
                                                                                               "ott_id": null,
                                                                                               "children": [
                                                                                                 {
-                                                                                                  "name": "eagle",
+                                                                                                  "name": "bald eagle",
                                                                                                   "ott_id": 1012350,
                                                                                                   "children": [],
                                                                                                   "isTaxon": true
@@ -1584,7 +1584,7 @@
                                                                                               ]
                                                                                             },
                                                                                             {
-                                                                                              "name": "owl",
+                                                                                              "name": "Eurasian eagle-owl",
                                                                                               "ott_id": 402453,
                                                                                               "children": [],
                                                                                               "isTaxon": true
@@ -1668,7 +1668,7 @@
                                                                                               "isTaxon": true
                                                                                             },
                                                                                             {
-                                                                                              "name": "penguin",
+                                                                                              "name": "emperor penguin",
                                                                                               "ott_id": 494370,
                                                                                               "children": [],
                                                                                               "isTaxon": true
@@ -1736,7 +1736,7 @@
                                                                           "ott_id": null,
                                                                           "children": [
                                                                             {
-                                                                              "name": "duck",
+                                                                              "name": "mallard",
                                                                               "ott_id": 765167,
                                                                               "children": [],
                                                                               "isTaxon": true
@@ -1746,7 +1746,7 @@
                                                                               "ott_id": null,
                                                                               "children": [
                                                                                 {
-                                                                                  "name": "goose",
+                                                                                  "name": "greylag goose",
                                                                                   "ott_id": 190887,
                                                                                   "children": [],
                                                                                   "isTaxon": true
@@ -1810,7 +1810,7 @@
                                                           "ott_id": null,
                                                           "children": [
                                                             {
-                                                              "name": "tortoise",
+                                                              "name": "Greek tortoise",
                                                               "ott_id": 207423,
                                                               "children": [],
                                                               "isTaxon": true
@@ -1848,7 +1848,7 @@
                                                                       "isTaxon": true
                                                                     },
                                                                     {
-                                                                      "name": "snake",
+                                                                      "name": "ball python",
                                                                       "ott_id": 737820,
                                                                       "children": [],
                                                                       "isTaxon": true
@@ -1864,7 +1864,7 @@
                                                                       "ott_id": 608979,
                                                                       "children": [
                                                                         {
-                                                                          "name": "chameleon",
+                                                                          "name": "common chameleon",
                                                                           "ott_id": 824527,
                                                                           "children": [],
                                                                           "isTaxon": true
@@ -1888,7 +1888,7 @@
                                                               ]
                                                             },
                                                             {
-                                                              "name": "gecko",
+                                                              "name": "tokay gecko",
                                                               "ott_id": 953907,
                                                               "children": [],
                                                               "isTaxon": true
@@ -1912,7 +1912,7 @@
                                               "ott_id": 471197,
                                               "children": [
                                                 {
-                                                  "name": "frog",
+                                                  "name": "frog and toad",
                                                   "ott_id": 991547,
                                                   "children": [],
                                                   "isTaxon": true
@@ -1982,7 +1982,7 @@
                                       "ott_id": null,
                                       "children": [
                                         {
-                                          "name": "salmon",
+                                          "name": "Atlantic salmon",
                                           "ott_id": 688328,
                                           "children": [],
                                           "isTaxon": true
@@ -2044,7 +2044,7 @@
                                                   "isTaxon": true
                                                 },
                                                 {
-                                                  "name": "tuna",
+                                                  "name": "yellowfin tuna",
                                                   "ott_id": 833188,
                                                   "children": [],
                                                   "isTaxon": true
@@ -2128,7 +2128,7 @@
                                   "ott_id": null,
                                   "children": [
                                     {
-                                      "name": "snail",
+                                      "name": "garden snail",
                                       "ott_id": 349699,
                                       "children": [],
                                       "isTaxon": true
@@ -2205,7 +2205,7 @@
                               ]
                             },
                             {
-                              "name": "worm",
+                              "name": "earthworm",
                               "ott_id": 316441,
                               "children": [],
                               "isTaxon": true
@@ -2287,7 +2287,7 @@
                                                       "ott_id": null,
                                                       "children": [
                                                         {
-                                                          "name": "ladybug",
+                                                          "name": "seven-spot ladybug",
                                                           "ott_id": 343294,
                                                           "children": [],
                                                           "isTaxon": true
@@ -2307,13 +2307,13 @@
                                                   "ott_id": null,
                                                   "children": [
                                                     {
-                                                      "name": "bee",
+                                                      "name": "honey bee",
                                                       "ott_id": 461645,
                                                       "children": [],
                                                       "isTaxon": true
                                                     },
                                                     {
-                                                      "name": "ant",
+                                                      "name": "wood ant",
                                                       "ott_id": 744114,
                                                       "children": [],
                                                       "isTaxon": true
@@ -2345,7 +2345,7 @@
                                                   ]
                                                 },
                                                 {
-                                                  "name": "grasshopper",
+                                                  "name": "desert locust",
                                                   "ott_id": 330338,
                                                   "children": [],
                                                   "isTaxon": true
@@ -2355,7 +2355,7 @@
                                           ]
                                         },
                                         {
-                                          "name": "dragonfly",
+                                          "name": "emperor dragonfly",
                                           "ott_id": 485521,
                                           "children": [],
                                           "isTaxon": true
@@ -2377,7 +2377,7 @@
                                               "isTaxon": true
                                             },
                                             {
-                                              "name": "shrimp",
+                                              "name": "white shrimp",
                                               "ott_id": 169168,
                                               "children": [],
                                               "isTaxon": true
@@ -2433,7 +2433,7 @@
                                       "ott_id": null,
                                       "children": [
                                         {
-                                          "name": "spider",
+                                          "name": "garden spider",
                                           "ott_id": 725241,
                                           "children": [],
                                           "isTaxon": true
@@ -2485,7 +2485,7 @@
                       ]
                     },
                     {
-                      "name": "jellyfish",
+                      "name": "true jellyfish",
                       "ott_id": 983579,
                       "children": [],
                       "isTaxon": true
@@ -2503,7 +2503,7 @@
           ]
         },
         {
-          "name": "mushroom",
+          "name": "button mushroom",
           "ott_id": 564405,
           "children": [],
           "isTaxon": true

@@ -5,7 +5,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/404/32374404.jpg"
   },
   {
-    "name": "dog",
+    "name": "wolf and dog",
     "ott_id": 247341,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/938/27815938.jpg"
   },
@@ -30,12 +30,12 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/919/24875919.jpg"
   },
   {
-    "name": "duck",
+    "name": "mallard",
     "ott_id": 765167,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/025/31925025.jpg"
   },
   {
-    "name": "frog",
+    "name": "frog and toad",
     "ott_id": 991547,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/846/27735846.jpg"
   },
@@ -71,12 +71,12 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/140/140.jpg"
   },
   {
-    "name": "bear",
+    "name": "brown bear",
     "ott_id": 872567,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/880/26787880.jpg"
   },
   {
-    "name": "pig",
+    "name": "pig and wild boar",
     "ott_id": 730013,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/006/31653006.jpg"
   },
@@ -116,7 +116,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/387/26880387.jpg"
   },
   {
-    "name": "zebra",
+    "name": "plains zebra",
     "ott_id": 124776,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Cebra%20de%20Burchell%20%28Equus%20quagga%20burchellii%29%2C%20parque%20nacional%20Kruger%2C%20Sud%C3%A1frica%2C%202018-07-24%2C%20DD%2001.jpg"
   },
@@ -131,7 +131,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/666/25657666.jpg"
   },
   {
-    "name": "gorilla",
+    "name": "western gorilla",
     "ott_id": 417965,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/478/31326478.jpg"
   },
@@ -141,7 +141,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/520/27252520.jpg"
   },
   {
-    "name": "orangutan",
+    "name": "Bornean orangutan",
     "ott_id": 770302,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/933/28685933.jpg"
   },
@@ -161,7 +161,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/168/25602168.jpg"
   },
   {
-    "name": "fox",
+    "name": "red fox",
     "ott_id": 821964,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/525/27291525.jpg"
   },
@@ -206,13 +206,13 @@
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Big-eared-townsend-fledermaus.jpg"
   },
   {
-    "name": "seal",
+    "name": "true seal",
     "ott_id": 749626,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/26886297.jpg",
     "comments": "Phocidae are the true (earless) seals. This does not include sea lions or fur seals, which belong to Otariidae."
   },
   {
-    "name": "otter",
+    "name": "Eurasian otter",
     "ott_id": 348036,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/444/28684444.jpg"
   },
@@ -222,7 +222,7 @@
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/American%20Beaver.jpg"
   },
   {
-    "name": "squirrel",
+    "name": "squirrel family",
     "ott_id": 384218,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/904/26818904.jpg"
   },
@@ -263,7 +263,7 @@
   },
   {
     "name": "lemur",
-    "ott_id": 913933,
+    "ott_id": 702142,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/330/27748330.jpg"
   },
   {
@@ -327,7 +327,7 @@
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Loligo%20vulgaris.jpg"
   },
   {
-    "name": "jellyfish",
+    "name": "true jellyfish",
     "ott_id": 983579,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Cauliflour%20Jellyfish%2C%20Cephea%20cephea%20at%20Marsa%20Shouna%2C%20Red%20Sea%2C%20Egypt%20SCUBA.jpg"
   },
@@ -387,27 +387,27 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/844/32577844.jpg"
   },
   {
-    "name": "goose",
+    "name": "greylag goose",
     "ott_id": 190887,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/840/27690840.jpg"
   },
   {
-    "name": "parrot",
+    "name": "African gray parrot",
     "ott_id": 285641,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/854/25627854.jpg"
   },
   {
-    "name": "penguin",
+    "name": "emperor penguin",
     "ott_id": 494370,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/116/25605116.jpg"
   },
   {
-    "name": "owl",
+    "name": "Eurasian eagle-owl",
     "ott_id": 402453,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/165/26222165.jpg"
   },
   {
-    "name": "eagle",
+    "name": "bald eagle",
     "ott_id": 1012350,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/939/26834939.jpg"
   },
@@ -422,17 +422,17 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/570/7341570.jpg"
   },
   {
-    "name": "crow",
+    "name": "American crow",
     "ott_id": 331952,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/080/25637080.jpg"
   },
   {
-    "name": "robin",
+    "name": "European robin",
     "ott_id": 507122,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/881/7509881.jpg"
   },
   {
-    "name": "snake",
+    "name": "ball python",
     "ott_id": 737820,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/829/26851829.jpg"
   },
@@ -452,47 +452,47 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/639/26887639.jpg"
   },
   {
-    "name": "tortoise",
+    "name": "Greek tortoise",
     "ott_id": 207423,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Nabeulensis%20sarda.JPG"
   },
   {
-    "name": "chameleon",
+    "name": "common chameleon",
     "ott_id": 824527,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/004/31792004.jpg"
   },
   {
-    "name": "gecko",
+    "name": "tokay gecko",
     "ott_id": 953907,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/053/27727053.jpg"
   },
   {
-    "name": "ant",
+    "name": "wood ant",
     "ott_id": 744114,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/792/26875792.jpg"
   },
   {
-    "name": "bee",
+    "name": "honey bee",
     "ott_id": 461645,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/917/31920917.jpg"
   },
   {
-    "name": "ladybug",
+    "name": "seven-spot ladybug",
     "ott_id": 343294,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/256/-26781256.jpg"
   },
   {
-    "name": "spider",
+    "name": "garden spider",
     "ott_id": 725241,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/582/5815582.jpg"
   },
   {
-    "name": "grasshopper",
+    "name": "desert locust",
     "ott_id": 330338,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/094/16895094.jpg"
   },
   {
-    "name": "dragonfly",
+    "name": "emperor dragonfly",
     "ott_id": 485521,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/816/31325816.jpg"
   },
@@ -507,12 +507,12 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/983/32386983.jpg"
   },
   {
-    "name": "snail",
+    "name": "garden snail",
     "ott_id": 349699,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/129/25636129.jpg"
   },
   {
-    "name": "worm",
+    "name": "earthworm",
     "ott_id": 316441,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/092/29674092.jpg"
   },
@@ -567,17 +567,17 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/538/5818538.jpg"
   },
   {
-    "name": "cactus",
+    "name": "saguaro cactus",
     "ott_id": 897402,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/173/32541173.jpg"
   },
   {
-    "name": "pine tree",
+    "name": "Scots pine",
     "ott_id": 568619,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/900/27739900.jpg"
   },
   {
-    "name": "mushroom",
+    "name": "button mushroom",
     "ott_id": 564405,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/214/27740214.jpg"
   },
@@ -587,12 +587,12 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/25805297.jpg"
   },
   {
-    "name": "tuna",
+    "name": "yellowfin tuna",
     "ott_id": 833188,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/679/20838679.jpg"
   },
   {
-    "name": "salmon",
+    "name": "Atlantic salmon",
     "ott_id": 688328,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/304/31421304.jpg"
   },
@@ -602,7 +602,7 @@
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/368/27795368.jpg"
   },
   {
-    "name": "shrimp",
+    "name": "white shrimp",
     "ott_id": 169168,
     "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/605/31799605.jpg"
   },
