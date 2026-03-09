@@ -776,7 +776,6 @@ function App() {
           <h2>Common ancestor group</h2>
           <p className="clade-info">
             Your {selectedOrganisms.size} organisms share a common ancestor
-            {mrcaNode.name ? <> — <strong>{mrcaNode.name}</strong></> : null}
             {" "}({cladeSpecies.length} organisms in this group).
           </p>
 
@@ -906,51 +905,7 @@ function App() {
         </div>
       )}
 
-      {/* All organisms grid – always visible, click to add/remove from list */}
-      <div className="all-species">
-        <h2>All organisms</h2>
-        <ul className="species-list">
-          {taxa.map((sp) => {
-            const isSelected = selectedOrganisms.has(sp.name);
-            return (
-              <li
-                key={sp.ott_id}
-                className={`species-card ${isSelected ? "selected" : ""}`}
-                onClick={() => toggleOrganism(sp.name)}
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleOrganism(sp.name); } }}
-              >
-                <input
-                  type="checkbox"
-                  className="species-checkbox"
-                  checked={isSelected}
-                  onChange={() => toggleOrganism(sp.name)}
-                  onClick={(e) => e.stopPropagation()}
-                />
-                {sp.image_url ? (
-                  <img
-                    className="species-img"
-                    src={sp.image_url}
-                    alt={sp.name}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="species-img placeholder">?</div>
-                )}
-                <span className="species-name">
-                  {sp.name}
-                  {sp.comments && (
-                    <span
-                      className="comment-star-inline"
-                      title={sp.comments}
-                    >★</span>
-                  )}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+
       <ErrorConsole />
     </div>
   );
