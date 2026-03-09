@@ -71,6 +71,10 @@ function parseCsvLine(line) {
 function parseCsv(text) {
   const lines = text.trim().split("\n");
   const header = parseCsvLine(lines[0]).map((h) => h.trim());
+  // Trim trailing empty header entries (parseCsvLine may add a phantom one)
+  while (header.length > 0 && header[header.length - 1] === "") {
+    header.pop();
+  }
   return { header, rows: lines.slice(1).map((line) => {
     const vals = parseCsvLine(line);
     const obj = {};
