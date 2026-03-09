@@ -13,7 +13,6 @@ Open `taxa.csv` and add one row per new organism. You need to fill in at least:
 | `name` | ✓ | A friendly common name simple enough for a 6-year-old (e.g. `cat`, `strawberry`). Must still be precise enough that it is not misleading about what the OTT actually represents. |
 | `scientific_name` | ✓ | Binomial name, genus, family, or order (e.g. `Felis catus`, `Rosa`, `Chiroptera`). **Overwritten** in Step 2 with the canonical OTT name — your initial value is just used as the search query. |
 | `ott_id` | | Leave empty — filled automatically in Step 2 |
-| `ott_name` | | Leave empty — filled automatically in Step 2 (same value as `scientific_name` after the script runs) |
 | `uniqname` | | Leave empty — filled automatically in Step 2 |
 | `image_url` | | Leave empty — filled automatically in Step 3 |
 | `comments` | | Leave empty unless needed |
@@ -21,8 +20,8 @@ Open `taxa.csv` and add one row per new organism. You need to fill in at least:
 Example new rows:
 
 ```
-axolotl,Ambystoma mexicanum,,,,,
-red panda,Ailurus fulgens,,,,,
+axolotl,Ambystoma mexicanum,,,,
+red panda,Ailurus fulgens,,,,
 ```
 
 **Tips:**
@@ -43,8 +42,8 @@ node scripts/fill-ott-ids.mjs
 This does four things:
 
 1. **Fills `ott_id`** for any rows that are missing one (via the Open Tree TNRS API).
-2. **Fills `ott_name` and `uniqname`** for every row — these are the canonical name and unique (disambiguated) name from the Open Tree taxonomy.
-3. **Overwrites `scientific_name`** with the canonical OTT name.  Your original value is only used as the query — after the script runs, `scientific_name` always equals `ott_name`.
+2. **Fills `uniqname`** for every row — the unique (disambiguated) name from the Open Tree taxonomy.
+3. **Overwrites `scientific_name`** with the canonical OTT name.  Your original value is only used as the query — after the script runs, `scientific_name` always equals the OTT canonical name.
 4. **Validates against the synthetic tree** — checks that none of the OTT IDs are broken (non-monophyletic).  If any are, the script exits with an error listing the offending taxa.
 
 **Reading the log output:**
@@ -69,7 +68,6 @@ so "frog" alone might be misleading — "frog and toad" is more accurate.
   - Misspelled scientific name — fix the spelling in `taxa.csv` and rerun.
   - The name is too informal or ambiguous — use a more precise scientific name.
   - The organism is not in the Open Tree of Life taxonomy — rare, but possible. You may need to look up the OTT ID manually at <https://tree.opentreeoflife.org/taxonomy/browse> and enter it by hand.
-- `→ scientific_name updated` lines mean the script overwrote the `scientific_name` column to match the OTT canonical name.  This is expected and correct.
 - `❌ Duplicate OTT ID` — two rows have the same OTT ID.  Remove one of them or use a different OTT ID.
 - `❌ The following taxa are broken` — the taxon is not monophyletic.  Remove it or use a monophyletic alternative.
 

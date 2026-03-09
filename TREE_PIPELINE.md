@@ -28,7 +28,6 @@ Columns:
 | `name` | `swallowtail butterfly` | ✓ |
 | `scientific_name` | `Papilionidae` | ✓ |
 | `ott_id` | `661439` | ✓ |
-| `ott_name` | `Papilionidae` | optional |
 | `uniqname` | `Papilionidae` | optional |
 | `image_url` | `https://…` | optional |
 | `comments` | `Swallowtail butterflies are…` | optional |
@@ -37,15 +36,14 @@ Columns:
 the same OTT ID, the build fails immediately.  A CI workflow
 (`.github/workflows/check-csv.yml`) also catches duplicates on PRs.
 
-### The `scientific_name`, `ott_name`, and `uniqname` columns
+### The `scientific_name` and `uniqname` columns
 
 The `scientific_name` column is **overwritten** by `fill-ott-ids.mjs`
 with the canonical name from the Open Tree of Life taxonomy.  Whatever
 you initially enter is only used as the search query.  After the
-script runs, `scientific_name` always equals `ott_name`.
+script runs, `scientific_name` always equals the OTT canonical name.
 
-`ott_name` stores the same canonical name (for redundancy / audit),
-and `uniqname` stores the disambiguated name (e.g. including "species
+`uniqname` stores the disambiguated name (e.g. including "species
 in domain Eukaryota" when needed to distinguish homonyms).
 
 ### No broken taxa

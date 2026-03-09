@@ -7,7 +7,7 @@
  * For each such row, uses the Open Tree of Life TNRS (Taxonomic Name
  * Resolution Service) match_names endpoint to look up the OTT ID.
  *
- * Also fills in the ott_name and uniqname columns for every row that
+ * Also fills in the uniqname column for every row that
  * has an OTT ID (using the taxonomy/taxon_info endpoint), and
  * **overwrites** the scientific_name column with the official OTT name.
  *
@@ -241,7 +241,6 @@ async function main() {
           const origSci = row.scientific_name || row.name;
           row.ott_id = String(match.ott_id);
           row.scientific_name = match.ott_name;
-          row.ott_name = match.ott_name;
           row.uniqname = match.uniqname;
           console.log(
             `  ✓ name="${row.name}"  queried="${origSci}"  ott="${match.ott_name}"  (${match.uniqname})`
@@ -262,20 +261,19 @@ async function main() {
     console.log("All rows already have OTT IDs.");
   }
 
-  // --- Phase 2: Fill missing ott_name / uniqname via taxon_info,
+  // --- Phase 2: Fill missing uniqname via taxon_info,
   //               and overwrite scientific_name with the canonical OTT name ---
   const needInfo = rows.filter(
-    (r) => r.ott_id && (!r.ott_name || !r.uniqname)
+    (r) => r.ott_id && !r.uniqname
   );
   if (needInfo.length > 0) {
     console.log(
-      `\nFilling ott_name/uniqname for ${needInfo.length} row(s)...`
+      `\nFilling uniqname for ${needInfo.length} row(s)...`
     );
     for (const row of needInfo) {
       const origSci = row.scientific_name;
       const info = await fetchTaxonInfo(row.ott_id);
       if (info) {
-        row.ott_name = info.ott_name;
         row.uniqname = info.uniqname;
         row.scientific_name = info.ott_name;
         console.log(
@@ -285,22 +283,6 @@ async function main() {
         console.log(`  ✗ ${row.name} — taxon_info lookup failed`);
       }
     }
-  }
-
-  // Sync scientific_name ← ott_name for any remaining rows where they differ
-  let synced = 0;
-  for (const row of rows) {
-    if (row.ott_name && row.scientific_name !== row.ott_name) {
-      const origSci = row.scientific_name;
-      row.scientific_name = row.ott_name;
-      console.log(
-        `  → name="${row.name}"  scientific_name updated: "${origSci}" → "${row.ott_name}"`
-      );
-      synced++;
-    }
-  }
-  if (synced > 0) {
-    console.log(`Synced scientific_name for ${synced} row(s).`);
   }
 
   // Write back (always, so that new columns are populated)

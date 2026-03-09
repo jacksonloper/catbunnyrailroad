@@ -19,7 +19,7 @@ jobs:
 
       - name: Check for duplicate OTT IDs
         run: |
-          # taxa.csv columns: name,scientific_name,ott_id,ott_name,uniqname,image_url,comments
+          # taxa.csv columns: name,scientific_name,ott_id,uniqname,image_url,comments
           # Extract ott_id column (3rd column), skip header, ignore blanks,
           # sort and find duplicates.
           dupes=$(tail -n +2 taxa.csv \
