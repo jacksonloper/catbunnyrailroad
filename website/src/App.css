@@ -550,31 +550,57 @@ h2 {
   cursor: pointer;
 }
 
-.subtree-comment-popup {
+.subtree-comment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.subtree-comment-modal {
   background: #2a2a2a;
   border: 1px solid #555;
-  border-radius: 8px;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.75rem;
+  border-radius: 12px;
+  padding: 1.2rem 1.4rem;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
   color: #ddd;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
-.subtree-comment-popup p {
-  margin: 0 0 0.2rem;
+.subtree-comment-modal h4 {
+  margin: 0 0 0.5rem;
+  color: #c90;
+  font-size: 1rem;
 }
 
-.subtree-comment-popup button {
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  background: none;
-  border: none;
-  color: #999;
+.subtree-comment-modal p {
+  margin: 0 0 1rem;
+}
+
+.subtree-comment-modal button {
+  display: block;
+  margin: 0 auto;
+  padding: 0.4rem 1.6rem;
+  background: #444;
+  border: 1px solid #666;
+  border-radius: 6px;
+  color: #ddd;
   cursor: pointer;
-  font-size: 0.6rem;
-  padding: 0;
+  font-size: 0.9rem;
+}
+
+.subtree-comment-modal button:hover {
+  background: #555;
 }
 
 /* ------ Form error ------ */
@@ -758,9 +784,17 @@ h2 {
     border-color: #ccc;
     color: #333;
   }
-  .subtree-comment-popup {
+  .subtree-comment-modal {
     background: #fff;
     border-color: #ccc;
     color: #333;
+  }
+  .subtree-comment-modal button {
+    background: #e8e8e8;
+    border-color: #ccc;
+    color: #333;
+  }
+  .subtree-comment-modal button:hover {
+    background: #ddd;
   }
 }

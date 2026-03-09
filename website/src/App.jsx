@@ -378,6 +378,8 @@ function SubtreeView({ subtree, onClose }) {
     });
   }
 
+  const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
+
   return (
     <div className="subtree-overlay">
       <div className="subtree-panel">
@@ -456,23 +458,19 @@ function SubtreeView({ subtree, onClose }) {
                       ★
                     </text>
                   )}
-                  {activeComment === l.node.ott_id && sp?.comments && (
-                    <foreignObject
-                      x={starX + 14}
-                      y={l.y - 12}
-                      width={220}
-                      height={100}
-                    >
-                      <div xmlns="http://www.w3.org/1999/xhtml" className="subtree-comment-popup">
-                        <p>{sp.comments}</p>
-                        <button onClick={() => setActiveComment(null)}>✕</button>
-                      </div>
-                    </foreignObject>
-                  )}
                 </g>
               );
             })}
           </svg>
+          {activeCommentData?.comments && (
+            <div className="subtree-comment-modal-overlay" onClick={() => setActiveComment(null)}>
+              <div className="subtree-comment-modal" onClick={(e) => e.stopPropagation()}>
+                <h4>{activeCommentData.name}</h4>
+                <p>{activeCommentData.comments}</p>
+                <button onClick={() => setActiveComment(null)}>Close</button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
