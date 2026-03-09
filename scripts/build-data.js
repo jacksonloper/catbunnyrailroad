@@ -201,9 +201,9 @@ function checkBinaryTree(node) {
   function walk(n) {
     if (n.children.length > 2) {
       violations.push({
-        name: n.name || n.label || "(unnamed)",
+        name: n.name || "(unnamed)",
         numChildren: n.children.length,
-        childNames: n.children.map((c) => c.name || c.label || "(unnamed)"),
+        childNames: n.children.map((c) => c.name || "(unnamed)"),
       });
     }
     for (const child of n.children) {
