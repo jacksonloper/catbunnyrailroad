@@ -1,22 +1,25 @@
 # How the JSON Tree Is Produced
 
-This document explains how `website/scripts/build-data.js` turns
-`species.csv` into the two JSON files the website uses at runtime:
+This document explains how `scripts/build-data.js` turns
+`taxa.csv` into the two JSON files the website uses at runtime:
 `taxa.json` and `tree.json`.
 
 Run the pipeline with:
 
 ```sh
-cd website
-npm run build-data   # just the data step
-npm run build        # data + vite production build
+node scripts/build-data.js
 ```
+
+The generated JSON files (`website/src/data/tree.json` and
+`website/src/data/taxa.json`) are **committed to the repository**.
+The website build (`cd website && npm run build`) just runs Vite —
+it does not call any external APIs.
 
 ---
 
-## 1. Validate `species.csv`
+## 1. Validate `taxa.csv`
 
-`species.csv` is the single source of truth.  Each row represents one
+`taxa.csv` is the single source of truth.  Each row represents one
 **taxon** (which may be a species, genus, family, order, etc.).
 Columns:
 
@@ -25,41 +28,40 @@ Columns:
 | `name` | `swallowtail butterfly` | ✓ |
 | `scientific_name` | `Papilionidae` | ✓ |
 | `ott_id` | `661439` | ✓ |
-| `node_id` | `mrcaott37377ott106844` | optional |
+| `uniqname` | `Papilionidae` | optional |
 | `image_url` | `https://…` | optional |
-| `comments` | `Oak is not monophyletic…` | optional |
+| `comments` | `Swallowtail butterflies are…` | optional |
 
 **Every row must have a valid, unique `ott_id`.**  If two rows share
 the same OTT ID, the build fails immediately.  A CI workflow
 (`.github/workflows/check-csv.yml`) also catches duplicates on PRs.
 
-### The `node_id` column
+### The `scientific_name` and `uniqname` columns
 
-Some taxa have OTT IDs that are *not monophyletic* in the synthetic
-tree (the Open Tree of Life API calls these "broken" taxa).  When you
-query the tree with a broken OTT ID, the API remaps it to a different
-node — which we treat as a build error.
+The `scientific_name` column is **overwritten** by `fill-ott-ids.mjs`
+with the canonical name from the Open Tree of Life taxonomy.  Whatever
+you initially enter is only used as the search query.  After the
+script runs, `scientific_name` always equals the OTT canonical name.
 
-The `node_id` column lets you specify an alternative node identifier
-to use **instead** of the OTT ID when querying the tree.  This can be:
+`uniqname` stores the disambiguated name (e.g. including "species
+in domain Eukaryota" when needed to distinguish homonyms).
 
-- An OTT-style ID: `ott443203` (e.g. a parent taxon that IS in the tree)
-- An MRCA-style ID: `mrcaott42481ott42493` (an internal node in the
-  synthetic tree)
+### No broken taxa
 
-If `node_id` is blank, the build uses `ott<ott_id>` automatically.
+Only **monophyletic** taxa are allowed.  If a taxon's OTT ID is
+"broken" (non-monophyletic) in the synthetic tree, the build fails.
+The `fill-ott-ids.mjs` script validates this as well.  Remove the
+offending row or use a monophyletic alternative.
 
 ### The `comments` column
 
-When `node_id` differs from `ott_id`, or any other complexity exists,
-the `comments` column should explain the situation.  Comments are
-shown to users via a clickable ★ footnote on the website.
+When any complexity exists, the `comments` column should explain the
+situation.  Comments are shown to users via a clickable ★ footnote
+on the website.
 
 ## 2. Fetch the induced subtree from Open Tree of Life
 
-For each row, the build computes a **tree ID**:
-- If `node_id` is present → use it directly
-- Otherwise → `"ott" + ott_id`
+For each row, the build computes a **tree ID**: `"ott" + ott_id`.
 
 These tree IDs are sent to the
 [induced_subtree API](https://api.opentreeoflife.org/v3/tree_of_life/induced_subtree)
@@ -72,8 +74,6 @@ The API returns:
 
 **If the API reports ANY broken taxa, the build fails.**  This means
 every ID we send must resolve directly to a node in the synthetic tree.
-To fix: add a `node_id` to the offending row and re-run the build.
-The error message tells you which replacement node to use.
 
 ## 3. Parse the Newick string
 
@@ -105,9 +105,6 @@ The function walks the tree recursively:
    - Single child and not a taxon → collapsed (replaced by the child).
    - Otherwise → kept.
 
-Since broken taxa are prevented at the API level (via `node_id`),
-there is no broken-taxa handling in simplification.
-
 ## 5. Convert to compact JSON (`treeToCompact`)
 
 The simplified tree is converted to a compact format for the browser.
@@ -125,7 +122,7 @@ have `isTaxon: true`.
 { name: "frog", ott_id: 991547, children: [ … ], isTaxon: true }
 ```
 
-Taxon names come from `species.csv` (the common name).
+Taxon names come from `taxa.csv` (the common name).
 
 ## 6. Post-build verification
 
@@ -137,27 +134,26 @@ After building the compact tree, the build verifies:
 
 ## 7. Output files
 
-### `src/data/tree.json`
+### `website/src/data/tree.json`
 
 The compact tree used for MRCA lookups and subtree rendering in the
 browser.  Nodes with `isTaxon: true` are the user-visible organisms.
 
-### `src/data/taxa.json`
+### `website/src/data/taxa.json`
 
 A flat array of taxon objects:
 
 ```js
 {
-  "name": "oak",
-  "ott_id": 791121,
+  "name": "swallowtail butterfly",
+  "ott_id": 661439,
   "image_url": "https://…",
-  // only if the CSV has a comments field:
-  "comments": "Oak (Quercus) is not monophyletic in the synthetic tree. Placed at Fagales instead."
+  "comments": "Swallowtail butterflies (Papilionidae) are one family…"
 }
 ```
 
-Both files are listed in `website/.gitignore` because they are
-regenerated on every build from `species.csv` + API data.
+Both files are **committed to the repository**.  They are regenerated
+by running `node scripts/build-data.js` whenever `taxa.csv` changes.
 
 ---
 
@@ -172,19 +168,18 @@ by `ott_id`, not just leaves.
 
 ### No duplicate OTT IDs
 
-Every row in `species.csv` must have a unique OTT ID.  This is
+Every row in `taxa.csv` must have a unique OTT ID.  This is
 enforced by:
 1. The CI workflow `.github/workflows/check-csv.yml` (on PRs/pushes)
 2. The `fill-ott-ids.mjs` script (after resolving new IDs)
 3. The `build-data.js` build step (at the start)
 
-### Broken taxa handled via `node_id`
+### Monophyletic taxa only
 
-Instead of letting the API silently remap broken taxa and then
-resolving their names post-hoc, we prevent the problem at the source.
-Each broken taxon gets a `node_id` that IS in the synthetic tree,
-with a `comments` field explaining the situation.  If any ID is still
-broken at build time, the build fails with a clear error message.
+Broken (non-monophyletic) taxa are not allowed.  Both
+`fill-ott-ids.mjs` and `build-data.js` validate this by checking the
+Open Tree API response for broken entries.  If a taxon is broken,
+remove it or choose a monophyletic alternative.
 
 ### Comments as footnotes
 
@@ -196,15 +191,15 @@ website.  Clicking it reveals the explanatory text.
 ## Diagram: data flow
 
 ```
-species.csv
+taxa.csv
     │
     ▼
 ┌────────────────────────────────┐
-│  build-data.js                 │
+│  scripts/build-data.js         │
 │                                │
 │  1. validate CSV               │
 │  2. compute tree IDs           │
-│     (node_id or "ott"+ott_id)  │
+│     ("ott" + ott_id)           │
 │  3. fetch tree ────────────────┼──► Open Tree of Life API
 │  4. reject if any broken       │         (induced_subtree)
 │  5. parse Newick               │
@@ -215,8 +210,8 @@ species.csv
 └────────────┬───────────────────┘
              │
              ▼
-       src/data/tree.json
-       src/data/taxa.json
+       website/src/data/tree.json  (committed)
+       website/src/data/taxa.json  (committed)
              │
              ▼
        App.jsx (browser)
