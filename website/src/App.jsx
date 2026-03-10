@@ -1,7 +1,7 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
-import { binarizeTree, embedTreeInMaze } from "./mazeEmbed.js";
+import MazeWorker from "./mazeWorker.js?worker";
 import "./App.css";
 
 // ---------------------------------------------------------------------------
@@ -292,6 +292,12 @@ function SubtreeView({ subtree, onClose }) {
   const [showMaze, setShowMaze] = useState(false);
   const [mazeSize, setMazeSize] = useState(7);
   const [mazeSizeText, setMazeSizeText] = useState("7");
+  const [mazeData, setMazeData] = useState(null);
+  const [mazeError, setMazeError] = useState("");
+  const workerRef = useRef(null);
+
+  // Loading is derived: maze is requested but we have no data/error yet
+  const mazeLoading = showMaze && mazeData === null && !mazeError;
 
   function isValidMazeSize(text) {
     if (!/^\s*\d+\s*$/.test(text)) return false;
@@ -299,19 +305,52 @@ function SubtreeView({ subtree, onClose }) {
     return v >= 3 && v <= 30;
   }
 
+  // Cancel any in-flight worker
+  const cancelWorker = useCallback(() => {
+    if (workerRef.current) {
+      workerRef.current.terminate();
+      workerRef.current = null;
+    }
+  }, []);
+
+  // Run maze generation in a web worker (cancelable).
+  // State resets (mazeData/mazeError ← null/"") happen in the event handlers
+  // that change showMaze / mazeSize, not here, to satisfy react-hooks rules.
+  useEffect(() => {
+    if (!showMaze) return;
+
+    cancelWorker();
+
+    const worker = new MazeWorker();
+    workerRef.current = worker;
+
+    worker.onmessage = (e) => {
+      const { result } = e.data;
+      if (result) {
+        setMazeData(result);
+        setMazeError("");
+      } else {
+        setMazeData(null);
+        setMazeError(`Could not embed tree in a ${mazeSize}×${mazeSize} grid. Try a larger size.`);
+      }
+    };
+
+    worker.onerror = () => {
+      setMazeData(null);
+      setMazeError("Maze generation failed unexpectedly.");
+    };
+
+    worker.postMessage({ subtree, mazeSize });
+
+    return () => cancelWorker();
+  }, [showMaze, subtree, mazeSize, cancelWorker]);
+
+  // Cleanup worker on unmount
+  useEffect(() => cancelWorker, [cancelWorker]);
+
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
   const ottIds = useMemo(() => collectSubtreeOtts(subtree), [subtree]);
-
-  const mazeData = useMemo(() => {
-    if (!showMaze) return null;
-    const bin = binarizeTree(subtree);
-    return embedTreeInMaze(bin, mazeSize);
-  }, [showMaze, subtree, mazeSize]);
-
-  const mazeError = showMaze && mazeData === null
-    ? `Could not embed tree in a ${mazeSize}×${mazeSize} grid. Try a larger size.`
-    : "";
 
   const labelOffset = 8;
   const imgSize = 20;
@@ -382,6 +421,8 @@ function SubtreeView({ subtree, onClose }) {
                     setMazeSizeText(raw);
                     if (isValidMazeSize(raw)) {
                       setMazeSize(parseInt(raw, 10));
+                      setMazeData(null);
+                      setMazeError("");
                     }
                   }}
                   onBlur={() => {
@@ -393,7 +434,7 @@ function SubtreeView({ subtree, onClose }) {
               </label>
               <button
                 className="subtree-copy-btn"
-                onClick={() => setShowMaze(false)}
+                onClick={() => { setShowMaze(false); cancelWorker(); }}
               >
                 🌳 Back to tree
               </button>
@@ -401,6 +442,7 @@ function SubtreeView({ subtree, onClose }) {
             </div>
           </div>
           <div className="subtree-content">
+            {mazeLoading && <p className="maze-loading">Generating maze…</p>}
             {mazeError && <p className="maze-error">{mazeError}</p>}
             {mazeData && (() => {
               const mazeSvgW = mazeData.size * cellSize;
@@ -491,7 +533,7 @@ function SubtreeView({ subtree, onClose }) {
             </button>
             <button
               className="subtree-copy-btn"
-              onClick={() => setShowMaze(true)}
+              onClick={() => { setShowMaze(true); setMazeData(null); setMazeError(""); }}
               title="Show tree as a grid maze"
             >
               🔲 Maze
