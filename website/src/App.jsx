@@ -405,23 +405,7 @@ function SubtreeView({ subtree, onClose }) {
             {mazeData && (() => {
               const mazeSvgW = mazeData.size * cellSize;
               const mazeSvgH = mazeData.size * cellSize;
-              // Build edge lines between adjacent passage cells
-              const mazeEdges = [];
-              for (let r = 0; r < mazeData.size; r++) {
-                for (let c = 0; c < mazeData.size; c++) {
-                  if (!mazeData.grid[r][c].passage) continue;
-                  const cx = (c + 0.5) * cellSize;
-                  const cy = (r + 0.5) * cellSize;
-                  // right neighbor
-                  if (c + 1 < mazeData.size && mazeData.grid[r][c + 1].passage) {
-                    mazeEdges.push({ x1: cx, y1: cy, x2: cx + cellSize, y2: cy, key: `e-${r}-${c}-r` });
-                  }
-                  // down neighbor
-                  if (r + 1 < mazeData.size && mazeData.grid[r + 1][c].passage) {
-                    mazeEdges.push({ x1: cx, y1: cy, x2: cx, y2: cy + cellSize, key: `e-${r}-${c}-d` });
-                  }
-                }
-              }
+              const taxaPlacements = mazeData.placements.filter((p) => p.node.isTaxon);
               return (
                 <svg
                   className="maze-svg"
@@ -429,11 +413,12 @@ function SubtreeView({ subtree, onClose }) {
                   height={mazeSvgH}
                   viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
                 >
-                  {/* Maze edges as lines */}
-                  {mazeEdges.map((e) => (
+                  {/* Tree edges as lines (from embedding, not grid adjacency) */}
+                  {mazeData.edges.map((e, i) => (
                     <line
-                      key={e.key}
-                      x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+                      key={`e-${i}`}
+                      x1={(e.c1 + 0.5) * cellSize} y1={(e.r1 + 0.5) * cellSize}
+                      x2={(e.c2 + 0.5) * cellSize} y2={(e.r2 + 0.5) * cellSize}
                       className="maze-edge"
                     />
                   ))}
@@ -451,6 +436,29 @@ function SubtreeView({ subtree, onClose }) {
                       ) : null
                     )
                   )}
+                  {/* Taxa markers (images) */}
+                  {taxaPlacements.map((p) => {
+                    const cx = (p.col + 0.5) * cellSize;
+                    const cy = (p.row + 0.5) * cellSize;
+                    const sp = taxaByOttId.get(p.node.ott_id);
+                    return sp?.image_url ? (
+                      <image
+                        key={p.node.ott_id ?? `t-${p.row}-${p.col}`}
+                        href={sp.image_url}
+                        x={cx - 8}
+                        y={cy - 8}
+                        width={16}
+                        height={16}
+                        clipPath="inset(0 round 3px)"
+                      />
+                    ) : (
+                      <circle
+                        key={p.node.ott_id ?? `t-${p.row}-${p.col}`}
+                        cx={cx} cy={cy} r={5}
+                        fill="#e07020"
+                      />
+                    );
+                  })}
                 </svg>
               );
             })()}

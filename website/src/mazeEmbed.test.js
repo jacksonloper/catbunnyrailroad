@@ -497,3 +497,197 @@ describe("embedTreeInMaze", () => {
     expect(taxaPlacements.length).toBe(8);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Embedding produces a proper tree (no cycles)
+// ---------------------------------------------------------------------------
+
+/** Helper: collect passage cells from maze result */
+function collectPassageCells(result) {
+  const cells = [];
+  for (let r = 0; r < result.size; r++) {
+    for (let c = 0; c < result.size; c++) {
+      if (result.grid[r][c].passage) cells.push(`${r},${c}`);
+    }
+  }
+  return cells;
+}
+
+/** Helper: verify edges form a tree (connected, no cycles) */
+function verifyTreeProperty(result) {
+  const passageCells = collectPassageCells(result);
+  const passageSet = new Set(passageCells);
+
+  // All edge endpoints must be passage cells
+  for (const e of result.edges) {
+    expect(passageSet.has(`${e.r1},${e.c1}`)).toBe(true);
+    expect(passageSet.has(`${e.r2},${e.c2}`)).toBe(true);
+  }
+
+  // Tree property: |edges| = |vertices| - 1
+  expect(result.edges.length).toBe(passageCells.length - 1);
+
+  // Build adjacency from edges and verify connectivity
+  const adj = {};
+  for (const cell of passageCells) adj[cell] = [];
+  for (const e of result.edges) {
+    const u = `${e.r1},${e.c1}`;
+    const v = `${e.r2},${e.c2}`;
+    adj[u].push(v);
+    adj[v].push(u);
+  }
+  const visited = new Set([passageCells[0]]);
+  const queue = [passageCells[0]];
+  while (queue.length > 0) {
+    const v = queue.shift();
+    for (const nb of adj[v]) {
+      if (!visited.has(nb)) {
+        visited.add(nb);
+        queue.push(nb);
+      }
+    }
+  }
+  expect(visited.size).toBe(passageCells.length);
+}
+
+describe("embedding edges form a tree (no cycles)", () => {
+  it("single-node tree has zero edges", () => {
+    const tree = { name: "A", children: [], isTaxon: true };
+    const result = embedTreeInMaze(tree, 3);
+    expect(result).not.toBeNull();
+    expect(result.edges.length).toBe(0);
+    const passages = collectPassageCells(result);
+    expect(passages.length).toBe(1);
+  });
+
+  it("2-leaf tree edges form a path (no cycles)", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [], isTaxon: true },
+        { name: "B", children: [], isTaxon: true },
+      ],
+    };
+    const result = embedTreeInMaze(tree, 5);
+    expect(result).not.toBeNull();
+    verifyTreeProperty(result);
+  });
+
+  it("4-leaf binary tree edges form a tree (no cycles)", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "AB",
+          children: [
+            { name: "A", children: [], isTaxon: true },
+            { name: "B", children: [], isTaxon: true },
+          ],
+        },
+        {
+          name: "CD",
+          children: [
+            { name: "C", children: [], isTaxon: true },
+            { name: "D", children: [], isTaxon: true },
+          ],
+        },
+      ],
+    };
+    const result = embedTreeInMaze(tree, 7);
+    expect(result).not.toBeNull();
+    verifyTreeProperty(result);
+  });
+
+  it("9-taxa tree (like OTTs 378513,458856,...) embeds as a proper tree", () => {
+    // Tree structure with 9 taxa in 3 clades (polytomies resolved by binarize)
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "clade1",
+          children: [
+            { name: "T1", ott_id: 378513, isTaxon: true, children: [] },
+            { name: "T2", ott_id: 458856, isTaxon: true, children: [] },
+            { name: "T3", ott_id: 3902985, isTaxon: true, children: [] },
+          ],
+        },
+        {
+          name: "clade2",
+          children: [
+            { name: "T4", ott_id: 972654, isTaxon: true, children: [] },
+            { name: "T5", ott_id: 731554, isTaxon: true, children: [] },
+            { name: "T6", ott_id: 259054, isTaxon: true, children: [] },
+          ],
+        },
+        {
+          name: "clade3",
+          children: [
+            { name: "T7", ott_id: 372836, isTaxon: true, children: [] },
+            { name: "T8", ott_id: 490099, isTaxon: true, children: [] },
+            { name: "T9", ott_id: 563166, isTaxon: true, children: [] },
+          ],
+        },
+      ],
+    };
+    const bin = binarizeTree(tree);
+    const result = embedTreeInMaze(bin, 15);
+    expect(result).not.toBeNull();
+
+    // All 9 taxa should be placed at grid points
+    const taxaPlacements = result.placements.filter((p) => p.node.isTaxon);
+    expect(taxaPlacements.length).toBe(9);
+
+    // Each taxon placement should have valid grid coords
+    for (const p of taxaPlacements) {
+      expect(p.row).toBeGreaterThanOrEqual(0);
+      expect(p.row).toBeLessThan(15);
+      expect(p.col).toBeGreaterThanOrEqual(0);
+      expect(p.col).toBeLessThan(15);
+      expect(p.node.ott_id).toBeDefined();
+    }
+
+    // The edges must form a proper tree: connected, no cycles
+    verifyTreeProperty(result);
+  });
+
+  it("8-leaf balanced tree edges form a tree (no cycles)", () => {
+    function makeBalanced(depth, prefix) {
+      if (depth === 0) return { name: prefix, children: [], isTaxon: true };
+      return {
+        name: prefix,
+        children: [
+          makeBalanced(depth - 1, prefix + "L"),
+          makeBalanced(depth - 1, prefix + "R"),
+        ],
+      };
+    }
+    const tree = makeBalanced(3, "");
+    const result = embedTreeInMaze(tree, 11);
+    expect(result).not.toBeNull();
+    verifyTreeProperty(result);
+  });
+
+  it("edges are between grid-adjacent cells", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "AB",
+          children: [
+            { name: "A", children: [], isTaxon: true },
+            { name: "B", children: [], isTaxon: true },
+          ],
+        },
+        { name: "C", children: [], isTaxon: true },
+      ],
+    };
+    const result = embedTreeInMaze(tree, 7);
+    expect(result).not.toBeNull();
+    for (const e of result.edges) {
+      const dr = Math.abs(e.r1 - e.r2);
+      const dc = Math.abs(e.c1 - e.c2);
+      // Each edge should connect grid-adjacent cells (Manhattan distance 1)
+      expect(dr + dc).toBe(1);
+    }
+  });
+});

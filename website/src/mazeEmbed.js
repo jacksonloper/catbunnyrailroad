@@ -423,12 +423,13 @@ export function findTreeSubdivisionEmbedding(treeRoot, hostGraph) {
  *
  * @param {object} binTree – binary tree (each node has 0–2 children)
  * @param {number} m – grid side length (e.g. 7, 9, 11)
- * @returns {{ grid: object[][], size: number, placements: object[] } | null}
+ * @returns {{ grid: object[][], size: number, placements: object[], edges: object[] } | null}
  *   null if the tree cannot be embedded in the given grid size.
  *   Otherwise:
  *     grid[r][c].passage – true if the cell is part of the tree
  *     grid[r][c].node    – the tree node placed here, or null for corridors
  *     placements         – flat list of { node, row, col }
+ *     edges              – list of { r1, c1, r2, c2 } tree edges in the grid
  */
 export function embedTreeInMaze(binTree, m) {
   const hostGraph = makeGridGraph(m);
@@ -451,5 +452,16 @@ export function embedTreeInMaze(binTree, m) {
     }
   }
 
-  return { grid, size: m, placements };
+  // Extract actual tree edges from the routed paths (not from grid adjacency,
+  // which can create false connections / cycles).
+  const edges = [];
+  for (const [, path] of result.paths) {
+    for (let i = 0; i < path.length - 1; i++) {
+      const [r1, c1] = path[i].split(",").map(Number);
+      const [r2, c2] = path[i + 1].split(",").map(Number);
+      edges.push({ r1, c1, r2, c2 });
+    }
+  }
+
+  return { grid, size: m, placements, edges };
 }
