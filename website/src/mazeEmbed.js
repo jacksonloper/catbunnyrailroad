@@ -1,22 +1,21 @@
 /**
- * Tree subdivision embedding in a square grid maze.
+ * Tree embedding in a square grid maze using the H-tree method.
  *
  * Workflow:
  *   1. binarizeTree – ensure every internal node has ≤ 2 children.
- *   2. embedTreeInMaze – embed the binary tree into a user-specified
- *      m × m grid graph using tree subdivision embedding.
+ *   2. embedTreeInMaze – embed the binary tree into a grid using H-tree
+ *      recursive subdivision (deterministic, O(n)).
  *
- * The embedding algorithm:
- *   1) Suppress degree-2 vertices of the tree, producing a smaller
- *      "skeleton" S whose vertices are leaves and branching nodes.
- *   2) Search for an injective placement of S's vertices into the grid.
- *   3) For each skeleton edge, route a simple path in the grid (BFS)
- *      between the placed endpoints, with all paths internally
- *      vertex-disjoint.
- *   4) Re-expand suppressed degree-2 chains along the routed paths.
+ * The H-tree algorithm:
+ *   1) Compute the depth d of the binary tree.
+ *   2) Build a complete binary tree layout of depth d using H-tree
+ *      recursive subdivision of the grid rectangle.
+ *   3) Map the user's binary tree onto the H-tree layout, following
+ *      left/right child structure.
+ *   4) Only draw passages and corridors for the parts of the H-tree
+ *      that the actual tree uses.
  *
- * Tuned for small trees (≤ ~15 leaves) and moderate grids (≤ ~15 × 15).
- * Uses backtracking + BFS + pruning.
+ * This is O(n) and works for trees of any size.
  */
 
 // ---------------------------------------------------------------------------
@@ -415,11 +414,138 @@ export function findTreeSubdivisionEmbedding(treeRoot, hostGraph) {
 }
 
 // ---------------------------------------------------------------------------
+// H-tree embedding (fast, deterministic)
+// ---------------------------------------------------------------------------
+
+/**
+ * Compute the depth (longest root-to-leaf path) of a binary tree.
+ */
+export function treeDepth(node) {
+  if (!node.children || node.children.length === 0) return 0;
+  return 1 + Math.max(...node.children.map(treeDepth));
+}
+
+/**
+ * Compute the minimum grid dimensions for an H-tree embedding of a
+ * complete binary tree of the given depth.
+ * Odd depths split horizontally (width doubles);
+ * even depths split vertically (height doubles).
+ *
+ * @param {number} depth
+ * @returns {{ width: number, height: number }}
+ */
+export function hTreeDimensions(depth) {
+  let w = 1, h = 1;
+  for (let d = 1; d <= depth; d++) {
+    if (d % 2 === 1) w = 2 * w + 1;
+    else h = 2 * h + 1;
+  }
+  return { width: w, height: h };
+}
+
+/**
+ * Build the H-tree layout for a complete binary tree of the given depth,
+ * fitting into the rectangle [rMin..rMax] × [cMin..cMax].
+ * Direction alternates: horizontal splits left/right columns,
+ * vertical splits top/bottom rows.
+ *
+ * @returns {{ row: number, col: number, left: object|null, right: object|null }}
+ */
+export function buildHTree(depth, rMin, rMax, cMin, cMax, horizontal) {
+  const r = Math.floor((rMin + rMax) / 2);
+  const c = Math.floor((cMin + cMax) / 2);
+  const node = { row: r, col: c, left: null, right: null };
+  if (depth === 0) return node;
+  if (horizontal) {
+    node.left = buildHTree(depth - 1, rMin, rMax, cMin, c - 1, false);
+    node.right = buildHTree(depth - 1, rMin, rMax, c + 1, cMax, false);
+  } else {
+    node.left = buildHTree(depth - 1, rMin, r - 1, cMin, cMax, true);
+    node.right = buildHTree(depth - 1, r + 1, rMax, cMin, cMax, true);
+  }
+  return node;
+}
+
+/**
+ * Add corridor cells and edges between two grid positions
+ * (must share a row or a column).
+ */
+function _addCorridor(r1, c1, r2, c2, passages, edges) {
+  if (r1 === r2) {
+    const minC = Math.min(c1, c2);
+    const maxC = Math.max(c1, c2);
+    for (let c = minC + 1; c < maxC; c++) {
+      passages.add(`${r1},${c}`);
+    }
+    for (let c = minC; c < maxC; c++) {
+      edges.push({ r1, c1: c, r2: r1, c2: c + 1 });
+    }
+  } else {
+    const minR = Math.min(r1, r2);
+    const maxR = Math.max(r1, r2);
+    for (let r = minR + 1; r < maxR; r++) {
+      passages.add(`${r},${c1}`);
+    }
+    for (let r = minR; r < maxR; r++) {
+      edges.push({ r1: r, c1, r2: r + 1, c2: c1 });
+    }
+  }
+}
+
+/**
+ * Map a user's binary tree onto an H-tree layout, tracing corridors
+ * between each parent and its children.  Only the branches actually
+ * present in the user's tree are drawn.
+ *
+ * @param {object} userNode – binary tree node with .children
+ * @param {object} hNode – H-tree layout node from buildHTree
+ * @returns {{ passages: Set<string>, edges: object[], placements: object[] }}
+ */
+export function mapTreeToHLayout(userNode, hNode) {
+  const passages = new Set();
+  const edges = [];
+  const placements = [];
+
+  passages.add(`${hNode.row},${hNode.col}`);
+  placements.push({ node: userNode, row: hNode.row, col: hNode.col });
+
+  const children = userNode.children || [];
+
+  if (children.length >= 1 && hNode.left) {
+    const sub = mapTreeToHLayout(children[0], hNode.left);
+    _addCorridor(hNode.row, hNode.col, hNode.left.row, hNode.left.col, passages, edges);
+    for (const p of sub.passages) passages.add(p);
+    edges.push(...sub.edges);
+    placements.push(...sub.placements);
+  }
+
+  if (children.length >= 2 && hNode.right) {
+    const sub = mapTreeToHLayout(children[1], hNode.right);
+    _addCorridor(hNode.row, hNode.col, hNode.right.row, hNode.right.col, passages, edges);
+    for (const p of sub.passages) passages.add(p);
+    edges.push(...sub.edges);
+    placements.push(...sub.placements);
+  }
+
+  return { passages, edges, placements };
+}
+
+/**
+ * Compute the minimum square grid size needed for H-tree embedding
+ * of the given binary tree.
+ */
+export function computeMinMazeSize(binTree) {
+  const d = treeDepth(binTree);
+  const { width, height } = hTreeDimensions(d);
+  return Math.max(width, height);
+}
+
+// ---------------------------------------------------------------------------
 // High-level entry point
 // ---------------------------------------------------------------------------
 
 /**
- * Embed a binary tree into an m × m grid maze.
+ * Embed a binary tree into an m × m grid maze using H-tree layout.
  *
  * @param {object} binTree – binary tree (each node has 0–2 children)
  * @param {number} m – grid side length (e.g. 7, 9, 11)
@@ -432,36 +558,27 @@ export function findTreeSubdivisionEmbedding(treeRoot, hostGraph) {
  *     edges              – list of { r1, c1, r2, c2 } tree edges in the grid
  */
 export function embedTreeInMaze(binTree, m) {
-  const hostGraph = makeGridGraph(m);
-  const result = findTreeSubdivisionEmbedding(binTree, hostGraph);
-  if (!result) return null;
+  const depth = treeDepth(binTree);
+  const { width, height } = hTreeDimensions(depth);
+  const minSize = Math.max(width, height);
+
+  if (m < minSize) return null;
+
+  const hLayout = buildHTree(depth, 0, m - 1, 0, m - 1, true);
+  const mapping = mapTreeToHLayout(binTree, hLayout);
 
   const grid = Array.from({ length: m }, () =>
     Array.from({ length: m }, () => ({ passage: false, node: null }))
   );
-  const placements = [];
 
-  for (const [vertex, node] of result.hostMap) {
-    const [rStr, cStr] = vertex.split(",");
-    const r = parseInt(rStr, 10);
-    const c = parseInt(cStr, 10);
+  for (const key of mapping.passages) {
+    const [r, c] = key.split(",").map(Number);
     grid[r][c].passage = true;
-    if (node) {
-      grid[r][c].node = node;
-      placements.push({ node, row: r, col: c });
-    }
   }
 
-  // Extract actual tree edges from the routed paths (not from grid adjacency,
-  // which can create false connections / cycles).
-  const edges = [];
-  for (const [, path] of result.paths) {
-    for (let i = 0; i < path.length - 1; i++) {
-      const [r1, c1] = path[i].split(",").map(Number);
-      const [r2, c2] = path[i + 1].split(",").map(Number);
-      edges.push({ r1, c1, r2, c2 });
-    }
+  for (const p of mapping.placements) {
+    grid[p.row][p.col].node = p.node;
   }
 
-  return { grid, size: m, placements, edges };
+  return { grid, size: m, placements: mapping.placements, edges: mapping.edges };
 }

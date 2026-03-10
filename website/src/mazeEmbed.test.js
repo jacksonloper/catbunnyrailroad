@@ -7,6 +7,10 @@ import {
   bfsPath,
   findTreeSubdivisionEmbedding,
   embedTreeInMaze,
+  treeDepth,
+  hTreeDimensions,
+  buildHTree,
+  computeMinMazeSize,
 } from "./mazeEmbed.js";
 
 // ---------------------------------------------------------------------------
@@ -689,5 +693,169 @@ describe("embedding edges form a tree (no cycles)", () => {
       // Each edge should connect grid-adjacent cells (Manhattan distance 1)
       expect(dr + dc).toBe(1);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// H-tree functions
+// ---------------------------------------------------------------------------
+
+describe("treeDepth", () => {
+  it("single node has depth 0", () => {
+    expect(treeDepth({ name: "A", children: [] })).toBe(0);
+  });
+
+  it("depth-1 tree", () => {
+    const tree = { name: "r", children: [{ name: "A", children: [] }] };
+    expect(treeDepth(tree)).toBe(1);
+  });
+
+  it("depth-3 balanced tree", () => {
+    function mk(d) {
+      if (d === 0) return { name: "L", children: [] };
+      return { name: "N", children: [mk(d - 1), mk(d - 1)] };
+    }
+    expect(treeDepth(mk(3))).toBe(3);
+  });
+});
+
+describe("hTreeDimensions", () => {
+  it("depth 0 is 1×1", () => {
+    expect(hTreeDimensions(0)).toEqual({ width: 1, height: 1 });
+  });
+
+  it("depth 1 is 3×1", () => {
+    expect(hTreeDimensions(1)).toEqual({ width: 3, height: 1 });
+  });
+
+  it("depth 2 is 3×3", () => {
+    expect(hTreeDimensions(2)).toEqual({ width: 3, height: 3 });
+  });
+
+  it("depth 3 is 7×3", () => {
+    expect(hTreeDimensions(3)).toEqual({ width: 7, height: 3 });
+  });
+
+  it("depth 4 is 7×7", () => {
+    expect(hTreeDimensions(4)).toEqual({ width: 7, height: 7 });
+  });
+
+  it("depth 5 is 15×7", () => {
+    expect(hTreeDimensions(5)).toEqual({ width: 15, height: 7 });
+  });
+});
+
+describe("buildHTree", () => {
+  it("depth 0 places node at center", () => {
+    const h = buildHTree(0, 0, 2, 0, 2, true);
+    expect(h.row).toBe(1);
+    expect(h.col).toBe(1);
+    expect(h.left).toBeNull();
+    expect(h.right).toBeNull();
+  });
+
+  it("depth 1 splits horizontally", () => {
+    const h = buildHTree(1, 0, 0, 0, 2, true);
+    expect(h.row).toBe(0);
+    expect(h.col).toBe(1);
+    expect(h.left.col).toBe(0);
+    expect(h.right.col).toBe(2);
+    expect(h.left.row).toBe(0);
+    expect(h.right.row).toBe(0);
+  });
+
+  it("depth 2 creates H shape in 3×3 grid", () => {
+    const h = buildHTree(2, 0, 2, 0, 2, true);
+    expect(h.row).toBe(1);
+    expect(h.col).toBe(1);
+    // Left child splits vertically
+    expect(h.left.row).toBe(1);
+    expect(h.left.col).toBe(0);
+    expect(h.left.left.row).toBe(0);
+    expect(h.left.right.row).toBe(2);
+    // Right child splits vertically
+    expect(h.right.row).toBe(1);
+    expect(h.right.col).toBe(2);
+  });
+});
+
+describe("computeMinMazeSize", () => {
+  it("single node needs size 1", () => {
+    expect(computeMinMazeSize({ name: "A", children: [] })).toBe(1);
+  });
+
+  it("depth-2 tree needs size 3", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "AB", children: [
+          { name: "A", children: [] },
+          { name: "B", children: [] },
+        ]},
+        { name: "CD", children: [
+          { name: "C", children: [] },
+          { name: "D", children: [] },
+        ]},
+      ],
+    };
+    expect(computeMinMazeSize(tree)).toBe(3);
+  });
+
+  it("depth-3 tree needs size 7", () => {
+    function mk(d) {
+      if (d === 0) return { name: "L", children: [] };
+      return { name: "N", children: [mk(d - 1), mk(d - 1)] };
+    }
+    expect(computeMinMazeSize(mk(3))).toBe(7);
+  });
+});
+
+describe("H-tree embedding speed", () => {
+  it("embeds a deep unbalanced tree (depth 10) in under 1 second", () => {
+    // Build a deep unbalanced binary tree similar to the 22-taxon phylogenetic tree
+    function buildDeepTree(depth) {
+      if (depth === 0) return { name: `L${depth}`, children: [], isTaxon: true };
+      return {
+        name: `N${depth}`,
+        children: [
+          buildDeepTree(depth - 1),
+          { name: `R${depth}`, children: [], isTaxon: true },
+        ],
+      };
+    }
+    const tree = buildDeepTree(10);
+    const minSize = computeMinMazeSize(tree);
+    expect(minSize).toBe(63);
+
+    const start = Date.now();
+    const result = embedTreeInMaze(tree, minSize);
+    const elapsed = Date.now() - start;
+
+    expect(result).not.toBeNull();
+    expect(elapsed).toBeLessThan(1000);
+    expect(result.size).toBe(63);
+
+    // Verify tree property
+    verifyTreeProperty(result);
+  });
+
+  it("embeds a 32-leaf balanced tree quickly", () => {
+    function mk(d, prefix) {
+      if (d === 0) return { name: prefix, children: [], isTaxon: true };
+      return { name: prefix, children: [mk(d - 1, prefix + "L"), mk(d - 1, prefix + "R")] };
+    }
+    const tree = mk(5, ""); // 32 leaves
+    const minSize = computeMinMazeSize(tree);
+
+    const start = Date.now();
+    const result = embedTreeInMaze(tree, minSize);
+    const elapsed = Date.now() - start;
+
+    expect(result).not.toBeNull();
+    expect(elapsed).toBeLessThan(1000);
+
+    const taxaPlacements = result.placements.filter(p => p.node.isTaxon);
+    expect(taxaPlacements.length).toBe(32);
+    verifyTreeProperty(result);
   });
 });

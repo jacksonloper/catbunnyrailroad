@@ -302,7 +302,7 @@ function SubtreeView({ subtree, onClose }) {
   function isValidMazeSize(text) {
     if (!/^\s*\d+\s*$/.test(text)) return false;
     const v = parseInt(text, 10);
-    return v >= 3 && v <= 30;
+    return v >= 3 && v <= 200;
   }
 
   // Cancel any in-flight worker
@@ -325,13 +325,18 @@ function SubtreeView({ subtree, onClose }) {
     workerRef.current = worker;
 
     worker.onmessage = (e) => {
-      const { result } = e.data;
+      const { result, minSize } = e.data;
       if (result) {
         setMazeData(result);
         setMazeError("");
+        // Auto-update displayed size if the worker auto-increased it
+        if (result.size !== mazeSize) {
+          setMazeSize(result.size);
+          setMazeSizeText(String(result.size));
+        }
       } else {
         setMazeData(null);
-        setMazeError(`Could not embed tree in a ${mazeSize}×${mazeSize} grid. Try a larger size.`);
+        setMazeError(`Could not embed tree in a ${mazeSize}×${mazeSize} grid. Try size ≥ ${minSize}.`);
       }
     };
 
