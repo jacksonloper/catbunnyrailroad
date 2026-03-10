@@ -693,27 +693,6 @@ h2 {
 .maze-vertex {
   fill: #444;
 }
-.maze-size-label {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.85rem;
-  color: #ccc;
-}
-.maze-size-input {
-  width: 3.5rem;
-  padding: 0.15rem 0.3rem;
-  border: 1px solid #555;
-  border-radius: 4px;
-  background: #333;
-  color: #eee;
-  font-size: 0.85rem;
-  text-align: center;
-}
-.maze-size-invalid {
-  border-color: #f44;
-  outline: 1px solid #f44;
-}
 .maze-error {
   color: #f88;
   text-align: center;

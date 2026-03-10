@@ -290,20 +290,12 @@ function SubtreeView({ subtree, onClose }) {
   const [copiedJson, setCopiedJson] = useState(false);
   const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
   const [showMaze, setShowMaze] = useState(false);
-  const [mazeSize, setMazeSize] = useState(7);
-  const [mazeSizeText, setMazeSizeText] = useState("7");
   const [mazeData, setMazeData] = useState(null);
   const [mazeError, setMazeError] = useState("");
   const workerRef = useRef(null);
 
   // Loading is derived: maze is requested but we have no data/error yet
   const mazeLoading = showMaze && mazeData === null && !mazeError;
-
-  function isValidMazeSize(text) {
-    if (!/^\s*\d+\s*$/.test(text)) return false;
-    const v = parseInt(text, 10);
-    return v >= 3 && v <= 200;
-  }
 
   // Cancel any in-flight worker
   const cancelWorker = useCallback(() => {
@@ -315,7 +307,7 @@ function SubtreeView({ subtree, onClose }) {
 
   // Run maze generation in a web worker (cancelable).
   // State resets (mazeData/mazeError ← null/"") happen in the event handlers
-  // that change showMaze / mazeSize, not here, to satisfy react-hooks rules.
+  // that change showMaze, not here, to satisfy react-hooks rules.
   useEffect(() => {
     if (!showMaze) return;
 
@@ -325,20 +317,13 @@ function SubtreeView({ subtree, onClose }) {
     workerRef.current = worker;
 
     worker.onmessage = (e) => {
-      const { result, minSize } = e.data;
+      const { result } = e.data;
       if (result) {
         setMazeData(result);
         setMazeError("");
-        // Auto-update displayed size if the worker auto-increased it.
-        // mazeSize here is the value from the effect closure, matching
-        // what was sent to the worker via postMessage below.
-        if (result.size !== mazeSize) {
-          setMazeSize(result.size);
-          setMazeSizeText(String(result.size));
-        }
       } else {
         setMazeData(null);
-        setMazeError(`Could not embed tree in a ${mazeSize}×${mazeSize} grid. Try size ≥ ${minSize}.`);
+        setMazeError("Could not generate maze layout.");
       }
     };
 
@@ -347,10 +332,10 @@ function SubtreeView({ subtree, onClose }) {
       setMazeError("Maze generation failed unexpectedly.");
     };
 
-    worker.postMessage({ subtree, mazeSize });
+    worker.postMessage({ subtree });
 
     return () => cancelWorker();
-  }, [showMaze, subtree, mazeSize, cancelWorker]);
+  }, [showMaze, subtree, cancelWorker]);
 
   // Cleanup worker on unmount
   useEffect(() => () => cancelWorker(), [cancelWorker]);
@@ -417,28 +402,6 @@ function SubtreeView({ subtree, onClose }) {
           <div className="subtree-header">
             <h3>Maze</h3>
             <div className="subtree-header-actions">
-              <label className="maze-size-label">
-                Size:
-                <input
-                  type="text"
-                  className={`maze-size-input${isValidMazeSize(mazeSizeText) ? "" : " maze-size-invalid"}`}
-                  value={mazeSizeText}
-                  onChange={(e) => {
-                    const raw = e.target.value;
-                    setMazeSizeText(raw);
-                    if (isValidMazeSize(raw)) {
-                      setMazeSize(parseInt(raw, 10));
-                      setMazeData(null);
-                      setMazeError("");
-                    }
-                  }}
-                  onBlur={() => {
-                    if (!isValidMazeSize(mazeSizeText)) {
-                      setMazeSizeText(String(mazeSize));
-                    }
-                  }}
-                />
-              </label>
               <button
                 className="subtree-copy-btn"
                 onClick={() => { setShowMaze(false); cancelWorker(); setMazeData(null); setMazeError(""); }}
@@ -452,8 +415,8 @@ function SubtreeView({ subtree, onClose }) {
             {mazeLoading && <p className="maze-loading">Generating maze…</p>}
             {mazeError && <p className="maze-error">{mazeError}</p>}
             {mazeData && (() => {
-              const mazeSvgW = mazeData.size * cellSize;
-              const mazeSvgH = mazeData.size * cellSize;
+              const mazeSvgW = mazeData.width * cellSize;
+              const mazeSvgH = mazeData.height * cellSize;
               const taxaPlacements = mazeData.placements.filter((p) => p.node.isTaxon);
               return (
                 <svg
@@ -462,29 +425,25 @@ function SubtreeView({ subtree, onClose }) {
                   height={mazeSvgH}
                   viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
                 >
-                  {/* Tree edges as lines (from embedding, not grid adjacency) */}
+                  {/* Tree edges as lines */}
                   {mazeData.edges.map((e, i) => (
                     <line
                       key={`e-${i}`}
-                      x1={(e.c1 + 0.5) * cellSize} y1={(e.r1 + 0.5) * cellSize}
-                      x2={(e.c2 + 0.5) * cellSize} y2={(e.r2 + 0.5) * cellSize}
+                      x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
+                      x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
                       className="maze-edge"
                     />
                   ))}
-                  {/* Passage vertices as dots */}
-                  {mazeData.grid.map((row, r) =>
-                    row.map((cell, c) =>
-                      cell.passage ? (
-                        <circle
-                          key={`v-${r}-${c}`}
-                          cx={(c + 0.5) * cellSize}
-                          cy={(r + 0.5) * cellSize}
-                          r={3}
-                          className="maze-vertex"
-                        />
-                      ) : null
-                    )
-                  )}
+                  {/* Node vertices as dots */}
+                  {mazeData.placements.map((p, i) => (
+                    <circle
+                      key={`v-${i}`}
+                      cx={(p.col + 0.5) * cellSize}
+                      cy={(p.row + 0.5) * cellSize}
+                      r={3}
+                      className="maze-vertex"
+                    />
+                  ))}
                   {/* Taxa markers (images) */}
                   {taxaPlacements.map((p) => {
                     const cx = (p.col + 0.5) * cellSize;
