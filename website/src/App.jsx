@@ -409,6 +409,54 @@ function SubtreeView({ subtree, onClose }) {
 
   const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
 
+  /** Build a standalone SVG string for the current maze, styled for white-paper printing */
+  function buildPrintSvg() {
+    if (!mazeData) return null;
+    const cellSize = 20;
+    const w = mazeData.width * cellSize;
+    const h = mazeData.height * cellSize;
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const lines = [];
+    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`);
+    lines.push(`<rect width="${w}" height="${h}" fill="white"/>`);
+    // Spanning tree background edges
+    for (const e of mazeData.mazeEdges) {
+      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#ccc" stroke-width="1" stroke-linecap="round"/>`);
+    }
+    // Embedded tree edges
+    for (const e of mazeData.edges) {
+      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="black" stroke-width="2" stroke-linecap="round"/>`);
+    }
+    // Vertex dots
+    for (const p of mazeData.placements) {
+      lines.push(`<circle cx="${(p.col + 0.5) * cellSize}" cy="${(p.row + 0.5) * cellSize}" r="3" fill="black"/>`);
+    }
+    // Taxa labels
+    for (const p of taxaPlacements) {
+      const cx = (p.col + 0.5) * cellSize;
+      const cy = (p.row + 0.5) * cellSize;
+      const name = p.node.name || "";
+      lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="white" stroke="black" stroke-width="1.5"/>`);
+      lines.push(`<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-size="7" font-family="sans-serif" fill="black">${name.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
+    }
+    lines.push("</svg>");
+    return lines.join("\n");
+  }
+
+  function handleSaveMazeSvg() {
+    const svgStr = buildPrintSvg();
+    if (!svgStr) return;
+    const blob = new Blob([svgStr], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "maze.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   // ---- Maze view ----
   if (showMaze) {
     const cellSize = 20;
@@ -443,6 +491,15 @@ function SubtreeView({ subtree, onClose }) {
               >
                 🌳 Back to tree
               </button>
+              {mazeData && (
+                <button
+                  className="subtree-copy-btn"
+                  onClick={handleSaveMazeSvg}
+                  title="Save maze as SVG for printing"
+                >
+                  💾 Save SVG
+                </button>
+              )}
               <button className="subtree-close" aria-label="Close" onClick={onClose}>✕</button>
             </div>
           </div>
