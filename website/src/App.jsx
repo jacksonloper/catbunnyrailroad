@@ -437,7 +437,7 @@ function SubtreeView({ subtree, onClose }) {
       const cy = (p.row + 0.5) * cellSize;
       const name = p.node.name || "";
       lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="white" stroke="black" stroke-width="1.5"/>`);
-      lines.push(`<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-size="7" font-family="sans-serif" fill="black">${name.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
+      lines.push(`<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-size="7" font-family="sans-serif" fill="black">${name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</text>`);
     }
     lines.push("</svg>");
     return lines.join("\n");
