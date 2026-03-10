@@ -1,0 +1,499 @@
+import { describe, it, expect } from "vitest";
+import {
+  binarizeTree,
+  makeGridGraph,
+  treeToAdj,
+  buildSkeleton,
+  bfsPath,
+  findTreeSubdivisionEmbedding,
+  embedTreeInMaze,
+} from "./mazeEmbed.js";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Count leaves (nodes with no children) */
+function countLeaves(node) {
+  if (!node.children || node.children.length === 0) return 1;
+  return node.children.reduce((s, c) => s + countLeaves(c), 0);
+}
+
+/** Check that every internal node has ≤ 2 children */
+function isBinary(node) {
+  if (!node.children || node.children.length === 0) return true;
+  if (node.children.length > 2) return false;
+  return node.children.every(isBinary);
+}
+
+/** Collect all nodes in a tree */
+function collectAll(node) {
+  const result = [node];
+  for (const c of node.children || []) result.push(...collectAll(c));
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// binarizeTree
+// ---------------------------------------------------------------------------
+
+describe("binarizeTree", () => {
+  it("leaves a binary tree unchanged", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [] },
+        { name: "B", children: [] },
+      ],
+    };
+    const bin = binarizeTree(tree);
+    expect(isBinary(bin)).toBe(true);
+    expect(countLeaves(bin)).toBe(2);
+  });
+
+  it("resolves a 3-child polytomy", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [] },
+        { name: "B", children: [] },
+        { name: "C", children: [] },
+      ],
+    };
+    const bin = binarizeTree(tree);
+    expect(isBinary(bin)).toBe(true);
+    expect(countLeaves(bin)).toBe(3);
+  });
+
+  it("resolves a 5-child polytomy preserving all leaves", () => {
+    const tree = {
+      name: "root",
+      children: Array.from({ length: 5 }, (_, i) => ({
+        name: `L${i}`,
+        children: [],
+        isTaxon: true,
+      })),
+    };
+    const bin = binarizeTree(tree);
+    expect(isBinary(bin)).toBe(true);
+    expect(countLeaves(bin)).toBe(5);
+    // All original taxa should still be present
+    const allNodes = collectAll(bin);
+    for (let i = 0; i < 5; i++) {
+      expect(allNodes.some((n) => n.name === `L${i}`)).toBe(true);
+    }
+  });
+
+  it("handles a single-node tree", () => {
+    const tree = { name: "only", children: [] };
+    const bin = binarizeTree(tree);
+    expect(bin.name).toBe("only");
+    expect(bin.children).toEqual([]);
+  });
+
+  it("handles a node with no children property", () => {
+    const tree = { name: "bare" };
+    const bin = binarizeTree(tree);
+    expect(bin.children).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// makeGridGraph
+// ---------------------------------------------------------------------------
+
+describe("makeGridGraph", () => {
+  it("builds a 3×3 grid with 9 vertices", () => {
+    const g = makeGridGraph(3);
+    expect(g.vertices.length).toBe(9);
+  });
+
+  it("corner vertex has degree 2", () => {
+    const g = makeGridGraph(4);
+    expect(g.adj["0,0"].length).toBe(2);
+    expect(g.adj["3,3"].length).toBe(2);
+  });
+
+  it("interior vertex has degree 4", () => {
+    const g = makeGridGraph(5);
+    expect(g.adj["2,2"].length).toBe(4);
+  });
+
+  it("edge (non-corner) vertex has degree 3", () => {
+    const g = makeGridGraph(5);
+    expect(g.adj["0,2"].length).toBe(3);
+    expect(g.adj["2,0"].length).toBe(3);
+  });
+
+  it("adjacency is symmetric", () => {
+    const g = makeGridGraph(4);
+    for (const v of g.vertices) {
+      for (const nb of g.adj[v]) {
+        expect(g.adj[nb]).toContain(v);
+      }
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// treeToAdj
+// ---------------------------------------------------------------------------
+
+describe("treeToAdj", () => {
+  it("converts a 3-node tree to undirected adjacency", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [] },
+        { name: "B", children: [] },
+      ],
+    };
+    const { ids, adj } = treeToAdj(tree);
+    expect(ids.length).toBe(3);
+    // Root has 2 neighbours, each leaf has 1
+    const rootId = ids[0];
+    expect(adj[rootId].length).toBe(2);
+    for (const nbId of adj[rootId]) {
+      expect(adj[nbId]).toContain(rootId);
+    }
+  });
+
+  it("single node has no neighbours", () => {
+    const { ids, adj } = treeToAdj({ name: "solo", children: [] });
+    expect(ids.length).toBe(1);
+    expect(adj[ids[0]].length).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildSkeleton
+// ---------------------------------------------------------------------------
+
+describe("buildSkeleton", () => {
+  it("suppresses degree-2 root of a path A-root-B", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [] },
+        { name: "B", children: [] },
+      ],
+    };
+    const adjData = treeToAdj(tree);
+    const skel = buildSkeleton(adjData);
+    // Only the two leaves are important (degree 1); root has degree 2
+    expect(skel.importantVerts.length).toBe(2);
+    // There should be one skeleton edge between A and B
+    const edgeCount = Object.values(skel.skelAdj).reduce((s, a) => s + a.length, 0) / 2;
+    expect(edgeCount).toBe(1);
+    // The chain for that edge should contain the root
+    const chainValues = [...skel.chains.values()];
+    expect(chainValues.some((c) => c.length === 1)).toBe(true);
+  });
+
+  it("keeps branching vertices", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [] },
+        {
+          name: "mid",
+          children: [
+            { name: "B", children: [] },
+            { name: "C", children: [] },
+          ],
+        },
+      ],
+    };
+    const adjData = treeToAdj(tree);
+    const skel = buildSkeleton(adjData);
+    // root is degree 2 (suppressed), mid is degree 3 (kept), A/B/C are degree 1 (kept)
+    expect(skel.importantVerts.length).toBe(4); // mid, A, B, C
+  });
+});
+
+// ---------------------------------------------------------------------------
+// bfsPath
+// ---------------------------------------------------------------------------
+
+describe("bfsPath", () => {
+  it("finds a path in a 3×3 grid", () => {
+    const g = makeGridGraph(3);
+    const path = bfsPath(g, "0,0", "2,2", new Set());
+    expect(path).not.toBeNull();
+    expect(path[0]).toBe("0,0");
+    expect(path[path.length - 1]).toBe("2,2");
+    // Shortest path has length 5 (Manhattan distance 4 → 5 vertices)
+    expect(path.length).toBe(5);
+  });
+
+  it("avoids used vertices", () => {
+    const g = makeGridGraph(3);
+    // Block the middle row except (1,0) and (1,2)
+    const used = new Set(["1,1"]);
+    const path = bfsPath(g, "0,0", "2,2", used);
+    expect(path).not.toBeNull();
+    expect(path).not.toContain("1,1");
+  });
+
+  it("returns null if no path exists", () => {
+    const g = makeGridGraph(3);
+    // Block everything around (2,2)
+    const used = new Set(["1,2", "2,1"]);
+    const path = bfsPath(g, "0,0", "2,2", used);
+    expect(path).toBeNull();
+  });
+
+  it("src equals dst returns [src]", () => {
+    const g = makeGridGraph(3);
+    const path = bfsPath(g, "1,1", "1,1", new Set());
+    expect(path).toEqual(["1,1"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// findTreeSubdivisionEmbedding
+// ---------------------------------------------------------------------------
+
+describe("findTreeSubdivisionEmbedding", () => {
+  it("embeds a single node", () => {
+    const tree = { name: "A", children: [] };
+    const host = makeGridGraph(3);
+    const result = findTreeSubdivisionEmbedding(tree, host);
+    expect(result).not.toBeNull();
+    expect(result.placements.length).toBe(1);
+    expect(result.placements[0].node.name).toBe("A");
+  });
+
+  it("embeds a 2-node path", () => {
+    const tree = {
+      name: "A",
+      children: [{ name: "B", children: [] }],
+    };
+    const host = makeGridGraph(3);
+    const result = findTreeSubdivisionEmbedding(tree, host);
+    expect(result).not.toBeNull();
+    expect(result.placements.length).toBe(2);
+    // The two placement vertices should be distinct
+    const verts = result.placements.map((p) => p.vertex);
+    expect(new Set(verts).size).toBe(2);
+  });
+
+  it("embeds a 3-node binary tree into a 5×5 grid", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "L", children: [] },
+        { name: "R", children: [] },
+      ],
+    };
+    const host = makeGridGraph(5);
+    const result = findTreeSubdivisionEmbedding(tree, host);
+    expect(result).not.toBeNull();
+    // L and R are important (degree 1), root is suppressed (degree 2)
+    // So 2 placements for the important vertices
+    expect(result.placements.length).toBe(2);
+    // But the hostMap should have at least 3 entries (L, root-corridor, R)
+    expect(result.hostMap.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it("fails if tree is too large for the graph", () => {
+    // A tree with 10 nodes can't fit in a 2×2 grid (only 4 vertices)
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "A",
+          children: [
+            { name: "A1", children: [] },
+            { name: "A2", children: [] },
+          ],
+        },
+        {
+          name: "B",
+          children: [
+            { name: "B1", children: [] },
+            { name: "B2", children: [] },
+          ],
+        },
+      ],
+    };
+    const host = makeGridGraph(2);
+    const result = findTreeSubdivisionEmbedding(tree, host);
+    expect(result).toBeNull();
+  });
+
+  it("paths in the embedding are vertex-disjoint", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [] },
+        {
+          name: "mid",
+          children: [
+            { name: "B", children: [] },
+            { name: "C", children: [] },
+          ],
+        },
+      ],
+    };
+    const host = makeGridGraph(7);
+    const result = findTreeSubdivisionEmbedding(tree, host);
+    expect(result).not.toBeNull();
+
+    // Check that all host vertices in the embedding are distinct
+    const allHostVerts = [...result.hostMap.keys()];
+    expect(new Set(allHostVerts).size).toBe(allHostVerts.length);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// embedTreeInMaze (integration)
+// ---------------------------------------------------------------------------
+
+describe("embedTreeInMaze", () => {
+  it("embeds a single-node tree in a 3×3 grid", () => {
+    const tree = { name: "A", children: [], isTaxon: true };
+    const result = embedTreeInMaze(tree, 3);
+    expect(result).not.toBeNull();
+    expect(result.size).toBe(3);
+    expect(result.placements.length).toBe(1);
+    expect(result.placements[0].node.name).toBe("A");
+    // The placement should be within bounds
+    expect(result.placements[0].row).toBeGreaterThanOrEqual(0);
+    expect(result.placements[0].row).toBeLessThan(3);
+    expect(result.placements[0].col).toBeGreaterThanOrEqual(0);
+    expect(result.placements[0].col).toBeLessThan(3);
+  });
+
+  it("embeds a 4-leaf binary tree in a 7×7 grid", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "AB",
+          children: [
+            { name: "A", children: [], isTaxon: true },
+            { name: "B", children: [], isTaxon: true },
+          ],
+        },
+        {
+          name: "CD",
+          children: [
+            { name: "C", children: [], isTaxon: true },
+            { name: "D", children: [], isTaxon: true },
+          ],
+        },
+      ],
+    };
+    const result = embedTreeInMaze(tree, 7);
+    expect(result).not.toBeNull();
+    expect(result.size).toBe(7);
+
+    // All 4 taxa should be placed
+    const taxaPlacements = result.placements.filter((p) => p.node.isTaxon);
+    expect(taxaPlacements.length).toBe(4);
+
+    // Grid should have some passage cells
+    let passages = 0;
+    for (let r = 0; r < 7; r++)
+      for (let c = 0; c < 7; c++)
+        if (result.grid[r][c].passage) passages++;
+    expect(passages).toBeGreaterThan(0);
+  });
+
+  it("returns null when the grid is too small", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "AB",
+          children: [
+            { name: "A", children: [] },
+            { name: "B", children: [] },
+          ],
+        },
+        {
+          name: "CD",
+          children: [
+            { name: "C", children: [] },
+            { name: "D", children: [] },
+          ],
+        },
+      ],
+    };
+    const result = embedTreeInMaze(tree, 2);
+    expect(result).toBeNull();
+  });
+
+  it("passage cells are connected (form a tree/path in the grid)", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [], isTaxon: true },
+        { name: "B", children: [], isTaxon: true },
+      ],
+    };
+    const result = embedTreeInMaze(tree, 5);
+    expect(result).not.toBeNull();
+
+    // Collect passage cells
+    const passageCells = [];
+    for (let r = 0; r < result.size; r++) {
+      for (let c = 0; c < result.size; c++) {
+        if (result.grid[r][c].passage) passageCells.push(`${r},${c}`);
+      }
+    }
+    expect(passageCells.length).toBeGreaterThanOrEqual(2);
+
+    // BFS from first passage cell – all passage cells should be reachable
+    const visited = new Set([passageCells[0]]);
+    const queue = [passageCells[0]];
+    const passageSet = new Set(passageCells);
+    while (queue.length > 0) {
+      const v = queue.shift();
+      const [r, c] = v.split(",").map(Number);
+      for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+        const nb = `${r + dr},${c + dc}`;
+        if (passageSet.has(nb) && !visited.has(nb)) {
+          visited.add(nb);
+          queue.push(nb);
+        }
+      }
+    }
+    expect(visited.size).toBe(passageCells.length);
+  });
+
+  it("works with binarizeTree for a polytomy", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "A", children: [], isTaxon: true },
+        { name: "B", children: [], isTaxon: true },
+        { name: "C", children: [], isTaxon: true },
+      ],
+    };
+    const bin = binarizeTree(tree);
+    const result = embedTreeInMaze(bin, 7);
+    expect(result).not.toBeNull();
+    const taxaPlacements = result.placements.filter((p) => p.node.isTaxon);
+    expect(taxaPlacements.length).toBe(3);
+  });
+
+  it("embeds an 8-leaf balanced tree in an 11×11 grid", () => {
+    function makeBalanced(depth, prefix) {
+      if (depth === 0) return { name: prefix, children: [], isTaxon: true };
+      return {
+        name: prefix,
+        children: [
+          makeBalanced(depth - 1, prefix + "L"),
+          makeBalanced(depth - 1, prefix + "R"),
+        ],
+      };
+    }
+    const tree = makeBalanced(3, "");
+    const result = embedTreeInMaze(tree, 11);
+    expect(result).not.toBeNull();
+    const taxaPlacements = result.placements.filter((p) => p.node.isTaxon);
+    expect(taxaPlacements.length).toBe(8);
+  });
+});

@@ -290,6 +290,7 @@ function SubtreeView({ subtree, onClose }) {
   const [copiedJson, setCopiedJson] = useState(false);
   const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
   const [showMaze, setShowMaze] = useState(false);
+  const [mazeSize, setMazeSize] = useState(7);
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
@@ -298,8 +299,12 @@ function SubtreeView({ subtree, onClose }) {
   const mazeData = useMemo(() => {
     if (!showMaze) return null;
     const bin = binarizeTree(subtree);
-    return embedTreeInMaze(bin);
-  }, [showMaze, subtree]);
+    return embedTreeInMaze(bin, mazeSize);
+  }, [showMaze, subtree, mazeSize]);
+
+  const mazeError = showMaze && mazeData === null
+    ? `Could not embed tree in a ${mazeSize}×${mazeSize} grid. Try a larger size.`
+    : "";
 
   const labelOffset = 8;
   const imgSize = 20;
@@ -350,12 +355,8 @@ function SubtreeView({ subtree, onClose }) {
   const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
 
   // ---- Maze view ----
-  if (showMaze && mazeData) {
+  if (showMaze) {
     const cellSize = 20;
-    const mazeSvgW = mazeData.size * cellSize;
-    const mazeSvgH = mazeData.size * cellSize;
-    // Gather taxa placements for labels
-    const taxaPlacements = mazeData.placements.filter((p) => p.node.isTaxon);
 
     return (
       <div className="subtree-overlay">
@@ -363,6 +364,17 @@ function SubtreeView({ subtree, onClose }) {
           <div className="subtree-header">
             <h3>Maze</h3>
             <div className="subtree-header-actions">
+              <label className="maze-size-label">
+                Size:
+                <input
+                  type="number"
+                  className="maze-size-input"
+                  min={3}
+                  max={30}
+                  value={mazeSize}
+                  onChange={(e) => setMazeSize(Math.max(3, Math.min(30, parseInt(e.target.value, 10) || 3)))}
+                />
+              </label>
               <button
                 className="subtree-copy-btn"
                 onClick={() => setShowMaze(false)}
@@ -373,61 +385,69 @@ function SubtreeView({ subtree, onClose }) {
             </div>
           </div>
           <div className="subtree-content">
-            <svg
-              className="maze-svg"
-              width={mazeSvgW}
-              height={mazeSvgH}
-              viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
-            >
-              {/* Dark background (walls) */}
-              <rect width={mazeSvgW} height={mazeSvgH} fill="#2d2d2d" />
-              {/* Passage cells */}
-              {mazeData.grid.map((row, r) =>
-                row.map((cell, c) =>
-                  cell.passage ? (
-                    <rect
-                      key={`${r}-${c}`}
-                      x={c * cellSize + 1}
-                      y={r * cellSize + 1}
-                      width={cellSize - 2}
-                      height={cellSize - 2}
-                      rx={2}
-                      fill="#f5f0e1"
-                    />
-                  ) : null
-                )
-              )}
-              {/* Taxa markers + labels */}
-              {taxaPlacements.map((p) => {
-                const cx = (p.col + 0.5) * cellSize;
-                const cy = (p.row + 0.5) * cellSize;
-                const sp = taxaByOttId.get(p.node.ott_id);
-                return (
-                  <g key={p.node.ott_id ?? `${p.row}-${p.col}`}>
-                    {sp?.image_url ? (
-                      <image
-                        href={sp.image_url}
-                        x={cx - 8}
-                        y={cy - 8}
-                        width={16}
-                        height={16}
-                        clipPath="inset(0 round 3px)"
-                      />
-                    ) : (
-                      <circle cx={cx} cy={cy} r={5} fill="#e07020" />
-                    )}
-                    <text
-                      x={cx + 12}
-                      y={cy}
-                      dominantBaseline="central"
-                      className="maze-label"
-                    >
-                      {p.node.name}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
+            {mazeError && <p className="maze-error">{mazeError}</p>}
+            {mazeData && (() => {
+              const mazeSvgW = mazeData.size * cellSize;
+              const mazeSvgH = mazeData.size * cellSize;
+              const taxaPlacements = mazeData.placements.filter((p) => p.node.isTaxon);
+              return (
+                <svg
+                  className="maze-svg"
+                  width={mazeSvgW}
+                  height={mazeSvgH}
+                  viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
+                >
+                  {/* Dark background (walls) */}
+                  <rect width={mazeSvgW} height={mazeSvgH} fill="#2d2d2d" />
+                  {/* Passage cells */}
+                  {mazeData.grid.map((row, r) =>
+                    row.map((cell, c) =>
+                      cell.passage ? (
+                        <rect
+                          key={`${r}-${c}`}
+                          x={c * cellSize + 1}
+                          y={r * cellSize + 1}
+                          width={cellSize - 2}
+                          height={cellSize - 2}
+                          rx={2}
+                          fill="#f5f0e1"
+                        />
+                      ) : null
+                    )
+                  )}
+                  {/* Taxa markers + labels */}
+                  {taxaPlacements.map((p) => {
+                    const cx = (p.col + 0.5) * cellSize;
+                    const cy = (p.row + 0.5) * cellSize;
+                    const sp = taxaByOttId.get(p.node.ott_id);
+                    return (
+                      <g key={p.node.ott_id ?? `${p.row}-${p.col}`}>
+                        {sp?.image_url ? (
+                          <image
+                            href={sp.image_url}
+                            x={cx - 8}
+                            y={cy - 8}
+                            width={16}
+                            height={16}
+                            clipPath="inset(0 round 3px)"
+                          />
+                        ) : (
+                          <circle cx={cx} cy={cy} r={5} fill="#e07020" />
+                        )}
+                        <text
+                          x={cx + 12}
+                          y={cy}
+                          dominantBaseline="central"
+                          className="maze-label"
+                        >
+                          {p.node.name}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+              );
+            })()}
           </div>
         </div>
       </div>
