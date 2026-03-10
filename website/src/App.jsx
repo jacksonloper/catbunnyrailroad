@@ -291,6 +291,13 @@ function SubtreeView({ subtree, onClose }) {
   const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
   const [showMaze, setShowMaze] = useState(false);
   const [mazeSize, setMazeSize] = useState(7);
+  const [mazeSizeText, setMazeSizeText] = useState("7");
+
+  function isValidMazeSize(text) {
+    if (!/^\s*\d+\s*$/.test(text)) return false;
+    const v = parseInt(text, 10);
+    return v >= 3 && v <= 30;
+  }
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
@@ -367,14 +374,20 @@ function SubtreeView({ subtree, onClose }) {
               <label className="maze-size-label">
                 Size:
                 <input
-                  type="number"
-                  className="maze-size-input"
-                  min={3}
-                  max={30}
-                  value={mazeSize}
+                  type="text"
+                  className={`maze-size-input${isValidMazeSize(mazeSizeText) ? "" : " maze-size-invalid"}`}
+                  value={mazeSizeText}
                   onChange={(e) => {
-                    const v = parseInt(e.target.value, 10);
-                    setMazeSize(isNaN(v) ? 3 : Math.max(3, Math.min(30, v)));
+                    const raw = e.target.value;
+                    setMazeSizeText(raw);
+                    if (isValidMazeSize(raw)) {
+                      setMazeSize(parseInt(raw, 10));
+                    }
+                  }}
+                  onBlur={() => {
+                    if (!isValidMazeSize(mazeSizeText)) {
+                      setMazeSizeText(String(mazeSize));
+                    }
                   }}
                 />
               </label>
@@ -392,7 +405,23 @@ function SubtreeView({ subtree, onClose }) {
             {mazeData && (() => {
               const mazeSvgW = mazeData.size * cellSize;
               const mazeSvgH = mazeData.size * cellSize;
-              const taxaPlacements = mazeData.placements.filter((p) => p.node.isTaxon);
+              // Build edge lines between adjacent passage cells
+              const mazeEdges = [];
+              for (let r = 0; r < mazeData.size; r++) {
+                for (let c = 0; c < mazeData.size; c++) {
+                  if (!mazeData.grid[r][c].passage) continue;
+                  const cx = (c + 0.5) * cellSize;
+                  const cy = (r + 0.5) * cellSize;
+                  // right neighbor
+                  if (c + 1 < mazeData.size && mazeData.grid[r][c + 1].passage) {
+                    mazeEdges.push({ x1: cx, y1: cy, x2: cx + cellSize, y2: cy, key: `e-${r}-${c}-r` });
+                  }
+                  // down neighbor
+                  if (r + 1 < mazeData.size && mazeData.grid[r + 1][c].passage) {
+                    mazeEdges.push({ x1: cx, y1: cy, x2: cx, y2: cy + cellSize, key: `e-${r}-${c}-d` });
+                  }
+                }
+              }
               return (
                 <svg
                   className="maze-svg"
@@ -400,54 +429,28 @@ function SubtreeView({ subtree, onClose }) {
                   height={mazeSvgH}
                   viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
                 >
-                  {/* Dark background (walls) */}
-                  <rect width={mazeSvgW} height={mazeSvgH} fill="#2d2d2d" />
-                  {/* Passage cells */}
+                  {/* Maze edges as lines */}
+                  {mazeEdges.map((e) => (
+                    <line
+                      key={e.key}
+                      x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+                      className="maze-edge"
+                    />
+                  ))}
+                  {/* Passage vertices as dots */}
                   {mazeData.grid.map((row, r) =>
                     row.map((cell, c) =>
                       cell.passage ? (
-                        <rect
-                          key={`${r}-${c}`}
-                          x={c * cellSize + 1}
-                          y={r * cellSize + 1}
-                          width={cellSize - 2}
-                          height={cellSize - 2}
-                          rx={2}
-                          fill="#f5f0e1"
+                        <circle
+                          key={`v-${r}-${c}`}
+                          cx={(c + 0.5) * cellSize}
+                          cy={(r + 0.5) * cellSize}
+                          r={3}
+                          className="maze-vertex"
                         />
                       ) : null
                     )
                   )}
-                  {/* Taxa markers + labels */}
-                  {taxaPlacements.map((p) => {
-                    const cx = (p.col + 0.5) * cellSize;
-                    const cy = (p.row + 0.5) * cellSize;
-                    const sp = taxaByOttId.get(p.node.ott_id);
-                    return (
-                      <g key={p.node.ott_id ?? `${p.row}-${p.col}`}>
-                        {sp?.image_url ? (
-                          <image
-                            href={sp.image_url}
-                            x={cx - 8}
-                            y={cy - 8}
-                            width={16}
-                            height={16}
-                            clipPath="inset(0 round 3px)"
-                          />
-                        ) : (
-                          <circle cx={cx} cy={cy} r={5} fill="#e07020" />
-                        )}
-                        <text
-                          x={cx + 12}
-                          y={cy}
-                          dominantBaseline="central"
-                          className="maze-label"
-                        >
-                          {p.node.name}
-                        </text>
-                      </g>
-                    );
-                  })}
                 </svg>
               );
             })()}

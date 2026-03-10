@@ -685,10 +685,13 @@ h2 {
 .maze-svg {
   display: block;
 }
-.maze-label {
-  font-size: 10px;
-  fill: #222;
-  pointer-events: none;
+.maze-edge {
+  stroke: #444;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.maze-vertex {
+  fill: #444;
 }
 .maze-size-label {
   display: flex;
@@ -706,6 +709,10 @@ h2 {
   color: #eee;
   font-size: 0.85rem;
   text-align: center;
+}
+.maze-size-invalid {
+  border-color: #f44;
+  outline: 1px solid #f44;
 }
 .maze-error {
   color: #f88;
