@@ -83,8 +83,6 @@ export function makeGridGraph(m) {
 // Tree → adjacency list conversion
 // ---------------------------------------------------------------------------
 
-let _nextId = 0;
-
 /**
  * Convert a tree (with .children arrays) into an adjacency list
  * representation suitable for the embedding algorithm.
@@ -94,13 +92,13 @@ let _nextId = 0;
  * The tree is treated as *undirected*: parent–child edges go both ways.
  */
 export function treeToAdj(root) {
-  _nextId = 0;
+  let nextId = 0;
   const ids = [];
   const adj = {};
   const nodeById = {};
 
   function walk(node, parentId) {
-    const id = `__node_${_nextId++}`;
+    const id = `__node_${nextId++}`;
     node._embId = id;
     ids.push(id);
     adj[id] = [];
@@ -109,7 +107,7 @@ export function treeToAdj(root) {
       adj[parentId].push(id);
       adj[id].push(parentId);
     }
-    for (const child of node.children) {
+    for (const child of (node.children || [])) {
       walk(child, id);
     }
   }
@@ -322,7 +320,7 @@ export function findTreeSubdivisionEmbedding(treeRoot, hostGraph) {
     const treeVert = placementOrder[k];
     const placedSet = new Set(placementOrder.slice(0, k + 1));
 
-    // Find an already-placed skeleton neighbour (always exists for k > 0
+    // Find an already-placed skeleton neighbor (always exists for k > 0
     // because we traverse in BFS order of the skeleton).
     let anchorHost = null;
     let chainLen = 0;

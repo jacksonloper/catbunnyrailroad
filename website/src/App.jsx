@@ -372,7 +372,10 @@ function SubtreeView({ subtree, onClose }) {
                   min={3}
                   max={30}
                   value={mazeSize}
-                  onChange={(e) => setMazeSize(Math.max(3, Math.min(30, parseInt(e.target.value, 10) || 3)))}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    setMazeSize(isNaN(v) ? 3 : Math.max(3, Math.min(30, v)));
+                  }}
                 />
               </label>
               <button
