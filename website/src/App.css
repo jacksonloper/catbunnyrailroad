@@ -685,6 +685,11 @@ h2 {
 .maze-svg {
   display: block;
 }
+.maze-bg-edge {
+  stroke: #ddd;
+  stroke-width: 1;
+  stroke-linecap: round;
+}
 .maze-edge {
   stroke: #444;
   stroke-width: 2;
@@ -698,6 +703,32 @@ h2 {
   text-align: center;
   padding: 1rem;
   font-size: 0.95rem;
+}
+.maze-hint {
+  text-align: center;
+  padding: 1rem;
+  color: #aaa;
+  font-size: 0.95rem;
+}
+.maze-size-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+.maze-size-input {
+  width: 3rem;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.85rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #333;
+  color: #eee;
+  text-align: center;
+}
+.maze-size-invalid {
+  border-color: #e55;
 }
 
 /* ------ Form error ------ */

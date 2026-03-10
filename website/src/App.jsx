@@ -285,17 +285,31 @@ function layoutTree(root) {
   return { nodes, edges, leafCount: lineIndex, hSpacing, vSpacing, depth };
 }
 
+function isValidMazeSize(text) {
+  if (!/^\s*\d+\s*$/.test(text)) return false;
+  const v = parseInt(text, 10);
+  return v >= 3 && v <= 50;
+}
+
+function countTreeNodes(node) {
+  if (!node.children || node.children.length === 0) return 1;
+  return 1 + node.children.reduce((s, c) => s + countTreeNodes(c), 0);
+}
+
 function SubtreeView({ subtree, onClose }) {
   const [copied, setCopied] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
   const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
   const [showMaze, setShowMaze] = useState(false);
+  const defaultMazeSize = useMemo(() => {
+    const n = countTreeNodes(subtree);
+    return Math.max(5, Math.ceil(Math.sqrt(n * 3)));
+  }, [subtree]);
+  const [mazeSizeText, setMazeSizeText] = useState(() => String(defaultMazeSize));
   const [mazeData, setMazeData] = useState(null);
   const [mazeError, setMazeError] = useState("");
+  const [mazeLoading, setMazeLoading] = useState(false);
   const workerRef = useRef(null);
-
-  // Loading is derived: maze is requested but we have no data/error yet
-  const mazeLoading = showMaze && mazeData === null && !mazeError;
 
   // Cancel any in-flight worker
   const cancelWorker = useCallback(() => {
@@ -303,39 +317,41 @@ function SubtreeView({ subtree, onClose }) {
       workerRef.current.terminate();
       workerRef.current = null;
     }
+    setMazeLoading(false);
   }, []);
 
-  // Run maze generation in a web worker (cancelable).
-  // State resets (mazeData/mazeError ← null/"") happen in the event handlers
-  // that change showMaze, not here, to satisfy react-hooks rules.
-  useEffect(() => {
-    if (!showMaze) return;
+  // Start a maze attempt: generate random spanning tree + check embedding
+  const handleTryMaze = useCallback(() => {
+    const m = parseInt(mazeSizeText, 10);
+    if (!isValidMazeSize(mazeSizeText)) return;
 
     cancelWorker();
+    setMazeData(null);
+    setMazeError("");
+    setMazeLoading(true);
 
     const worker = new MazeWorker();
     workerRef.current = worker;
 
     worker.onmessage = (e) => {
+      workerRef.current = null;
+      setMazeLoading(false);
       const { result } = e.data;
       if (result) {
         setMazeData(result);
-        setMazeError("");
       } else {
-        setMazeData(null);
-        setMazeError("Could not generate maze layout.");
+        setMazeError("Could not embed tree in this maze. Try again or increase size.");
       }
     };
 
     worker.onerror = () => {
-      setMazeData(null);
+      workerRef.current = null;
+      setMazeLoading(false);
       setMazeError("Maze generation failed unexpectedly.");
     };
 
-    worker.postMessage({ subtree });
-
-    return () => cancelWorker();
-  }, [showMaze, subtree, cancelWorker]);
+    worker.postMessage({ subtree, mazeSize: m });
+  }, [mazeSizeText, subtree, cancelWorker]);
 
   // Cleanup worker on unmount
   useEffect(() => () => cancelWorker(), [cancelWorker]);
@@ -402,6 +418,24 @@ function SubtreeView({ subtree, onClose }) {
           <div className="subtree-header">
             <h3>Maze</h3>
             <div className="subtree-header-actions">
+              <label className="maze-size-label">
+                Size:
+                <input
+                  type="text"
+                  className={`maze-size-input${isValidMazeSize(mazeSizeText) ? "" : " maze-size-invalid"}`}
+                  value={mazeSizeText}
+                  onChange={(e) => setMazeSizeText(e.target.value)}
+                  onBlur={() => { if (!isValidMazeSize(mazeSizeText)) setMazeSizeText(String(defaultMazeSize)); }}
+                />
+              </label>
+              <button
+                className="subtree-copy-btn"
+                onClick={handleTryMaze}
+                disabled={mazeLoading || !isValidMazeSize(mazeSizeText)}
+                title="Generate a new random maze and try to embed the tree"
+              >
+                {mazeLoading ? "⏳ Working…" : "🎲 Try"}
+              </button>
               <button
                 className="subtree-copy-btn"
                 onClick={() => { setShowMaze(false); cancelWorker(); setMazeData(null); setMazeError(""); }}
@@ -412,12 +446,15 @@ function SubtreeView({ subtree, onClose }) {
             </div>
           </div>
           <div className="subtree-content">
+            {!mazeData && !mazeLoading && !mazeError && (
+              <p className="maze-hint">Pick a grid size and click 🎲 Try to generate a maze.</p>
+            )}
             {mazeLoading && <p className="maze-loading">Generating maze…</p>}
             {mazeError && <p className="maze-error">{mazeError}</p>}
             {mazeData && (() => {
               const mazeSvgW = mazeData.width * cellSize;
               const mazeSvgH = mazeData.height * cellSize;
-              const taxaPlacements = mazeData.placements.filter((p) => p.node.isTaxon);
+              const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
               return (
                 <svg
                   className="maze-svg"
@@ -425,7 +462,16 @@ function SubtreeView({ subtree, onClose }) {
                   height={mazeSvgH}
                   viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
                 >
-                  {/* Tree edges as lines */}
+                  {/* Full spanning tree edges (maze background) */}
+                  {mazeData.mazeEdges.map((e, i) => (
+                    <line
+                      key={`me-${i}`}
+                      x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
+                      x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
+                      className="maze-bg-edge"
+                    />
+                  ))}
+                  {/* Embedded tree edges (highlighted) */}
                   {mazeData.edges.map((e, i) => (
                     <line
                       key={`e-${i}`}
@@ -434,7 +480,7 @@ function SubtreeView({ subtree, onClose }) {
                       className="maze-edge"
                     />
                   ))}
-                  {/* Node vertices as dots */}
+                  {/* Embedded node vertices as dots */}
                   {mazeData.placements.map((p, i) => (
                     <circle
                       key={`v-${i}`}
