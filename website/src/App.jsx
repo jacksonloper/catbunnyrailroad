@@ -329,7 +329,9 @@ function SubtreeView({ subtree, onClose }) {
       if (result) {
         setMazeData(result);
         setMazeError("");
-        // Auto-update displayed size if the worker auto-increased it
+        // Auto-update displayed size if the worker auto-increased it.
+        // mazeSize here is the value from the effect closure, matching
+        // what was sent to the worker via postMessage below.
         if (result.size !== mazeSize) {
           setMazeSize(result.size);
           setMazeSizeText(String(result.size));

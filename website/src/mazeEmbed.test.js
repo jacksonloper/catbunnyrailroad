@@ -825,6 +825,7 @@ describe("H-tree embedding speed", () => {
     }
     const tree = buildDeepTree(10);
     const minSize = computeMinMazeSize(tree);
+    // depth 10 → hTreeDimensions gives 63×63
     expect(minSize).toBe(63);
 
     const start = Date.now();

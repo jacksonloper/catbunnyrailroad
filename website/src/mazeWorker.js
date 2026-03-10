@@ -10,7 +10,7 @@ self.onmessage = function (e) {
   const { subtree, mazeSize } = e.data;
   const bin = binarizeTree(subtree);
   const minSize = computeMinMazeSize(bin);
-  const effectiveSize = Math.max(mazeSize || 0, minSize);
+  const effectiveSize = Math.max(mazeSize ?? 0, minSize);
   const result = embedTreeInMaze(bin, effectiveSize);
   self.postMessage({ result, minSize });
 };
