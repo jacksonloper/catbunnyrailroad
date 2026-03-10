@@ -105,17 +105,14 @@ The function walks the tree recursively:
    - Single child and not a taxon → collapsed (replaced by the child).
    - Otherwise → kept.
 
-## 5. Resolve polytomies (`resolvePolytomies`)
+## 5. ~~Resolve polytomies~~ (removed from build)
 
-The Open Tree API may return **soft polytomies** — internal nodes with
-more than two children — where evolutionary relationships are
-unresolved.  `resolvePolytomies` ensures the tree is strictly binary
-by iteratively grouping the last two children of any such node into a
-new unnamed internal node.
-
-For example, if a node has children `[A, B, C]`, it becomes
-`[A, {children: [B, C]}]`.  The grouping is arbitrary (any resolution
-is equally valid for a soft polytomy).
+Previous versions resolved soft polytomies at build time.  This is
+**no longer done** — the tree may contain internal nodes with more than
+two children (soft polytomies from the Open Tree API).  The
+`resolvePolytomies` and `checkBinaryTree` helpers are retained in
+`build-data.js` for reference; binarization is performed **at runtime**
+when needed (e.g. for the maze embedding feature in the browser).
 
 ## 6. Convert to compact JSON (`treeToCompact`)
 
@@ -140,10 +137,8 @@ Taxon names come from `taxa.csv` (the common name).
 
 After building the compact tree, the build verifies:
 
-1. **The tree is binary** — no node has more than 2 children.
-   If any polytomies remain after resolution, the build fails.
-2. **Each taxon appears exactly once** in the tree (no duplicates).
-3. **Every CSV row is accounted for** — no taxa are missing from the
+1. **Each taxon appears exactly once** in the tree (no duplicates).
+2. **Every CSV row is accounted for** — no taxa are missing from the
    tree.  If any check fails, the build errors out.
 
 ## 8. Output files
@@ -218,10 +213,9 @@ taxa.csv
 │  4. reject if any broken       │         (induced_subtree)
 │  5. parse Newick               │
 │  6. simplifyTree               │
-│  7. resolvePolytomies          │
-│  8. treeToCompact              │
-│  9. verify binary & taxa       │
-│ 10. write JSON                 │
+│  7. treeToCompact              │
+│  8. verify all taxa present    │
+│  9. write JSON                 │
 └────────────┬───────────────────┘
              │
              ▼

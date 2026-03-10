@@ -680,6 +680,17 @@ h2 {
   background: #555;
 }
 
+/* ------ Maze view ------ */
+
+.maze-svg {
+  display: block;
+}
+.maze-label {
+  font-size: 10px;
+  fill: #222;
+  pointer-events: none;
+}
+
 /* ------ Form error ------ */
 
 .form-error {

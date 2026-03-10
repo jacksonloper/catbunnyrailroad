@@ -323,22 +323,12 @@ async function main() {
   const idSet = new Set(treeIds);
   const simplified = simplifyTree(rawTree, idSet);
 
-  // Resolve any polytomies so the tree is strictly binary
-  resolvePolytomies(simplified);
+  // NOTE: we do NOT binarize at build time.  The tree may contain soft
+  // polytomies (nodes with >2 children).  Binarization is done at runtime
+  // when needed (e.g. for maze embedding).  The resolvePolytomies() and
+  // checkBinaryTree() helpers above are kept for that purpose.
 
   const compactTree = treeToCompact(simplified, treeIdToTaxon);
-
-  // Verify the tree is binary (no node has more than 2 children)
-  const binaryViolations = checkBinaryTree(compactTree);
-  if (binaryViolations.length > 0) {
-    console.error("❌ Tree is not binary! Nodes with >2 children:");
-    for (const v of binaryViolations) {
-      console.error(
-        `   ${v.name}: ${v.numChildren} children (${v.childNames.join(", ")})`
-      );
-    }
-    process.exit(1);
-  }
 
   // Verify that every taxon appears exactly once in the tree
   const treeOtts = new Map();

@@ -1070,22 +1070,16 @@
                                                                                           "isTaxon": true
                                                                                         },
                                                                                         {
-                                                                                          "name": "",
-                                                                                          "ott_id": null,
-                                                                                          "children": [
-                                                                                            {
-                                                                                              "name": "donkey",
-                                                                                              "ott_id": 519153,
-                                                                                              "children": [],
-                                                                                              "isTaxon": true
-                                                                                            },
-                                                                                            {
-                                                                                              "name": "horse",
-                                                                                              "ott_id": 1068218,
-                                                                                              "children": [],
-                                                                                              "isTaxon": true
-                                                                                            }
-                                                                                          ]
+                                                                                          "name": "donkey",
+                                                                                          "ott_id": 519153,
+                                                                                          "children": [],
+                                                                                          "isTaxon": true
+                                                                                        },
+                                                                                        {
+                                                                                          "name": "horse",
+                                                                                          "ott_id": 1068218,
+                                                                                          "children": [],
+                                                                                          "isTaxon": true
                                                                                         }
                                                                                       ]
                                                                                     },
