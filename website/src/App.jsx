@@ -431,13 +431,16 @@ function SubtreeView({ subtree, onClose }) {
     for (const p of mazeData.placements) {
       lines.push(`<circle cx="${(p.col + 0.5) * cellSize}" cy="${(p.row + 0.5) * cellSize}" r="3" fill="black"/>`);
     }
-    // Taxa labels
+    // Taxa markers (images)
     for (const p of taxaPlacements) {
       const cx = (p.col + 0.5) * cellSize;
       const cy = (p.row + 0.5) * cellSize;
-      const name = p.node.name || "";
-      lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="white" stroke="black" stroke-width="1.5"/>`);
-      lines.push(`<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-size="7" font-family="sans-serif" fill="black">${name.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</text>`);
+      const sp = taxaByOttId.get(p.node.ott_id);
+      if (sp?.image_url) {
+        lines.push(`<image href="${sp.image_url.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - 8}" y="${cy - 8}" width="16" height="16" clip-path="inset(0 round 3px)"/>`);
+      } else {
+        lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="#e07020"/>`);
+      }
     }
     lines.push("</svg>");
     return lines.join("\n");
