@@ -24,6 +24,9 @@
  * 2 children.  Extra children are grouped into new unnamed internal nodes.
  */
 export function binarizeTree(node) {
+  if (!node.children || node.children.length === 0) {
+    return { ...node, children: [] };
+  }
   const children = node.children.map(binarizeTree);
   const result = { ...node, children: [...children] };
   while (result.children.length > 2) {
@@ -59,7 +62,7 @@ function treeDepth(node) {
 /**
  * Embed a **binary** tree into a square grid.
  *
- * @param {object} binTree – tree where every node has 0 or 2 children.
+ * @param {object} binTree – tree where every node has 0, 1, or 2 children.
  * @returns {{ grid: object[][], size: number, placements: object[] }}
  *   grid[r][c].passage  – true if the cell is part of the tree
  *   grid[r][c].node     – the tree node placed here (or null)
