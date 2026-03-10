@@ -346,7 +346,7 @@ function SubtreeView({ subtree, onClose }) {
   }, [showMaze, subtree, mazeSize, cancelWorker]);
 
   // Cleanup worker on unmount
-  useEffect(() => cancelWorker, [cancelWorker]);
+  useEffect(() => () => cancelWorker(), [cancelWorker]);
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
@@ -434,7 +434,7 @@ function SubtreeView({ subtree, onClose }) {
               </label>
               <button
                 className="subtree-copy-btn"
-                onClick={() => { setShowMaze(false); cancelWorker(); }}
+                onClick={() => { setShowMaze(false); cancelWorker(); setMazeData(null); setMazeError(""); }}
               >
                 🌳 Back to tree
               </button>
