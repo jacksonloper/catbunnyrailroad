@@ -76,10 +76,11 @@ export function randomSpanningTree(m) {
   const weighted = gridEdges.map((e) => ({ e, w: Math.random() }));
   weighted.sort((a, b) => a.w - b.w);
 
-  // Union-Find with path compression + union by rank
+  // Union-Find with path halving + union by rank
   const parent = Array.from({ length: n }, (_, i) => i);
   const rank = new Array(n).fill(0);
   function find(x) {
+    // Path halving: make every other node point to its grandparent.
     while (parent[x] !== x) {
       parent[x] = parent[parent[x]];
       x = parent[x];
@@ -465,8 +466,10 @@ export function embedTreeInMaze(binTree, m) {
   for (const p of paths) {
     for (const v of p.vertices) usedVertices.add(v);
     for (let i = 0; i + 1 < p.vertices.length; i++) {
-      const u = p.vertices[i], v = p.vertices[i + 1];
-      usedEdgeKeys.add(Math.min(u, v) + "|" + Math.max(u, v));
+      const a = p.vertices[i], b = p.vertices[i + 1];
+      // Encode edge as a single integer: min * n + max (unique for non-negative indices < n)
+      const lo = Math.min(a, b), hi = Math.max(a, b);
+      usedEdgeKeys.add(lo * n + hi);
     }
   }
 
@@ -490,9 +493,9 @@ export function embedTreeInMaze(binTree, m) {
   // Build embedded tree edges
   const edges = [];
   for (const key of usedEdgeKeys) {
-    const parts = key.split("|").map(Number);
-    const r1 = Math.floor(parts[0] / m), c1 = parts[0] % m;
-    const r2 = Math.floor(parts[1] / m), c2 = parts[1] % m;
+    const hi = key % n, lo = (key - hi) / n;
+    const r1 = Math.floor(lo / m), c1 = lo % m;
+    const r2 = Math.floor(hi / m), c2 = hi % m;
     edges.push({ from: { x: c1, y: r1 }, to: { x: c2, y: r2 } });
   }
 

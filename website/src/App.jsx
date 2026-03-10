@@ -303,6 +303,7 @@ function SubtreeView({ subtree, onClose }) {
   const [showMaze, setShowMaze] = useState(false);
   const defaultMazeSize = useMemo(() => {
     const n = countTreeNodes(subtree);
+    // Heuristic: grid needs ~3× the tree nodes to have room for paths
     return Math.max(5, Math.ceil(Math.sqrt(n * 3)));
   }, [subtree]);
   const [mazeSizeText, setMazeSizeText] = useState(() => String(defaultMazeSize));
