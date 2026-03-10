@@ -471,7 +471,9 @@ describe("heavy-child layout speed", () => {
     const taxaPlacements = result.placements.filter((p) => p.node.isTaxon);
     expect(taxaPlacements.length).toBe(9);
 
-    // Layout should be reasonably compact (not 63×63 like H-tree)
+    // Layout should be reasonably compact (not 63×63=3969 like old H-tree).
+    // 9 taxa after binarization yields ~17 nodes; area should stay well
+    // under 500 with the heavy-child heuristic.
     const area = result.width * result.height;
     expect(area).toBeLessThan(500);
   });

@@ -157,6 +157,13 @@ function normalize(layout) {
   return out;
 }
 
+/**
+ * Score a layout for comparison.  Lower is better.
+ * Prefers small area with a penalty for non-square aspect ratios.
+ *
+ * @param {object} layout – layout with .width and .height
+ * @param {number} lambda – weight for squareness penalty (default 0.3)
+ */
 function scoreLayout(layout, lambda = 0.3) {
   const area = layout.width * layout.height;
   const squareness = Math.abs(layout.width - layout.height);
