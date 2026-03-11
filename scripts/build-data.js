@@ -369,11 +369,27 @@ async function main() {
   console.log(`Wrote tree.json`);
 
   // Build taxa.json with comments
+  // Use local image paths when downloaded images exist in website/public/taxa-images/
+  const IMG_DIR = path.join(ROOT, "website", "public", "taxa-images");
+  const localImageFiles = fs.existsSync(IMG_DIR)
+    ? new Set(fs.readdirSync(IMG_DIR))
+    : new Set();
+
+  function resolveImageUrl(ottId, csvUrl) {
+    if (!ottId) return csvUrl || null;
+    for (const ext of ["jpg", "jpeg", "png", "gif", "webp"]) {
+      if (localImageFiles.has(`${ottId}.${ext}`)) {
+        return `/taxa-images/${ottId}.${ext}`;
+      }
+    }
+    return csvUrl || null;
+  }
+
   const taxaJson = taxa.map((t) => {
     const entry = {
       name: t.name,
       ott_id: Number(t.ott_id),
-      image_url: t.image_url || null,
+      image_url: resolveImageUrl(t.ott_id, t.image_url),
     };
     if (t.comments) {
       entry.comments = t.comments;

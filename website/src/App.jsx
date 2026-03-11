@@ -449,9 +449,10 @@ function SubtreeView({ subtree, onClose }) {
 
   /** Build a standalone SVG string for the current maze, styled for white-paper printing.
    *  @param {object} opts
-   *  @param {Map<string,string>} [opts.imageDataUrls] – map of original URL → data-URL for embedding images inline
+   *  @param {boolean} [opts.omitImages] – replace images with circles (for PNG base layer)
+   *  @param {Map<string,string>} [opts.imageDataUrls] – map of original URL → data-URL for standalone SVG
    */
-  function buildPrintSvg({ imageDataUrls } = {}) {
+  function buildPrintSvg({ omitImages = false, imageDataUrls } = {}) {
     if (!mazeData) return null;
     const cellSize = 20;
     const w = mazeData.width * cellSize;
@@ -481,8 +482,7 @@ function SubtreeView({ subtree, onClose }) {
       const cy = (p.row + 0.5) * cellSize;
       const sp = taxaByOttId.get(p.node.ott_id);
       const imgUrl = sp?.image_url;
-      // Use data URL if available (for PNG), otherwise use original URL (for SVG), fallback to circle
-      const resolvedUrl = imageDataUrls?.get(imgUrl) ?? imgUrl;
+      const resolvedUrl = !omitImages && (imageDataUrls?.get(imgUrl) ?? imgUrl);
       if (resolvedUrl) {
         lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - 8}" y="${cy - 8}" width="16" height="16" clip-path="inset(0 round 3px)"/>`);
       } else {
@@ -493,8 +493,34 @@ function SubtreeView({ subtree, onClose }) {
     return lines.join("\n");
   }
 
-  function handleSaveMazeSvg() {
-    const svgStr = buildPrintSvg();
+  /** Fetch image URLs and convert to base64 data URLs for embedding in SVG/PNG exports. */
+  async function fetchImageDataUrls() {
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const urls = new Set();
+    for (const p of taxaPlacements) {
+      const sp = taxaByOttId.get(p.node.ott_id);
+      if (sp?.image_url) urls.add(sp.image_url);
+    }
+    const dataUrls = new Map();
+    await Promise.all([...urls].map(async (srcUrl) => {
+      try {
+        const resp = await fetch(srcUrl);
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        const dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        dataUrls.set(srcUrl, dataUrl);
+      } catch { /* fallback to circle for images that fail */ }
+    }));
+    return dataUrls;
+  }
+
+  async function handleSaveMazeSvg() {
+    const imageDataUrls = await fetchImageDataUrls();
+    const svgStr = buildPrintSvg({ imageDataUrls });
     if (!svgStr) return;
     const blob = new Blob([svgStr], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
@@ -510,52 +536,70 @@ function SubtreeView({ subtree, onClose }) {
   async function handleSaveMazePng() {
     if (!mazeData) return;
 
-    // Collect unique image URLs from taxa placements
-    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
-    const urls = new Set();
-    for (const p of taxaPlacements) {
-      const sp = taxaByOttId.get(p.node.ott_id);
-      if (sp?.image_url) urls.add(sp.image_url);
-    }
-
-    // Fetch each image and convert to base64 data URL
-    const imageDataUrls = new Map();
-    await Promise.all([...urls].map(async (srcUrl) => {
-      try {
-        const resp = await fetch(srcUrl);
-        if (!resp.ok) return;
-        const blob = await resp.blob();
-        const dataUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-        });
-        imageDataUrls.set(srcUrl, dataUrl);
-      } catch { /* images that fail to load get an orange circle fallback */ }
-    }));
-
-    const svgStr = buildPrintSvg({ imageDataUrls });
+    const cellSize = 20;
+    // Build SVG without images (images are drawn directly on canvas below)
+    const svgStr = buildPrintSvg({ omitImages: true });
     if (!svgStr) return;
+
     // 300 DPI × 8.5 inches = 2550 px on the long side
     const printPx = 2550;
-    const svgW = mazeData.width * 20;
-    const svgH = mazeData.height * 20;
+    const svgW = mazeData.width * cellSize;
+    const svgH = mazeData.height * cellSize;
     const scale = printPx / Math.max(svgW, svgH);
     const canvasW = Math.round(svgW * scale);
     const canvasH = Math.round(svgH * scale);
 
-    const img = new Image();
+    // Collect image positions and pre-load all images as Image objects
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const imageItems = [];
+    for (const p of taxaPlacements) {
+      const sp = taxaByOttId.get(p.node.ott_id);
+      if (sp?.image_url) {
+        const cx = (p.col + 0.5) * cellSize;
+        const cy = (p.row + 0.5) * cellSize;
+        imageItems.push({
+          url: sp.image_url,
+          x: (cx - 8) * scale,
+          y: (cy - 8) * scale,
+          w: 16 * scale,
+          h: 16 * scale,
+        });
+      }
+    }
+
+    // Pre-load images (same-origin so they won't taint the canvas)
+    const loadedImages = await Promise.all(
+      imageItems.map((item) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve({ ...item, img });
+          img.onerror = () => resolve({ ...item, img: null });
+          img.src = item.url;
+        })
+      )
+    );
+
+    // Render SVG base (lines/walls only) to canvas
+    const svgImg = new Image();
     const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    img.onload = () => {
+    svgImg.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = canvasW;
       canvas.height = canvasH;
       const ctx = canvas.getContext("2d");
       ctx.fillStyle = "white";
       ctx.fillRect(0, 0, canvasW, canvasH);
-      ctx.drawImage(img, 0, 0, canvasW, canvasH);
+      ctx.drawImage(svgImg, 0, 0, canvasW, canvasH);
       URL.revokeObjectURL(url);
+
+      // Draw taxa images directly on canvas (bypasses SVG security sandbox)
+      for (const item of loadedImages) {
+        if (item.img) {
+          ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+        }
+      }
+
       canvas.toBlob((pngBlob) => {
         if (!pngBlob) return;
         const pngUrl = URL.createObjectURL(pngBlob);
@@ -568,8 +612,8 @@ function SubtreeView({ subtree, onClose }) {
         URL.revokeObjectURL(pngUrl);
       }, "image/png");
     };
-    img.onerror = () => URL.revokeObjectURL(url);
-    img.src = url;
+    svgImg.onerror = () => URL.revokeObjectURL(url);
+    svgImg.src = url;
   }
 
   // ---- Maze view ----
