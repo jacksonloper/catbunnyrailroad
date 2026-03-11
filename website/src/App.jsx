@@ -337,11 +337,11 @@ function SubtreeView({ subtree, onClose }) {
     worker.onmessage = (e) => {
       workerRef.current = null;
       setMazeLoading(false);
-      const { result } = e.data;
+      const { result, attempts } = e.data;
       if (result) {
         setMazeData(result);
       } else {
-        setMazeError("Could not embed tree in this maze. Try again or increase size.");
+        setMazeError(`Could not embed tree after ${attempts} attempt${attempts === 1 ? "" : "s"}. Try again or increase size.`);
       }
     };
 
