@@ -685,18 +685,10 @@ h2 {
 .maze-svg {
   display: block;
 }
-.maze-bg-edge {
-  stroke: #ddd;
-  stroke-width: 1;
-  stroke-linecap: round;
-}
 .maze-edge {
   stroke: #444;
   stroke-width: 2;
   stroke-linecap: round;
-}
-.maze-vertex {
-  fill: #444;
 }
 .maze-error {
   color: #f88;

@@ -419,17 +419,13 @@ function SubtreeView({ subtree, onClose }) {
     const lines = [];
     lines.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`);
     lines.push(`<rect width="${w}" height="${h}" fill="white"/>`);
-    // Spanning tree background edges
+    // Maze passage edges
     for (const e of mazeData.mazeEdges) {
-      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#ccc" stroke-width="1" stroke-linecap="round"/>`);
+      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
     }
     // Embedded tree edges
     for (const e of mazeData.edges) {
-      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="black" stroke-width="2" stroke-linecap="round"/>`);
-    }
-    // Vertex dots
-    for (const p of mazeData.placements) {
-      lines.push(`<circle cx="${(p.col + 0.5) * cellSize}" cy="${(p.row + 0.5) * cellSize}" r="3" fill="black"/>`);
+      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
     }
     // Taxa markers (images)
     for (const p of taxaPlacements) {
@@ -523,32 +519,22 @@ function SubtreeView({ subtree, onClose }) {
                   height={mazeSvgH}
                   viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
                 >
-                  {/* Full spanning tree edges (maze background) */}
+                  {/* Maze passage edges */}
                   {mazeData.mazeEdges.map((e, i) => (
                     <line
                       key={`me-${i}`}
                       x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
                       x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
-                      className="maze-bg-edge"
+                      className="maze-edge"
                     />
                   ))}
-                  {/* Embedded tree edges (highlighted) */}
+                  {/* Embedded tree edges */}
                   {mazeData.edges.map((e, i) => (
                     <line
                       key={`e-${i}`}
                       x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
                       x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
                       className="maze-edge"
-                    />
-                  ))}
-                  {/* Embedded node vertices as dots */}
-                  {mazeData.placements.map((p, i) => (
-                    <circle
-                      key={`v-${i}`}
-                      cx={(p.col + 0.5) * cellSize}
-                      cy={(p.row + 0.5) * cellSize}
-                      r={3}
-                      className="maze-vertex"
                     />
                   ))}
                   {/* Taxa markers (images) */}
