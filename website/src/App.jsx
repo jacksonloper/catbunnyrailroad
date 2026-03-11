@@ -456,6 +456,45 @@ function SubtreeView({ subtree, onClose }) {
     URL.revokeObjectURL(url);
   }
 
+  function handleSaveMazePng() {
+    const svgStr = buildPrintSvg();
+    if (!svgStr) return;
+    // 300 DPI × 8.5 inches = 2550 px on the long side
+    const printPx = 2550;
+    const svgW = mazeData.width * 20;
+    const svgH = mazeData.height * 20;
+    const scale = printPx / Math.max(svgW, svgH);
+    const canvasW = Math.round(svgW * scale);
+    const canvasH = Math.round(svgH * scale);
+
+    const img = new Image();
+    const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvasW;
+      canvas.height = canvasH;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvasW, canvasH);
+      ctx.drawImage(img, 0, 0, canvasW, canvasH);
+      URL.revokeObjectURL(url);
+      canvas.toBlob((pngBlob) => {
+        if (!pngBlob) return;
+        const pngUrl = URL.createObjectURL(pngBlob);
+        const a = document.createElement("a");
+        a.href = pngUrl;
+        a.download = "maze.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(pngUrl);
+      }, "image/png");
+    };
+    img.onerror = () => URL.revokeObjectURL(url);
+    img.src = url;
+  }
+
   // ---- Maze view ----
   if (showMaze) {
     const cellSize = 20;
@@ -497,6 +536,15 @@ function SubtreeView({ subtree, onClose }) {
                   title="Save maze as SVG for printing"
                 >
                   💾 Save SVG
+                </button>
+              )}
+              {mazeData && (
+                <button
+                  className="subtree-copy-btn"
+                  onClick={handleSaveMazePng}
+                  title="Save maze as high-resolution PNG for printing"
+                >
+                  💾 Save PNG
                 </button>
               )}
               <button className="subtree-close" aria-label="Close" onClick={onClose}>✕</button>
