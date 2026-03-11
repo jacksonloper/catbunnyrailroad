@@ -638,9 +638,6 @@ function SubtreeView({ subtree, onClose }) {
     if (!mazeData) return;
 
     const cellSize = 20;
-    // Build SVG without images (images are drawn directly on canvas below)
-    const svgStr = buildPrintSvg({ omitImages: true, withLegend: showLegend });
-    if (!svgStr) return;
 
     // 300 DPI × 8.5 inches = 2550 px on the long side
     const printPx = 2550;
@@ -659,89 +656,138 @@ function SubtreeView({ subtree, onClose }) {
     const canvasW = Math.round(svgW * scale);
     const canvasH = Math.round(totalSvgH * scale);
 
-    // Convert image URLs to data-URLs so they won't taint the canvas
-    const imageDataUrls = await fetchImageDataUrls();
-
-    // Collect image positions and pre-load all images as Image objects
+    // Fetch all unique image URLs and create ImageBitmaps (never taints canvas)
     const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
-    const imageItems = [];
+    const labelMap = buildLabelMap();
+    const uniqueUrls = new Set();
     for (const p of taxaPlacements) {
       const sp = taxaByOttId.get(p.node.ott_id);
-      if (sp?.image_url) {
-        const cx = (p.col + 0.5) * cellSize;
-        const cy = (p.row + 0.5) * cellSize;
-        imageItems.push({
-          url: imageDataUrls.get(sp.image_url) ?? sp.image_url,
-          x: (cx - 8) * scale,
-          y: (cy - 8) * scale,
-          w: 16 * scale,
-          h: 16 * scale,
-        });
+      if (sp?.image_url) uniqueUrls.add(sp.image_url);
+    }
+    for (const e of legendEntries) {
+      if (e.imageUrl) uniqueUrls.add(e.imageUrl);
+    }
+    const bitmaps = new Map();
+    await Promise.all([...uniqueUrls].map(async (url) => {
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        const bitmap = await createImageBitmap(blob);
+        bitmaps.set(url, bitmap);
+      } catch { /* fallback to circle */ }
+    }));
+
+    // Draw everything directly on canvas (avoids SVG-as-image taint issues)
+    const canvas = document.createElement("canvas");
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    // Draw maze structure
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 2 * scale;
+    ctx.lineCap = "round";
+
+    if (mazeWallView) {
+      const walls = computeWallSegments(mazeData, cellSize);
+      for (const s of walls) {
+        ctx.beginPath();
+        ctx.moveTo(s.x1 * scale, s.y1 * scale);
+        ctx.lineTo(s.x2 * scale, s.y2 * scale);
+        ctx.stroke();
+      }
+    } else {
+      for (const e of mazeData.mazeEdges) {
+        ctx.beginPath();
+        ctx.moveTo((e.from.x + 0.5) * cellSize * scale, (e.from.y + 0.5) * cellSize * scale);
+        ctx.lineTo((e.to.x + 0.5) * cellSize * scale, (e.to.y + 0.5) * cellSize * scale);
+        ctx.stroke();
+      }
+      for (const e of mazeData.edges) {
+        ctx.beginPath();
+        ctx.moveTo((e.from.x + 0.5) * cellSize * scale, (e.from.y + 0.5) * cellSize * scale);
+        ctx.lineTo((e.to.x + 0.5) * cellSize * scale, (e.to.y + 0.5) * cellSize * scale);
+        ctx.stroke();
       }
     }
 
-    // Legend image items (draw images into the legend area on canvas)
-    for (let i = 0; i < legendEntries.length; i++) {
-      const e = legendEntries[i];
-      if (e.imageUrl) {
-        const ry = svgH + legendPadTop + i * legendRowH;
-        imageItems.push({
-          url: imageDataUrls.get(e.imageUrl) ?? e.imageUrl,
-          x: 4 * scale,
-          y: ry * scale,
-          w: legendImgSize * scale,
-          h: legendImgSize * scale,
-        });
+    // Draw taxa markers
+    for (const p of taxaPlacements) {
+      const cx = (p.col + 0.5) * cellSize * scale;
+      const cy = (p.row + 0.5) * cellSize * scale;
+      const sp = taxaByOttId.get(p.node.ott_id);
+      const bitmap = sp?.image_url && bitmaps.get(sp.image_url);
+      if (bitmap) {
+        const imgX = cx - 8 * scale;
+        const imgY = cy - 8 * scale;
+        const imgW = 16 * scale;
+        const imgH = 16 * scale;
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(imgX, imgY, imgW, imgH, 3 * scale);
+        ctx.clip();
+        ctx.drawImage(bitmap, imgX, imgY, imgW, imgH);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#e07020";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5 * scale, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+      const lbl = labelMap.get(p.node.ott_id);
+      if (lbl) {
+        ctx.font = `bold ${8 * scale}px sans-serif`;
+        ctx.fillStyle = "#d04000";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(lbl, cx + 7 * scale, cy - 5 * scale);
       }
     }
 
-    // Pre-load images from data-URLs (won't taint the canvas)
-    const loadedImages = await Promise.all(
-      imageItems.map((item) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve({ ...item, img });
-          img.onerror = () => resolve({ ...item, img: null });
-          img.src = item.url;
-        })
-      )
-    );
-
-    // Render SVG base (lines/walls only) to canvas
-    const svgImg = new Image();
-    const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    svgImg.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = canvasW;
-      canvas.height = canvasH;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvasW, canvasH);
-      ctx.drawImage(svgImg, 0, 0, canvasW, canvasH);
-      URL.revokeObjectURL(url);
-
-      // Draw taxa images directly on canvas (bypasses SVG security sandbox)
-      for (const item of loadedImages) {
-        if (item.img) {
-          ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+    // Draw legend
+    if (showLegend && legendEntries.length > 0) {
+      for (let i = 0; i < legendEntries.length; i++) {
+        const e = legendEntries[i];
+        const ry = (svgH + legendPadTop + i * legendRowH) * scale;
+        const bitmap = e.imageUrl && bitmaps.get(e.imageUrl);
+        if (bitmap) {
+          const imgX = 4 * scale;
+          const imgW = legendImgSize * scale;
+          const imgH = legendImgSize * scale;
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(imgX, ry, imgW, imgH, 3 * scale);
+          ctx.clip();
+          ctx.drawImage(bitmap, imgX, ry, imgW, imgH);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = "#e07020";
+          ctx.beginPath();
+          ctx.arc((4 + legendImgSize / 2) * scale, ry + (legendImgSize / 2) * scale, 5 * scale, 0, 2 * Math.PI);
+          ctx.fill();
         }
+        const displayName = e.label ? `${e.label} \u2013 ${e.name}` : e.name;
+        ctx.font = `${11 * scale}px sans-serif`;
+        ctx.fillStyle = "#333";
+        ctx.textBaseline = "middle";
+        ctx.fillText(displayName, (4 + legendImgSize + 6) * scale, ry + (legendImgSize / 2) * scale);
       }
+    }
 
-      canvas.toBlob((pngBlob) => {
-        if (!pngBlob) return;
-        const pngUrl = URL.createObjectURL(pngBlob);
-        const a = document.createElement("a");
-        a.href = pngUrl;
-        a.download = "maze.png";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(pngUrl);
-      }, "image/png");
-    };
-    svgImg.onerror = () => URL.revokeObjectURL(url);
-    svgImg.src = url;
+    canvas.toBlob((pngBlob) => {
+      if (!pngBlob) return;
+      const pngUrl = URL.createObjectURL(pngBlob);
+      const a = document.createElement("a");
+      a.href = pngUrl;
+      a.download = "maze.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(pngUrl);
+    }, "image/png");
   }
 
   // ---- Maze view ----
