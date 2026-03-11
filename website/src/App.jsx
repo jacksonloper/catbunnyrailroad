@@ -477,7 +477,11 @@ function SubtreeView({ subtree, onClose }) {
         if (!urlLabels.has(e.imageUrl)) urlLabels.set(e.imageUrl, new Map());
         const group = urlLabels.get(e.imageUrl);
         if (!group.has(e.ottId)) {
-          group.set(e.ottId, String.fromCharCode(65 + nextLabel)); // A, B, C…
+          // A–Z, then AA, AB, …
+          const lbl = nextLabel < 26
+            ? String.fromCharCode(65 + nextLabel)
+            : String.fromCharCode(65 + Math.floor(nextLabel / 26) - 1) + String.fromCharCode(65 + (nextLabel % 26));
+          group.set(e.ottId, lbl);
           nextLabel++;
         }
       }
