@@ -659,6 +659,9 @@ function SubtreeView({ subtree, onClose }) {
     const canvasW = Math.round(svgW * scale);
     const canvasH = Math.round(totalSvgH * scale);
 
+    // Convert image URLs to data-URLs so they won't taint the canvas
+    const imageDataUrls = await fetchImageDataUrls();
+
     // Collect image positions and pre-load all images as Image objects
     const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
     const imageItems = [];
@@ -668,7 +671,7 @@ function SubtreeView({ subtree, onClose }) {
         const cx = (p.col + 0.5) * cellSize;
         const cy = (p.row + 0.5) * cellSize;
         imageItems.push({
-          url: sp.image_url,
+          url: imageDataUrls.get(sp.image_url) ?? sp.image_url,
           x: (cx - 8) * scale,
           y: (cy - 8) * scale,
           w: 16 * scale,
@@ -683,7 +686,7 @@ function SubtreeView({ subtree, onClose }) {
       if (e.imageUrl) {
         const ry = svgH + legendPadTop + i * legendRowH;
         imageItems.push({
-          url: e.imageUrl,
+          url: imageDataUrls.get(e.imageUrl) ?? e.imageUrl,
           x: 4 * scale,
           y: ry * scale,
           w: legendImgSize * scale,
@@ -692,7 +695,7 @@ function SubtreeView({ subtree, onClose }) {
       }
     }
 
-    // Pre-load images (same-origin so they won't taint the canvas)
+    // Pre-load images from data-URLs (won't taint the canvas)
     const loadedImages = await Promise.all(
       imageItems.map((item) =>
         new Promise((resolve) => {
