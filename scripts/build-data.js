@@ -175,6 +175,46 @@ function simplifyTree(node, idSet) {
 }
 
 // ---------------------------------------------------------------------------
+// Resolve polytomies – ensure every internal node has at most 2 children.
+// The Open Tree API may return "soft polytomies" where evolutionary
+// relationships are unresolved.  We resolve them by iteratively grouping
+// the last two children into a new unnamed internal node.
+// ---------------------------------------------------------------------------
+
+function resolvePolytomies(node) {
+  for (const child of node.children) {
+    resolvePolytomies(child);
+  }
+  while (node.children.length > 2) {
+    const right = node.children.pop();
+    const left = node.children.pop();
+    node.children.push({ label: "", children: [left, right] });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Verify the final tree is binary – no node may have more than 2 children.
+// ---------------------------------------------------------------------------
+
+function checkBinaryTree(node) {
+  const violations = [];
+  function walk(n) {
+    if (n.children.length > 2) {
+      violations.push({
+        name: n.name || "(unnamed)",
+        numChildren: n.children.length,
+        childNames: n.children.map((c) => c.name || "(unnamed)"),
+      });
+    }
+    for (const child of n.children) {
+      walk(child);
+    }
+  }
+  walk(node);
+  return violations;
+}
+
+// ---------------------------------------------------------------------------
 // Convert simplified tree to a compact JSON format suitable for the browser.
 // Each node has:  { name, ott_id, children: [...] }
 // Taxa nodes also have:  { isTaxon: true }
@@ -283,6 +323,11 @@ async function main() {
   const idSet = new Set(treeIds);
   const simplified = simplifyTree(rawTree, idSet);
 
+  // NOTE: we do NOT binarize at build time.  The tree may contain soft
+  // polytomies (nodes with >2 children).  Binarization is done at runtime
+  // when needed (e.g. for maze embedding).  The resolvePolytomies() and
+  // checkBinaryTree() helpers above are kept for that purpose.
+
   const compactTree = treeToCompact(simplified, treeIdToTaxon);
 
   // Verify that every taxon appears exactly once in the tree
@@ -324,11 +369,27 @@ async function main() {
   console.log(`Wrote tree.json`);
 
   // Build taxa.json with comments
+  // Use local image paths when downloaded images exist in website/public/taxa-images/
+  const IMG_DIR = path.join(ROOT, "website", "public", "taxa-images");
+  const localImageFiles = fs.existsSync(IMG_DIR)
+    ? new Set(fs.readdirSync(IMG_DIR))
+    : new Set();
+
+  function resolveImageUrl(ottId, csvUrl) {
+    if (!ottId) return csvUrl || null;
+    for (const ext of ["jpg", "jpeg", "png", "gif", "webp"]) {
+      if (localImageFiles.has(`${ottId}.${ext}`)) {
+        return `/taxa-images/${ottId}.${ext}`;
+      }
+    }
+    return csvUrl || null;
+  }
+
   const taxaJson = taxa.map((t) => {
     const entry = {
       name: t.name,
       ott_id: Number(t.ott_id),
-      image_url: t.image_url || null,
+      image_url: resolveImageUrl(t.ott_id, t.image_url),
     };
     if (t.comments) {
       entry.comments = t.comments;

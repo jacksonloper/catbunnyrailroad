@@ -1,6 +1,7 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
+import MazeWorker from "./mazeWorker.js?worker";
 import "./App.css";
 
 // ---------------------------------------------------------------------------
@@ -284,10 +285,78 @@ function layoutTree(root) {
   return { nodes, edges, leafCount: lineIndex, hSpacing, vSpacing, depth };
 }
 
+function isValidMazeSize(text) {
+  if (!/^\s*\d+\s*$/.test(text)) return false;
+  const v = parseInt(text, 10);
+  return v >= 3 && v <= 50;
+}
+
+function countTreeNodes(node) {
+  if (!node.children || node.children.length === 0) return 1;
+  return 1 + node.children.reduce((s, c) => s + countTreeNodes(c), 0);
+}
+
 function SubtreeView({ subtree, onClose }) {
   const [copied, setCopied] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
   const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
+  const [showMaze, setShowMaze] = useState(false);
+  const defaultMazeSize = useMemo(() => {
+    const n = countTreeNodes(subtree);
+    // Heuristic: grid needs ~3× the tree nodes to have room for paths
+    return Math.max(5, Math.ceil(Math.sqrt(n * 3)));
+  }, [subtree]);
+  const [mazeSizeText, setMazeSizeText] = useState(() => String(defaultMazeSize));
+  const [mazeData, setMazeData] = useState(null);
+  const [mazeError, setMazeError] = useState("");
+  const [mazeLoading, setMazeLoading] = useState(false);
+  const [mazeWallView, setMazeWallView] = useState(false);
+  const workerRef = useRef(null);
+
+  // Cancel any in-flight worker
+  const cancelWorker = useCallback(() => {
+    if (workerRef.current) {
+      workerRef.current.terminate();
+      workerRef.current = null;
+    }
+    setMazeLoading(false);
+  }, []);
+
+  // Start a maze attempt: generate random spanning tree + check embedding
+  const handleTryMaze = useCallback(() => {
+    const m = parseInt(mazeSizeText, 10);
+    if (!isValidMazeSize(mazeSizeText)) return;
+
+    cancelWorker();
+    setMazeData(null);
+    setMazeError("");
+    setMazeLoading(true);
+
+    const worker = new MazeWorker();
+    workerRef.current = worker;
+
+    worker.onmessage = (e) => {
+      workerRef.current = null;
+      setMazeLoading(false);
+      const { result, attempts } = e.data;
+      if (result) {
+        setMazeData(result);
+      } else {
+        setMazeError(`Could not embed tree after ${attempts} attempt${attempts === 1 ? "" : "s"}. Try again or increase size.`);
+      }
+    };
+
+    worker.onerror = () => {
+      workerRef.current = null;
+      setMazeLoading(false);
+      setMazeError("Maze generation failed unexpectedly.");
+    };
+
+    worker.postMessage({ subtree, mazeSize: m });
+  }, [mazeSizeText, subtree, cancelWorker]);
+
+  // Cleanup worker on unmount
+  useEffect(() => () => cancelWorker(), [cancelWorker]);
 
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
@@ -341,6 +410,359 @@ function SubtreeView({ subtree, onClose }) {
 
   const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
 
+  /** Compute wall segments for the dual "wall view" of the maze */
+  function computeWallSegments(data, cs) {
+    const { width: gw, height: gh, mazeEdges } = data;
+    // Build set of passage keys
+    const passageSet = new Set();
+    for (const e of mazeEdges) {
+      const key = `${Math.min(e.from.y, e.to.y)},${Math.min(e.from.x, e.to.x)}-${Math.max(e.from.y, e.to.y)},${Math.max(e.from.x, e.to.x)}`;
+      passageSet.add(key);
+    }
+    const segs = [];
+    // Internal vertical walls (between (r,c) and (r,c+1))
+    for (let r = 0; r < gh; r++) {
+      for (let c = 0; c < gw - 1; c++) {
+        const key = `${r},${c}-${r},${c + 1}`;
+        if (!passageSet.has(key)) {
+          segs.push({ x1: (c + 1) * cs, y1: r * cs, x2: (c + 1) * cs, y2: (r + 1) * cs });
+        }
+      }
+    }
+    // Internal horizontal walls (between (r,c) and (r+1,c))
+    for (let r = 0; r < gh - 1; r++) {
+      for (let c = 0; c < gw; c++) {
+        const key = `${r},${c}-${r + 1},${c}`;
+        if (!passageSet.has(key)) {
+          segs.push({ x1: c * cs, y1: (r + 1) * cs, x2: (c + 1) * cs, y2: (r + 1) * cs });
+        }
+      }
+    }
+    // Outer boundary
+    const W = gw * cs, H = gh * cs;
+    segs.push({ x1: 0, y1: 0, x2: W, y2: 0 });
+    segs.push({ x1: 0, y1: H, x2: W, y2: H });
+    segs.push({ x1: 0, y1: 0, x2: 0, y2: H });
+    segs.push({ x1: W, y1: 0, x2: W, y2: H });
+    return segs;
+  }
+
+  /** Build a standalone SVG string for the current maze, styled for white-paper printing.
+   *  @param {object} opts
+   *  @param {boolean} [opts.omitImages] – replace images with circles (for PNG base layer)
+   *  @param {Map<string,string>} [opts.imageDataUrls] – map of original URL → data-URL for standalone SVG
+   */
+  function buildPrintSvg({ omitImages = false, imageDataUrls } = {}) {
+    if (!mazeData) return null;
+    const cellSize = 20;
+    const w = mazeData.width * cellSize;
+    const h = mazeData.height * cellSize;
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const lines = [];
+    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`);
+    lines.push(`<rect width="${w}" height="${h}" fill="white"/>`);
+    if (mazeWallView) {
+      // Wall view: draw wall segments
+      const walls = computeWallSegments(mazeData, cellSize);
+      for (const s of walls) {
+        lines.push(`<line x1="${s.x1}" y1="${s.y1}" x2="${s.x2}" y2="${s.y2}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
+      }
+    } else {
+      // Path view: draw passage edges
+      for (const e of mazeData.mazeEdges) {
+        lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
+      }
+      for (const e of mazeData.edges) {
+        lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
+      }
+    }
+    // Taxa markers
+    for (const p of taxaPlacements) {
+      const cx = (p.col + 0.5) * cellSize;
+      const cy = (p.row + 0.5) * cellSize;
+      const sp = taxaByOttId.get(p.node.ott_id);
+      const imgUrl = sp?.image_url;
+      const resolvedUrl = !omitImages && (imageDataUrls?.get(imgUrl) ?? imgUrl);
+      if (resolvedUrl) {
+        lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - 8}" y="${cy - 8}" width="16" height="16" clip-path="inset(0 round 3px)"/>`);
+      } else {
+        lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="#e07020"/>`);
+      }
+    }
+    lines.push("</svg>");
+    return lines.join("\n");
+  }
+
+  /** Fetch image URLs and convert to base64 data URLs for embedding in SVG/PNG exports. */
+  async function fetchImageDataUrls() {
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const urls = new Set();
+    for (const p of taxaPlacements) {
+      const sp = taxaByOttId.get(p.node.ott_id);
+      if (sp?.image_url) urls.add(sp.image_url);
+    }
+    const dataUrls = new Map();
+    await Promise.all([...urls].map(async (srcUrl) => {
+      try {
+        const resp = await fetch(srcUrl);
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        const dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        dataUrls.set(srcUrl, dataUrl);
+      } catch { /* fallback to circle for images that fail */ }
+    }));
+    return dataUrls;
+  }
+
+  async function handleSaveMazeSvg() {
+    const imageDataUrls = await fetchImageDataUrls();
+    const svgStr = buildPrintSvg({ imageDataUrls });
+    if (!svgStr) return;
+    const blob = new Blob([svgStr], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "maze.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleSaveMazePng() {
+    if (!mazeData) return;
+
+    const cellSize = 20;
+    // Build SVG without images (images are drawn directly on canvas below)
+    const svgStr = buildPrintSvg({ omitImages: true });
+    if (!svgStr) return;
+
+    // 300 DPI × 8.5 inches = 2550 px on the long side
+    const printPx = 2550;
+    const svgW = mazeData.width * cellSize;
+    const svgH = mazeData.height * cellSize;
+    const scale = printPx / Math.max(svgW, svgH);
+    const canvasW = Math.round(svgW * scale);
+    const canvasH = Math.round(svgH * scale);
+
+    // Collect image positions and pre-load all images as Image objects
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const imageItems = [];
+    for (const p of taxaPlacements) {
+      const sp = taxaByOttId.get(p.node.ott_id);
+      if (sp?.image_url) {
+        const cx = (p.col + 0.5) * cellSize;
+        const cy = (p.row + 0.5) * cellSize;
+        imageItems.push({
+          url: sp.image_url,
+          x: (cx - 8) * scale,
+          y: (cy - 8) * scale,
+          w: 16 * scale,
+          h: 16 * scale,
+        });
+      }
+    }
+
+    // Pre-load images (same-origin so they won't taint the canvas)
+    const loadedImages = await Promise.all(
+      imageItems.map((item) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve({ ...item, img });
+          img.onerror = () => resolve({ ...item, img: null });
+          img.src = item.url;
+        })
+      )
+    );
+
+    // Render SVG base (lines/walls only) to canvas
+    const svgImg = new Image();
+    const blob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    svgImg.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvasW;
+      canvas.height = canvasH;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvasW, canvasH);
+      ctx.drawImage(svgImg, 0, 0, canvasW, canvasH);
+      URL.revokeObjectURL(url);
+
+      // Draw taxa images directly on canvas (bypasses SVG security sandbox)
+      for (const item of loadedImages) {
+        if (item.img) {
+          ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+        }
+      }
+
+      canvas.toBlob((pngBlob) => {
+        if (!pngBlob) return;
+        const pngUrl = URL.createObjectURL(pngBlob);
+        const a = document.createElement("a");
+        a.href = pngUrl;
+        a.download = "maze.png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(pngUrl);
+      }, "image/png");
+    };
+    svgImg.onerror = () => URL.revokeObjectURL(url);
+    svgImg.src = url;
+  }
+
+  // ---- Maze view ----
+  if (showMaze) {
+    const cellSize = 20;
+
+    return (
+      <div className="subtree-overlay">
+        <div className="subtree-panel">
+          <div className="subtree-header">
+            <h3>Maze</h3>
+            <div className="subtree-header-actions">
+              <label className="maze-size-label">
+                Size:
+                <input
+                  type="text"
+                  className={`maze-size-input${isValidMazeSize(mazeSizeText) ? "" : " maze-size-invalid"}`}
+                  value={mazeSizeText}
+                  onChange={(e) => setMazeSizeText(e.target.value)}
+                  onBlur={() => { if (!isValidMazeSize(mazeSizeText)) setMazeSizeText(String(defaultMazeSize)); }}
+                />
+              </label>
+              <button
+                className="subtree-copy-btn"
+                onClick={handleTryMaze}
+                disabled={mazeLoading || !isValidMazeSize(mazeSizeText)}
+                title="Generate a new random maze and try to embed the tree"
+              >
+                {mazeLoading ? "⏳ Working…" : "🎲 Try"}
+              </button>
+              <button
+                className="subtree-copy-btn"
+                onClick={() => { setShowMaze(false); cancelWorker(); setMazeData(null); setMazeError(""); }}
+              >
+                🌳 Back to tree
+              </button>
+              {mazeData && (
+                <button
+                  className="subtree-copy-btn"
+                  onClick={handleSaveMazeSvg}
+                  title="Save maze as SVG for printing"
+                >
+                  💾 SVG
+                </button>
+              )}
+              {mazeData && (
+                <button
+                  className="subtree-copy-btn"
+                  onClick={handleSaveMazePng}
+                  title="Save maze as high-resolution PNG for printing"
+                >
+                  💾 PNG
+                </button>
+              )}
+              {mazeData && (
+                <label className="maze-size-label">
+                  <input
+                    type="checkbox"
+                    checked={mazeWallView}
+                    onChange={(e) => setMazeWallView(e.target.checked)}
+                  />
+                  Walls
+                </label>
+              )}
+              <button className="subtree-close" aria-label="Close" onClick={onClose}>✕</button>
+            </div>
+          </div>
+          <div className="subtree-content">
+            {!mazeData && !mazeLoading && !mazeError && (
+              <p className="maze-hint">Pick a grid size and click 🎲 Try to generate a maze.</p>
+            )}
+            {mazeLoading && <p className="maze-loading">Generating maze…</p>}
+            {mazeError && <p className="maze-error">{mazeError}</p>}
+            {mazeData && (() => {
+              const mazeSvgW = mazeData.width * cellSize;
+              const mazeSvgH = mazeData.height * cellSize;
+              const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+              const wallSegs = mazeWallView ? computeWallSegments(mazeData, cellSize) : null;
+              return (
+                <svg
+                  className="maze-svg"
+                  width={mazeSvgW}
+                  height={mazeSvgH}
+                  viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
+                >
+                  {mazeWallView ? (
+                    /* Wall view */
+                    wallSegs.map((s, i) => (
+                      <line
+                        key={`w-${i}`}
+                        x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
+                        className="maze-edge"
+                      />
+                    ))
+                  ) : (
+                    <>
+                      {/* Maze passage edges */}
+                      {mazeData.mazeEdges.map((e, i) => (
+                        <line
+                          key={`me-${i}`}
+                          x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
+                          x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
+                          className="maze-edge"
+                        />
+                      ))}
+                      {/* Embedded tree edges */}
+                      {mazeData.edges.map((e, i) => (
+                        <line
+                          key={`e-${i}`}
+                          x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
+                          x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
+                          className="maze-edge"
+                        />
+                      ))}
+                    </>
+                  )}
+                  {/* Taxa markers (images) */}
+                  {taxaPlacements.map((p) => {
+                    const cx = (p.col + 0.5) * cellSize;
+                    const cy = (p.row + 0.5) * cellSize;
+                    const sp = taxaByOttId.get(p.node.ott_id);
+                    return sp?.image_url ? (
+                      <image
+                        key={p.node.ott_id ?? `t-${p.row}-${p.col}`}
+                        href={sp.image_url}
+                        x={cx - 8}
+                        y={cy - 8}
+                        width={16}
+                        height={16}
+                        clipPath="inset(0 round 3px)"
+                      />
+                    ) : (
+                      <circle
+                        key={p.node.ott_id ?? `t-${p.row}-${p.col}`}
+                        cx={cx} cy={cy} r={5}
+                        fill="#e07020"
+                      />
+                    );
+                  })}
+                </svg>
+              );
+            })()}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Normal tree view ----
   return (
     <div className="subtree-overlay">
       <div className="subtree-panel">
@@ -360,6 +782,13 @@ function SubtreeView({ subtree, onClose }) {
               title="Copy subtree JSON to clipboard"
             >
               {copiedJson ? "✓ Copied!" : "📋 Copy JSON"}
+            </button>
+            <button
+              className="subtree-copy-btn"
+              onClick={() => { setShowMaze(true); setMazeData(null); setMazeError(""); }}
+              title="Show tree as a grid maze"
+            >
+              🔲 Maze
             </button>
             <button className="subtree-close" aria-label="Close subtree view" onClick={onClose}>✕</button>
           </div>

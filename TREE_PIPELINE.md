@@ -105,7 +105,16 @@ The function walks the tree recursively:
    - Single child and not a taxon → collapsed (replaced by the child).
    - Otherwise → kept.
 
-## 5. Convert to compact JSON (`treeToCompact`)
+## 5. ~~Resolve polytomies~~ (removed from build)
+
+Previous versions resolved soft polytomies at build time.  This is
+**no longer done** — the tree may contain internal nodes with more than
+two children (soft polytomies from the Open Tree API).  The
+`resolvePolytomies` and `checkBinaryTree` helpers are retained in
+`build-data.js` for reference; binarization is performed **at runtime**
+when needed (e.g. for the maze embedding feature in the browser).
+
+## 6. Convert to compact JSON (`treeToCompact`)
 
 The simplified tree is converted to a compact format for the browser.
 Each node has `{ name, ott_id, children }`.  Taxon nodes additionally
@@ -124,15 +133,15 @@ have `isTaxon: true`.
 
 Taxon names come from `taxa.csv` (the common name).
 
-## 6. Post-build verification
+## 7. Post-build verification
 
 After building the compact tree, the build verifies:
 
 1. **Each taxon appears exactly once** in the tree (no duplicates).
 2. **Every CSV row is accounted for** — no taxa are missing from the
-   tree.  If either check fails, the build errors out.
+   tree.  If any check fails, the build errors out.
 
-## 7. Output files
+## 8. Output files
 
 ### `website/src/data/tree.json`
 
