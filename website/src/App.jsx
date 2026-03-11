@@ -310,6 +310,7 @@ function SubtreeView({ subtree, onClose }) {
   const [mazeData, setMazeData] = useState(null);
   const [mazeError, setMazeError] = useState("");
   const [mazeLoading, setMazeLoading] = useState(false);
+  const [mazeWallView, setMazeWallView] = useState(false);
   const workerRef = useRef(null);
 
   // Cancel any in-flight worker
@@ -409,8 +410,48 @@ function SubtreeView({ subtree, onClose }) {
 
   const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
 
-  /** Build a standalone SVG string for the current maze, styled for white-paper printing */
-  function buildPrintSvg() {
+  /** Compute wall segments for the dual "wall view" of the maze */
+  function computeWallSegments(data, cs) {
+    const { width: gw, height: gh, mazeEdges } = data;
+    // Build set of passage keys
+    const passageSet = new Set();
+    for (const e of mazeEdges) {
+      const key = `${Math.min(e.from.y, e.to.y)},${Math.min(e.from.x, e.to.x)}-${Math.max(e.from.y, e.to.y)},${Math.max(e.from.x, e.to.x)}`;
+      passageSet.add(key);
+    }
+    const segs = [];
+    // Internal vertical walls (between (r,c) and (r,c+1))
+    for (let r = 0; r < gh; r++) {
+      for (let c = 0; c < gw - 1; c++) {
+        const key = `${r},${c}-${r},${c + 1}`;
+        if (!passageSet.has(key)) {
+          segs.push({ x1: (c + 1) * cs, y1: r * cs, x2: (c + 1) * cs, y2: (r + 1) * cs });
+        }
+      }
+    }
+    // Internal horizontal walls (between (r,c) and (r+1,c))
+    for (let r = 0; r < gh - 1; r++) {
+      for (let c = 0; c < gw; c++) {
+        const key = `${r},${c}-${r + 1},${c}`;
+        if (!passageSet.has(key)) {
+          segs.push({ x1: c * cs, y1: (r + 1) * cs, x2: (c + 1) * cs, y2: (r + 1) * cs });
+        }
+      }
+    }
+    // Outer boundary
+    const W = gw * cs, H = gh * cs;
+    segs.push({ x1: 0, y1: 0, x2: W, y2: 0 });
+    segs.push({ x1: 0, y1: H, x2: W, y2: H });
+    segs.push({ x1: 0, y1: 0, x2: 0, y2: H });
+    segs.push({ x1: W, y1: 0, x2: W, y2: H });
+    return segs;
+  }
+
+  /** Build a standalone SVG string for the current maze, styled for white-paper printing.
+   *  @param {object} opts
+   *  @param {boolean} opts.omitImages – replace <image> with circles (for PNG rasterisation)
+   */
+  function buildPrintSvg({ omitImages = false } = {}) {
     if (!mazeData) return null;
     const cellSize = 20;
     const w = mazeData.width * cellSize;
@@ -419,20 +460,27 @@ function SubtreeView({ subtree, onClose }) {
     const lines = [];
     lines.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`);
     lines.push(`<rect width="${w}" height="${h}" fill="white"/>`);
-    // Maze passage edges
-    for (const e of mazeData.mazeEdges) {
-      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
+    if (mazeWallView) {
+      // Wall view: draw wall segments
+      const walls = computeWallSegments(mazeData, cellSize);
+      for (const s of walls) {
+        lines.push(`<line x1="${s.x1}" y1="${s.y1}" x2="${s.x2}" y2="${s.y2}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
+      }
+    } else {
+      // Path view: draw passage edges
+      for (const e of mazeData.mazeEdges) {
+        lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
+      }
+      for (const e of mazeData.edges) {
+        lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
+      }
     }
-    // Embedded tree edges
-    for (const e of mazeData.edges) {
-      lines.push(`<line x1="${(e.from.x + 0.5) * cellSize}" y1="${(e.from.y + 0.5) * cellSize}" x2="${(e.to.x + 0.5) * cellSize}" y2="${(e.to.y + 0.5) * cellSize}" stroke="#444" stroke-width="2" stroke-linecap="round"/>`);
-    }
-    // Taxa markers (images)
+    // Taxa markers
     for (const p of taxaPlacements) {
       const cx = (p.col + 0.5) * cellSize;
       const cy = (p.row + 0.5) * cellSize;
       const sp = taxaByOttId.get(p.node.ott_id);
-      if (sp?.image_url) {
+      if (!omitImages && sp?.image_url) {
         lines.push(`<image href="${sp.image_url.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - 8}" y="${cy - 8}" width="16" height="16" clip-path="inset(0 round 3px)"/>`);
       } else {
         lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="#e07020"/>`);
@@ -457,7 +505,7 @@ function SubtreeView({ subtree, onClose }) {
   }
 
   function handleSaveMazePng() {
-    const svgStr = buildPrintSvg();
+    const svgStr = buildPrintSvg({ omitImages: true });
     if (!svgStr) return;
     // 300 DPI × 8.5 inches = 2550 px on the long side
     const printPx = 2550;
@@ -535,7 +583,7 @@ function SubtreeView({ subtree, onClose }) {
                   onClick={handleSaveMazeSvg}
                   title="Save maze as SVG for printing"
                 >
-                  💾 Save SVG
+                  💾 SVG
                 </button>
               )}
               {mazeData && (
@@ -544,8 +592,18 @@ function SubtreeView({ subtree, onClose }) {
                   onClick={handleSaveMazePng}
                   title="Save maze as high-resolution PNG for printing"
                 >
-                  💾 Save PNG
+                  💾 PNG
                 </button>
+              )}
+              {mazeData && (
+                <label className="maze-size-label">
+                  <input
+                    type="checkbox"
+                    checked={mazeWallView}
+                    onChange={(e) => setMazeWallView(e.target.checked)}
+                  />
+                  Walls
+                </label>
               )}
               <button className="subtree-close" aria-label="Close" onClick={onClose}>✕</button>
             </div>
@@ -560,6 +618,7 @@ function SubtreeView({ subtree, onClose }) {
               const mazeSvgW = mazeData.width * cellSize;
               const mazeSvgH = mazeData.height * cellSize;
               const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+              const wallSegs = mazeWallView ? computeWallSegments(mazeData, cellSize) : null;
               return (
                 <svg
                   className="maze-svg"
@@ -567,24 +626,37 @@ function SubtreeView({ subtree, onClose }) {
                   height={mazeSvgH}
                   viewBox={`0 0 ${mazeSvgW} ${mazeSvgH}`}
                 >
-                  {/* Maze passage edges */}
-                  {mazeData.mazeEdges.map((e, i) => (
-                    <line
-                      key={`me-${i}`}
-                      x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
-                      x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
-                      className="maze-edge"
-                    />
-                  ))}
-                  {/* Embedded tree edges */}
-                  {mazeData.edges.map((e, i) => (
-                    <line
-                      key={`e-${i}`}
-                      x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
-                      x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
-                      className="maze-edge"
-                    />
-                  ))}
+                  {mazeWallView ? (
+                    /* Wall view */
+                    wallSegs.map((s, i) => (
+                      <line
+                        key={`w-${i}`}
+                        x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
+                        className="maze-edge"
+                      />
+                    ))
+                  ) : (
+                    <>
+                      {/* Maze passage edges */}
+                      {mazeData.mazeEdges.map((e, i) => (
+                        <line
+                          key={`me-${i}`}
+                          x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
+                          x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
+                          className="maze-edge"
+                        />
+                      ))}
+                      {/* Embedded tree edges */}
+                      {mazeData.edges.map((e, i) => (
+                        <line
+                          key={`e-${i}`}
+                          x1={(e.from.x + 0.5) * cellSize} y1={(e.from.y + 0.5) * cellSize}
+                          x2={(e.to.x + 0.5) * cellSize} y2={(e.to.y + 0.5) * cellSize}
+                          className="maze-edge"
+                        />
+                      ))}
+                    </>
+                  )}
                   {/* Taxa markers (images) */}
                   {taxaPlacements.map((p) => {
                     const cx = (p.col + 0.5) * cellSize;
