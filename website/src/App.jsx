@@ -449,16 +449,16 @@ function SubtreeView({ subtree, onClose }) {
 
   /** Build a standalone SVG string for the current maze, styled for white-paper printing.
    *  @param {object} opts
-   *  @param {boolean} opts.omitImages – replace <image> with circles (for PNG rasterisation)
+   *  @param {Map<string,string>} [opts.imageDataUrls] – map of original URL → data-URL for embedding images inline
    */
-  function buildPrintSvg({ omitImages = false } = {}) {
+  function buildPrintSvg({ imageDataUrls } = {}) {
     if (!mazeData) return null;
     const cellSize = 20;
     const w = mazeData.width * cellSize;
     const h = mazeData.height * cellSize;
     const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
     const lines = [];
-    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`);
+    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`);
     lines.push(`<rect width="${w}" height="${h}" fill="white"/>`);
     if (mazeWallView) {
       // Wall view: draw wall segments
@@ -480,8 +480,11 @@ function SubtreeView({ subtree, onClose }) {
       const cx = (p.col + 0.5) * cellSize;
       const cy = (p.row + 0.5) * cellSize;
       const sp = taxaByOttId.get(p.node.ott_id);
-      if (!omitImages && sp?.image_url) {
-        lines.push(`<image href="${sp.image_url.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - 8}" y="${cy - 8}" width="16" height="16" clip-path="inset(0 round 3px)"/>`);
+      const imgUrl = sp?.image_url;
+      // Use data URL if available (for PNG), otherwise use original URL (for SVG), fallback to circle
+      const resolvedUrl = imageDataUrls?.get(imgUrl) ?? imgUrl;
+      if (resolvedUrl) {
+        lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - 8}" y="${cy - 8}" width="16" height="16" clip-path="inset(0 round 3px)"/>`);
       } else {
         lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="#e07020"/>`);
       }
@@ -504,8 +507,34 @@ function SubtreeView({ subtree, onClose }) {
     URL.revokeObjectURL(url);
   }
 
-  function handleSaveMazePng() {
-    const svgStr = buildPrintSvg({ omitImages: true });
+  async function handleSaveMazePng() {
+    if (!mazeData) return;
+
+    // Collect unique image URLs from taxa placements
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const urls = new Set();
+    for (const p of taxaPlacements) {
+      const sp = taxaByOttId.get(p.node.ott_id);
+      if (sp?.image_url) urls.add(sp.image_url);
+    }
+
+    // Fetch each image and convert to base64 data URL
+    const imageDataUrls = new Map();
+    await Promise.all([...urls].map(async (srcUrl) => {
+      try {
+        const resp = await fetch(srcUrl);
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        const dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        imageDataUrls.set(srcUrl, dataUrl);
+      } catch { /* images that fail to load get an orange circle fallback */ }
+    }));
+
+    const svgStr = buildPrintSvg({ imageDataUrls });
     if (!svgStr) return;
     // 300 DPI × 8.5 inches = 2550 px on the long side
     const printPx = 2550;
