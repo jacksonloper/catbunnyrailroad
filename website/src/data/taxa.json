@@ -850,7 +850,7 @@
     "name": "luna moth",
     "ott_id": 180968,
     "image_url": "/taxa-images/180968.jpg",
-    "comments": "Luna moths (Actias luna) belong to the family Saturniidae. 'Moth' is not a formal group \u2014 it refers to any Lepidoptera that is not a butterfly."
+    "comments": "Luna moths (Actias luna) belong to the family Saturniidae. 'Moth' is not a formal group — it refers to any Lepidoptera that is not a butterfly."
   },
   {
     "name": "tick",
@@ -1066,5 +1066,120 @@
     "name": "aloe vera",
     "ott_id": 62303,
     "image_url": "/taxa-images/62303.jpg"
+  },
+  {
+    "name": "hyrax",
+    "ott_id": 561107,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Ein%20klippschliefer.jpg"
+  },
+  {
+    "name": "binturong",
+    "ott_id": 768502,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/162/26805162.jpg"
+  },
+  {
+    "name": "beluga whale",
+    "ott_id": 851318,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/774/27789774.jpg"
+  },
+  {
+    "name": "yellow canary",
+    "ott_id": 903271,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/177/32538177.jpg"
+  },
+  {
+    "name": "whale shark",
+    "ott_id": 214509,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/366/27225366.jpg"
+  },
+  {
+    "name": "water bear",
+    "ott_id": 111438,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Hypsibiusdujardini.jpg"
+  },
+  {
+    "name": "flying fox",
+    "ott_id": 574742,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/112/27157112.jpg"
+  },
+  {
+    "name": "horseshoe bat",
+    "ott_id": 635025,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/287/27049287.jpg"
+  },
+  {
+    "name": "Old World leaf-nosed bat",
+    "ott_id": 316928,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/199/27142199.jpg"
+  },
+  {
+    "name": "false vampire bat",
+    "ott_id": 813048,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/281/26925281.jpg"
+  },
+  {
+    "name": "bumblebee bat",
+    "ott_id": 32051,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/057/27290057.jpg"
+  },
+  {
+    "name": "free-tailed bat",
+    "ott_id": 238416,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/876/32591876.jpg"
+  },
+  {
+    "name": "vesper bat",
+    "ott_id": 238434,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/833/27290833.jpg"
+  },
+  {
+    "name": "mouse-tailed bat",
+    "ott_id": 267987,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Greater%20Mouse%20Tailed%20bat%20%28Rhinopoma%20microphyllum%29.jpg"
+  },
+  {
+    "name": "disk-winged bat",
+    "ott_id": 267980,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Thyroptera_discifera.jpg"
+  },
+  {
+    "name": "sac-winged bat",
+    "ott_id": 581454,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/393/1832393.jpg"
+  },
+  {
+    "name": "ghost-faced bat",
+    "ott_id": 292475,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Mormoops%20blainvillii.jpg"
+  },
+  {
+    "name": "New World leaf-nosed bat",
+    "ott_id": 289151,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/504/27703504.jpg"
+  },
+  {
+    "name": "vampire bat",
+    "ott_id": 1039975,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/819/27715819.jpg"
+  },
+  {
+    "name": "fruit-eating bat",
+    "ott_id": 1039976,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/504/27703504.jpg"
+  },
+  {
+    "name": "funnel-eared bat",
+    "ott_id": 1018309,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Natalus%20stramineus.jpg"
+  },
+  {
+    "name": "smoky bat",
+    "ott_id": 1060468,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Furipterus%20horrens.jpg"
+  },
+  {
+    "name": "bulldog bat",
+    "ott_id": 759861,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Captive%20Noctilio%20leporinus.jpg"
   }
 ]
