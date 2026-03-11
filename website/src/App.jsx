@@ -311,6 +311,7 @@ function SubtreeView({ subtree, onClose }) {
   const [mazeError, setMazeError] = useState("");
   const [mazeLoading, setMazeLoading] = useState(false);
   const [mazeWallView, setMazeWallView] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   const workerRef = useRef(null);
 
   // Cancel any in-flight worker
@@ -447,20 +448,96 @@ function SubtreeView({ subtree, onClose }) {
     return segs;
   }
 
+  /** Build legend entries for the maze taxa.  When two taxa share the same
+   *  image_url they are given distinct single-letter labels so the legend
+   *  remains unambiguous.  Returns an array of { name, imageUrl, label }
+   *  objects sorted by name.  `label` is null when no disambiguation is needed.
+   */
+  function buildLegendEntries() {
+    if (!mazeData) return [];
+    const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+
+    // Gather entries with image URLs
+    const entries = taxaPlacements.map((p) => {
+      const sp = taxaByOttId.get(p.node.ott_id);
+      return { name: p.node.name, imageUrl: sp?.image_url || null, ottId: p.node.ott_id };
+    });
+
+    // Detect duplicated image URLs
+    const urlCounts = new Map();
+    for (const e of entries) {
+      if (e.imageUrl) urlCounts.set(e.imageUrl, (urlCounts.get(e.imageUrl) || 0) + 1);
+    }
+
+    // Assign letter labels to taxa that share an image
+    let nextLabel = 0;
+    const urlLabels = new Map(); // imageUrl → Map<ottId, letter>
+    for (const e of entries) {
+      if (e.imageUrl && urlCounts.get(e.imageUrl) > 1) {
+        if (!urlLabels.has(e.imageUrl)) urlLabels.set(e.imageUrl, new Map());
+        const group = urlLabels.get(e.imageUrl);
+        if (!group.has(e.ottId)) {
+          group.set(e.ottId, String.fromCharCode(65 + nextLabel)); // A, B, C…
+          nextLabel++;
+        }
+      }
+    }
+
+    // Build final array – deduplicate by ottId
+    const seen = new Set();
+    const result = [];
+    for (const e of entries) {
+      if (seen.has(e.ottId)) continue;
+      seen.add(e.ottId);
+      const group = e.imageUrl && urlLabels.get(e.imageUrl);
+      result.push({
+        name: e.name,
+        imageUrl: e.imageUrl,
+        label: group ? group.get(e.ottId) : null,
+        ottId: e.ottId,
+      });
+    }
+    result.sort((a, b) => a.name.localeCompare(b.name));
+    return result;
+  }
+
+  /** Map from ottId → label letter (or null) for maze marker overlays */
+  function buildLabelMap() {
+    const entries = buildLegendEntries();
+    const map = new Map();
+    for (const e of entries) {
+      if (e.label) map.set(e.ottId, e.label);
+    }
+    return map;
+  }
+
   /** Build a standalone SVG string for the current maze, styled for white-paper printing.
    *  @param {object} opts
    *  @param {boolean} [opts.omitImages] – replace images with circles (for PNG base layer)
    *  @param {Map<string,string>} [opts.imageDataUrls] – map of original URL → data-URL for standalone SVG
+   *  @param {boolean} [opts.withLegend] – append an image:name legend below the maze
    */
-  function buildPrintSvg({ omitImages = false, imageDataUrls } = {}) {
+  function buildPrintSvg({ omitImages = false, imageDataUrls, withLegend = false } = {}) {
     if (!mazeData) return null;
     const cellSize = 20;
     const w = mazeData.width * cellSize;
     const h = mazeData.height * cellSize;
     const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
+    const labelMap = buildLabelMap();
+
+    // Compute legend dimensions
+    const legendEntries = withLegend ? buildLegendEntries() : [];
+    const legendImgSize = 16;
+    const legendRowH = 22;
+    const legendPadTop = 12;
+    const legendH = withLegend && legendEntries.length > 0
+      ? legendPadTop + legendEntries.length * legendRowH + 4
+      : 0;
+    const totalH = h + legendH;
+
     const lines = [];
-    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`);
-    lines.push(`<rect width="${w}" height="${h}" fill="white"/>`);
+    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${totalH}" viewBox="0 0 ${w} ${totalH}">`);
+    lines.push(`<rect width="${w}" height="${totalH}" fill="white"/>`);
     if (mazeWallView) {
       // Wall view: draw wall segments
       const walls = computeWallSegments(mazeData, cellSize);
@@ -487,6 +564,26 @@ function SubtreeView({ subtree, onClose }) {
         lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - 8}" y="${cy - 8}" width="16" height="16" clip-path="inset(0 round 3px)"/>`);
       } else {
         lines.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="#e07020"/>`);
+      }
+      const lbl = labelMap.get(p.node.ott_id);
+      if (lbl) {
+        lines.push(`<text x="${cx + 7}" y="${cy - 5}" font-size="8" font-weight="bold" fill="#d04000" font-family="sans-serif">${lbl}</text>`);
+      }
+    }
+    // Legend
+    if (withLegend && legendEntries.length > 0) {
+      const ly0 = h + legendPadTop;
+      for (let i = 0; i < legendEntries.length; i++) {
+        const e = legendEntries[i];
+        const ry = ly0 + i * legendRowH;
+        const resolvedUrl = !omitImages && e.imageUrl && (imageDataUrls?.get(e.imageUrl) ?? e.imageUrl);
+        if (resolvedUrl) {
+          lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="4" y="${ry}" width="${legendImgSize}" height="${legendImgSize}" clip-path="inset(0 round 3px)"/>`);
+        } else {
+          lines.push(`<circle cx="${4 + legendImgSize / 2}" cy="${ry + legendImgSize / 2}" r="5" fill="#e07020"/>`);
+        }
+        const displayName = e.label ? `${e.label} – ${e.name}` : e.name;
+        lines.push(`<text x="${4 + legendImgSize + 6}" y="${ry + legendImgSize / 2}" dominant-baseline="central" font-size="11" fill="#333" font-family="sans-serif">${displayName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
       }
     }
     lines.push("</svg>");
@@ -520,7 +617,7 @@ function SubtreeView({ subtree, onClose }) {
 
   async function handleSaveMazeSvg() {
     const imageDataUrls = await fetchImageDataUrls();
-    const svgStr = buildPrintSvg({ imageDataUrls });
+    const svgStr = buildPrintSvg({ imageDataUrls, withLegend: showLegend });
     if (!svgStr) return;
     const blob = new Blob([svgStr], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
@@ -538,16 +635,25 @@ function SubtreeView({ subtree, onClose }) {
 
     const cellSize = 20;
     // Build SVG without images (images are drawn directly on canvas below)
-    const svgStr = buildPrintSvg({ omitImages: true });
+    const svgStr = buildPrintSvg({ omitImages: true, withLegend: showLegend });
     if (!svgStr) return;
 
     // 300 DPI × 8.5 inches = 2550 px on the long side
     const printPx = 2550;
     const svgW = mazeData.width * cellSize;
     const svgH = mazeData.height * cellSize;
-    const scale = printPx / Math.max(svgW, svgH);
+
+    // Legend dimensions must match buildPrintSvg
+    const legendEntries = showLegend ? buildLegendEntries() : [];
+    const legendImgSize = 16;
+    const legendRowH = 22;
+    const legendPadTop = 12;
+    const legendH = legendEntries.length > 0 ? legendPadTop + legendEntries.length * legendRowH + 4 : 0;
+    const totalSvgH = svgH + legendH;
+
+    const scale = printPx / Math.max(svgW, totalSvgH);
     const canvasW = Math.round(svgW * scale);
-    const canvasH = Math.round(svgH * scale);
+    const canvasH = Math.round(totalSvgH * scale);
 
     // Collect image positions and pre-load all images as Image objects
     const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
@@ -563,6 +669,21 @@ function SubtreeView({ subtree, onClose }) {
           y: (cy - 8) * scale,
           w: 16 * scale,
           h: 16 * scale,
+        });
+      }
+    }
+
+    // Legend image items (draw images into the legend area on canvas)
+    for (let i = 0; i < legendEntries.length; i++) {
+      const e = legendEntries[i];
+      if (e.imageUrl) {
+        const ry = svgH + legendPadTop + i * legendRowH;
+        imageItems.push({
+          url: e.imageUrl,
+          x: 4 * scale,
+          y: ry * scale,
+          w: legendImgSize * scale,
+          h: legendImgSize * scale,
         });
       }
     }
@@ -678,6 +799,16 @@ function SubtreeView({ subtree, onClose }) {
                   Walls
                 </label>
               )}
+              {mazeData && (
+                <label className="maze-size-label">
+                  <input
+                    type="checkbox"
+                    checked={showLegend}
+                    onChange={(e) => setShowLegend(e.target.checked)}
+                  />
+                  Legend
+                </label>
+              )}
               <button className="subtree-close" aria-label="Close" onClick={onClose}>✕</button>
             </div>
           </div>
@@ -692,7 +823,10 @@ function SubtreeView({ subtree, onClose }) {
               const mazeSvgH = mazeData.height * cellSize;
               const taxaPlacements = mazeData.placements.filter((p) => p.node?.isTaxon);
               const wallSegs = mazeWallView ? computeWallSegments(mazeData, cellSize) : null;
+              const labelMap = showLegend ? buildLabelMap() : new Map();
+              const legendEntries = showLegend ? buildLegendEntries() : [];
               return (
+                <>
                 <svg
                   className="maze-svg"
                   width={mazeSvgW}
@@ -735,25 +869,49 @@ function SubtreeView({ subtree, onClose }) {
                     const cx = (p.col + 0.5) * cellSize;
                     const cy = (p.row + 0.5) * cellSize;
                     const sp = taxaByOttId.get(p.node.ott_id);
-                    return sp?.image_url ? (
-                      <image
-                        key={p.node.ott_id ?? `t-${p.row}-${p.col}`}
-                        href={sp.image_url}
-                        x={cx - 8}
-                        y={cy - 8}
-                        width={16}
-                        height={16}
-                        clipPath="inset(0 round 3px)"
-                      />
-                    ) : (
-                      <circle
-                        key={p.node.ott_id ?? `t-${p.row}-${p.col}`}
-                        cx={cx} cy={cy} r={5}
-                        fill="#e07020"
-                      />
+                    const lbl = labelMap.get(p.node.ott_id);
+                    return (
+                      <g key={p.node.ott_id ?? `t-${p.row}-${p.col}`}>
+                        {sp?.image_url ? (
+                          <image
+                            href={sp.image_url}
+                            x={cx - 8}
+                            y={cy - 8}
+                            width={16}
+                            height={16}
+                            clipPath="inset(0 round 3px)"
+                          />
+                        ) : (
+                          <circle cx={cx} cy={cy} r={5} fill="#e07020" />
+                        )}
+                        {lbl && (
+                          <text
+                            x={cx + 7} y={cy - 5}
+                            fontSize="8" fontWeight="bold" fill="#d04000"
+                            style={{ fontFamily: "sans-serif" }}
+                          >
+                            {lbl}
+                          </text>
+                        )}
+                      </g>
                     );
                   })}
                 </svg>
+                {showLegend && legendEntries.length > 0 && (
+                  <div className="maze-legend">
+                    {legendEntries.map((e) => (
+                      <div key={e.ottId} className="maze-legend-item">
+                        {e.imageUrl ? (
+                          <img src={e.imageUrl} alt={e.name} className="maze-legend-img" />
+                        ) : (
+                          <span className="maze-legend-circle" />
+                        )}
+                        <span className="maze-legend-name">{e.label ? `${e.label} – ${e.name}` : e.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                </>
               );
             })()}
           </div>
