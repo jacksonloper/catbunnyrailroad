@@ -3,3 +3,8 @@
   command = "npm run build"
   publish = "dist"
   ignore = "git diff --quiet $CACHED_COMMIT_REF HEAD -- ../taxa.csv ."
+
+[[headers]]
+  for = "/taxa-images/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"

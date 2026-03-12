@@ -614,7 +614,7 @@ function SubtreeView({ subtree, onClose }) {
           reader.readAsDataURL(blob);
         });
         dataUrls.set(srcUrl, dataUrl);
-      } catch { /* fallback to circle for images that fail */ }
+      } catch (err) { console.warn("Failed to load image:", srcUrl, err); }
     }));
     return dataUrls;
   }
@@ -636,6 +636,20 @@ function SubtreeView({ subtree, onClose }) {
 
   async function handleSaveMazePng() {
     if (!mazeData) return;
+
+    // Helper: draw a rounded rect path (cross-browser, avoids ctx.roundRect)
+    function traceRoundedRect(ctx, x, y, w, h, r) {
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    }
 
     const cellSize = 20;
 
@@ -675,7 +689,7 @@ function SubtreeView({ subtree, onClose }) {
         const blob = await resp.blob();
         const bitmap = await createImageBitmap(blob);
         bitmaps.set(url, bitmap);
-      } catch { /* fallback to circle */ }
+      } catch (err) { console.warn("Failed to load image:", url, err); }
     }));
 
     // Draw everything directly on canvas (avoids SVG-as-image taint issues)
@@ -728,7 +742,7 @@ function SubtreeView({ subtree, onClose }) {
         const imgH = 16 * scale;
         ctx.save();
         ctx.beginPath();
-        ctx.roundRect(imgX, imgY, imgW, imgH, 3 * scale);
+        traceRoundedRect(ctx, imgX, imgY, imgW, imgH, 3 * scale);
         ctx.clip();
         ctx.drawImage(bitmap, imgX, imgY, imgW, imgH);
         ctx.restore();
@@ -759,7 +773,7 @@ function SubtreeView({ subtree, onClose }) {
           const imgH = legendImgSize * scale;
           ctx.save();
           ctx.beginPath();
-          ctx.roundRect(imgX, ry, imgW, imgH, 3 * scale);
+          traceRoundedRect(ctx, imgX, ry, imgW, imgH, 3 * scale);
           ctx.clip();
           ctx.drawImage(bitmap, imgX, ry, imgW, imgH);
           ctx.restore();
