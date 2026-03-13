@@ -755,6 +755,7 @@ h2 {
 }
 .maze-legend-name {
   white-space: nowrap;
+  text-transform: capitalize;
 }
 
 /* ------ Form error ------ */

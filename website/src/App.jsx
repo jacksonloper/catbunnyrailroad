@@ -4,6 +4,11 @@ import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
 import "./App.css";
 
+/** Capitalize the first letter of each word (mirrors CSS text-transform:capitalize) */
+function capitalize(str) {
+  return str.replace(/\b\w/g, (ch) => ch.toUpperCase());
+}
+
 // ---------------------------------------------------------------------------
 // Tree utilities – work with the compact tree JSON
 // ---------------------------------------------------------------------------
@@ -586,7 +591,7 @@ function SubtreeView({ subtree, onClose }) {
         } else {
           lines.push(`<circle cx="${4 + legendImgSize / 2}" cy="${ry + legendImgSize / 2}" r="5" fill="#e07020"/>`);
         }
-        const displayName = e.label ? `${e.label} – ${e.name}` : e.name;
+        const displayName = e.label ? `${e.label} – ${capitalize(e.name)}` : capitalize(e.name);
         lines.push(`<text x="${4 + legendImgSize + 6}" y="${ry + legendImgSize / 2}" dominant-baseline="central" font-size="11" fill="#333" font-family="sans-serif">${displayName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
       }
     }
@@ -783,7 +788,7 @@ function SubtreeView({ subtree, onClose }) {
           ctx.arc((4 + legendImgSize / 2) * scale, ry + (legendImgSize / 2) * scale, 5 * scale, 0, 2 * Math.PI);
           ctx.fill();
         }
-        const displayName = e.label ? `${e.label} \u2013 ${e.name}` : e.name;
+        const displayName = e.label ? `${e.label} \u2013 ${capitalize(e.name)}` : capitalize(e.name);
         ctx.font = `${11 * scale}px sans-serif`;
         ctx.fillStyle = "#333";
         ctx.textBaseline = "middle";
