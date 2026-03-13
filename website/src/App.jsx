@@ -9,6 +9,20 @@ function capitalize(str) {
   return str.replace(/\b\w/g, (ch) => ch.toUpperCase());
 }
 
+/** Draw a rounded rect path on a Canvas 2D context (cross-browser, avoids ctx.roundRect) */
+function traceRoundedRect(ctx, x, y, w, h, r) {
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
 // ---------------------------------------------------------------------------
 // Tree utilities – work with the compact tree JSON
 // ---------------------------------------------------------------------------
@@ -306,6 +320,7 @@ function SubtreeView({ subtree, onClose }) {
   const [copiedJson, setCopiedJson] = useState(false);
   const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
   const [showMaze, setShowMaze] = useState(false);
+  const [showUniqNames, setShowUniqNames] = useState(false);
   const defaultMazeSize = useMemo(() => {
     const n = countTreeNodes(subtree);
     // Heuristic: grid needs ~3× the tree nodes to have room for paths
@@ -317,6 +332,7 @@ function SubtreeView({ subtree, onClose }) {
   const [mazeLoading, setMazeLoading] = useState(false);
   const [mazeWallView, setMazeWallView] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
+  const treeSvgRef = useRef(null);
   const workerRef = useRef(null);
 
   // Cancel any in-flight worker
@@ -327,6 +343,15 @@ function SubtreeView({ subtree, onClose }) {
     }
     setMazeLoading(false);
   }, []);
+
+  /** Return the display name for a taxon node, respecting the uniqname toggle */
+  function displayName(node) {
+    if (showUniqNames) {
+      const sp = taxaByOttId.get(node.ott_id);
+      if (sp?.uniqname) return sp.uniqname;
+    }
+    return node.name;
+  }
 
   // Start a maze attempt: generate random spanning tree + check embedding
   const handleTryMaze = useCallback(() => {
@@ -373,7 +398,7 @@ function SubtreeView({ subtree, onClose }) {
   const pxPerChar = 7;      // approximate character width for label measurement
   const starPad = 30;       // extra right padding for comment stars
   // Measure longest label to set SVG width
-  const maxLabelLen = taxaNodes.length > 0 ? Math.max(...taxaNodes.map((l) => l.node.name.length)) : 0;
+  const maxLabelLen = taxaNodes.length > 0 ? Math.max(...taxaNodes.map((l) => displayName(l.node).length)) : 0;
   const rightPad = maxLabelLen * pxPerChar + imgSize + labelOffset + starPad;
   const svgWidth = (layout.depth + 1) * layout.hSpacing + rightPad;
   const svgHeight = layout.leafCount * layout.vSpacing;
@@ -412,6 +437,106 @@ function SubtreeView({ subtree, onClose }) {
       setCopiedJson(true);
       setTimeout(() => setCopiedJson(false), 2000);
     });
+  }
+
+  async function handleSaveTreePng() {
+    const svgEl = treeSvgRef.current;
+    if (!svgEl) return;
+
+    // Use the same dimensions as the on-screen SVG
+    const vbParts = svgEl.getAttribute("viewBox").split(/\s+/).map(Number);
+    const vbX = vbParts[0], vbY = vbParts[1], vbW = vbParts[2], vbH = vbParts[3];
+
+    // 300 DPI × 8.5 inches = 2550 px on the long side
+    const printPx = 2550;
+    const scale = printPx / Math.max(vbW, vbH);
+    const canvasW = Math.round(vbW * scale);
+    const canvasH = Math.round(vbH * scale);
+
+    // Fetch unique images
+    const uniqueUrls = new Set();
+    for (const l of taxaNodes) {
+      const sp = taxaByOttId.get(l.node.ott_id);
+      if (sp?.image_url) uniqueUrls.add(sp.image_url);
+    }
+    const bitmaps = new Map();
+    await Promise.all([...uniqueUrls].map(async (url) => {
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        const bitmap = await createImageBitmap(blob);
+        bitmaps.set(url, bitmap);
+      } catch (err) { console.warn("Failed to load image:", url, err); }
+    }));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+    const ctx = canvas.getContext("2d");
+
+    // White background
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    // Translate so viewBox origin is at (0,0) on canvas
+    ctx.save();
+    ctx.translate(-vbX * scale, -vbY * scale);
+
+    // Draw edges
+    ctx.strokeStyle = "#666";
+    ctx.lineWidth = 1.5 * scale;
+    for (const e of layout.edges) {
+      ctx.beginPath();
+      ctx.moveTo(e.x1 * scale, e.y1 * scale);
+      ctx.lineTo(e.x2 * scale, e.y2 * scale);
+      ctx.stroke();
+    }
+
+    // Draw taxa labels and images
+    for (const l of taxaNodes) {
+      const sp = taxaByOttId.get(l.node.ott_id);
+      const dn = displayName(l.node);
+
+      // Draw image if available
+      if (sp?.image_url) {
+        const bitmap = bitmaps.get(sp.image_url);
+        if (bitmap) {
+          const imgX = (l.x + labelOffset) * scale;
+          const imgY = (l.y - imgSize / 2) * scale;
+          const imgW = imgSize * scale;
+          const imgH = imgSize * scale;
+          ctx.save();
+          ctx.beginPath();
+          traceRoundedRect(ctx, imgX, imgY, imgW, imgH, 4 * scale);
+          ctx.clip();
+          ctx.drawImage(bitmap, imgX, imgY, imgW, imgH);
+          ctx.restore();
+        }
+      }
+
+      // Draw label
+      const textX = (l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0)) * scale;
+      const textY = l.y * scale;
+      ctx.font = `600 ${0.85 * 16 * scale}px sans-serif`;
+      ctx.fillStyle = "#222";
+      ctx.textBaseline = "middle";
+      ctx.fillText(showUniqNames ? dn : capitalize(dn), textX, textY);
+    }
+
+    ctx.restore();
+
+    canvas.toBlob((pngBlob) => {
+      if (!pngBlob) return;
+      const url = URL.createObjectURL(pngBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tree.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, "image/png");
   }
 
   const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
@@ -465,7 +590,7 @@ function SubtreeView({ subtree, onClose }) {
     // Gather entries with image URLs
     const entries = taxaPlacements.map((p) => {
       const sp = taxaByOttId.get(p.node.ott_id);
-      return { name: p.node.name, imageUrl: sp?.image_url || null, ottId: p.node.ott_id };
+      return { name: displayName(p.node), imageUrl: sp?.image_url || null, ottId: p.node.ott_id };
     });
 
     // Detect duplicated image URLs
@@ -591,7 +716,8 @@ function SubtreeView({ subtree, onClose }) {
         } else {
           lines.push(`<circle cx="${4 + legendImgSize / 2}" cy="${ry + legendImgSize / 2}" r="5" fill="#e07020"/>`);
         }
-        const displayName = e.label ? `${e.label} – ${capitalize(e.name)}` : capitalize(e.name);
+        const capName = showUniqNames ? e.name : capitalize(e.name);
+        const displayName = e.label ? `${e.label} – ${capName}` : capName;
         lines.push(`<text x="${4 + legendImgSize + 6}" y="${ry + legendImgSize / 2}" dominant-baseline="central" font-size="11" fill="#333" font-family="sans-serif">${displayName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
       }
     }
@@ -641,20 +767,6 @@ function SubtreeView({ subtree, onClose }) {
 
   async function handleSaveMazePng() {
     if (!mazeData) return;
-
-    // Helper: draw a rounded rect path (cross-browser, avoids ctx.roundRect)
-    function traceRoundedRect(ctx, x, y, w, h, r) {
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.arcTo(x + w, y, x + w, y + r, r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
-      ctx.lineTo(x + r, y + h);
-      ctx.arcTo(x, y + h, x, y + h - r, r);
-      ctx.lineTo(x, y + r);
-      ctx.arcTo(x, y, x + r, y, r);
-      ctx.closePath();
-    }
 
     const cellSize = 20;
 
@@ -788,7 +900,8 @@ function SubtreeView({ subtree, onClose }) {
           ctx.arc((4 + legendImgSize / 2) * scale, ry + (legendImgSize / 2) * scale, 5 * scale, 0, 2 * Math.PI);
           ctx.fill();
         }
-        const displayName = e.label ? `${e.label} \u2013 ${capitalize(e.name)}` : capitalize(e.name);
+        const capName = showUniqNames ? e.name : capitalize(e.name);
+        const displayName = e.label ? `${e.label} \u2013 ${capName}` : capName;
         ctx.font = `${11 * scale}px sans-serif`;
         ctx.fillStyle = "#333";
         ctx.textBaseline = "middle";
@@ -881,6 +994,14 @@ function SubtreeView({ subtree, onClose }) {
                   Legend
                 </label>
               )}
+              <label className="maze-size-label">
+                <input
+                  type="checkbox"
+                  checked={showUniqNames}
+                  onChange={(e) => setShowUniqNames(e.target.checked)}
+                />
+                Unique names
+              </label>
               <button className="subtree-close" aria-label="Close" onClick={onClose}>✕</button>
             </div>
           </div>
@@ -978,7 +1099,7 @@ function SubtreeView({ subtree, onClose }) {
                         ) : (
                           <span className="maze-legend-circle" />
                         )}
-                        <span className="maze-legend-name">{e.label ? `${e.label} – ${e.name}` : e.name}</span>
+                        <span className="maze-legend-name" style={showUniqNames ? { textTransform: "none" } : undefined}>{e.label ? `${e.label} – ${e.name}` : e.name}</span>
                       </div>
                     ))}
                   </div>
@@ -1020,11 +1141,27 @@ function SubtreeView({ subtree, onClose }) {
             >
               🔲 Maze
             </button>
+            <button
+              className="subtree-copy-btn"
+              onClick={handleSaveTreePng}
+              title="Save tree as high-resolution PNG"
+            >
+              💾 PNG
+            </button>
+            <label className="maze-size-label">
+              <input
+                type="checkbox"
+                checked={showUniqNames}
+                onChange={(e) => setShowUniqNames(e.target.checked)}
+              />
+              Unique names
+            </label>
             <button className="subtree-close" aria-label="Close subtree view" onClick={onClose}>✕</button>
           </div>
         </div>
         <div className="subtree-content">
           <svg
+            ref={treeSvgRef}
             className="subtree-svg"
             width={svgWidth}
             height={svgHeight + 10}
@@ -1045,7 +1182,8 @@ function SubtreeView({ subtree, onClose }) {
             {/* Taxa labels (leaves and internal taxa) */}
             {taxaNodes.map((l) => {
               const sp = taxaByOttId.get(l.node.ott_id);
-              const starX = l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + l.node.name.length * pxPerChar + 4;
+              const dn = displayName(l.node);
+              const starX = l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + dn.length * pxPerChar + 4;
               return (
                 <g key={l.node.ott_id ?? l.node.name}>
                   {sp?.image_url && (
@@ -1063,8 +1201,9 @@ function SubtreeView({ subtree, onClose }) {
                     y={l.y}
                     dominantBaseline="central"
                     className="subtree-leaf-label"
+                    style={showUniqNames ? { textTransform: "none" } : undefined}
                   >
-                    {l.node.name}
+                    {dn}
                   </text>
                   {sp?.comments && (
                     <text

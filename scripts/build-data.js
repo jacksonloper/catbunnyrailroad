@@ -391,6 +391,9 @@ async function main() {
       ott_id: Number(t.ott_id),
       image_url: resolveImageUrl(t.ott_id, t.image_url),
     };
+    if (t.uniqname) {
+      entry.uniqname = t.uniqname;
+    }
     if (t.comments) {
       entry.comments = t.comments;
     }
