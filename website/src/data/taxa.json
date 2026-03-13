@@ -1417,5 +1417,41 @@
     "ott_id": 759861,
     "image_url": "/taxa-images/759861.jpg",
     "uniqname": "Noctilionidae"
+  },
+  {
+    "name": "slit-faced bat",
+    "ott_id": 1018272,
+    "image_url": "/taxa-images/1018272.jpg",
+    "uniqname": "Nycteridae"
+  },
+  {
+    "name": "New Zealand short-tailed bat",
+    "ott_id": 759857,
+    "image_url": "/taxa-images/759857.jpg",
+    "uniqname": "Mystacinidae"
+  },
+  {
+    "name": "sucker-footed bat",
+    "ott_id": 6788,
+    "image_url": "/taxa-images/6788.jpg",
+    "uniqname": "Myzopodidae"
+  },
+  {
+    "name": "wing-gland bat",
+    "ott_id": 533619,
+    "image_url": "/taxa-images/533619.jpg",
+    "uniqname": "Cistugo"
+  },
+  {
+    "name": "long-fingered bat",
+    "ott_id": 238423,
+    "image_url": "/taxa-images/238423.jpg",
+    "uniqname": "Miniopterus"
+  },
+  {
+    "name": "trident bat",
+    "ott_id": 221784,
+    "image_url": "/taxa-images/221784.jpg",
+    "uniqname": "Triaenops"
   }
 ]
