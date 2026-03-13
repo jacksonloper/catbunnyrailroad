@@ -724,6 +724,40 @@ h2 {
   border-color: #e55;
 }
 
+/* ------ Maze legend ------ */
+
+.maze-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.85rem;
+}
+.maze-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.maze-legend-img {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.maze-legend-circle {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e07020;
+  flex-shrink: 0;
+}
+.maze-legend-name {
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
 /* ------ Form error ------ */
 
 .form-error {

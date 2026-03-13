@@ -2,1184 +2,1420 @@
   {
     "name": "cat",
     "ott_id": 563166,
-    "image_url": "/taxa-images/563166.jpg"
+    "image_url": "/taxa-images/563166.jpg",
+    "uniqname": "Felis catus"
   },
   {
     "name": "wolf and dog",
     "ott_id": 247341,
-    "image_url": "/taxa-images/247341.jpg"
+    "image_url": "/taxa-images/247341.jpg",
+    "uniqname": "Canis lupus"
   },
   {
     "name": "rabbit",
     "ott_id": 864596,
-    "image_url": "/taxa-images/864596.jpg"
+    "image_url": "/taxa-images/864596.jpg",
+    "uniqname": "Oryctolagus cuniculus"
   },
   {
     "name": "horse",
     "ott_id": 1068218,
-    "image_url": "/taxa-images/1068218.jpg"
+    "image_url": "/taxa-images/1068218.jpg",
+    "uniqname": "Equus caballus"
   },
   {
     "name": "cow",
     "ott_id": 490099,
-    "image_url": "/taxa-images/490099.jpg"
+    "image_url": "/taxa-images/490099.jpg",
+    "uniqname": "Bos taurus"
   },
   {
     "name": "chicken",
     "ott_id": 153563,
-    "image_url": "/taxa-images/153563.jpg"
+    "image_url": "/taxa-images/153563.jpg",
+    "uniqname": "Gallus gallus"
   },
   {
     "name": "mallard",
     "ott_id": 765167,
-    "image_url": "/taxa-images/765167.jpg"
+    "image_url": "/taxa-images/765167.jpg",
+    "uniqname": "Anas platyrhynchos"
   },
   {
     "name": "frog and toad",
     "ott_id": 991547,
-    "image_url": "/taxa-images/991547.jpg"
+    "image_url": "/taxa-images/991547.jpg",
+    "uniqname": "Anura"
   },
   {
     "name": "swallowtail butterfly",
     "ott_id": 661439,
     "image_url": "/taxa-images/661439.jpg",
+    "uniqname": "Papilionidae",
     "comments": "Swallowtail butterflies (Papilionidae) are one family of true butterflies within the order Lepidoptera."
   },
   {
     "name": "sunflower",
     "ott_id": 515712,
-    "image_url": "/taxa-images/515712.jpg"
+    "image_url": "/taxa-images/515712.jpg",
+    "uniqname": "Helianthus annuus"
   },
   {
     "name": "rose",
     "ott_id": 259066,
-    "image_url": "/taxa-images/259066.jpg"
+    "image_url": "/taxa-images/259066.jpg",
+    "uniqname": "Rosa"
   },
   {
     "name": "dolphin",
     "ott_id": 698406,
-    "image_url": "/taxa-images/698406.jpg"
+    "image_url": "/taxa-images/698406.jpg",
+    "uniqname": "Delphinidae"
   },
   {
     "name": "elephant",
     "ott_id": 541924,
-    "image_url": "/taxa-images/541924.jpg"
+    "image_url": "/taxa-images/541924.jpg",
+    "uniqname": "Elephantidae"
   },
   {
     "name": "lion",
     "ott_id": 563151,
-    "image_url": "/taxa-images/563151.jpg"
+    "image_url": "/taxa-images/563151.jpg",
+    "uniqname": "Panthera leo"
   },
   {
     "name": "brown bear",
     "ott_id": 872567,
-    "image_url": "/taxa-images/872567.jpg"
+    "image_url": "/taxa-images/872567.jpg",
+    "uniqname": "Ursus arctos"
   },
   {
     "name": "pig and wild boar",
     "ott_id": 730013,
-    "image_url": "/taxa-images/730013.jpg"
+    "image_url": "/taxa-images/730013.jpg",
+    "uniqname": "Sus scrofa"
   },
   {
     "name": "sheep",
     "ott_id": 70819,
-    "image_url": "/taxa-images/70819.jpg"
+    "image_url": "/taxa-images/70819.jpg",
+    "uniqname": "Ovis aries"
   },
   {
     "name": "goat",
     "ott_id": 19017,
-    "image_url": "/taxa-images/19017.jpg"
+    "image_url": "/taxa-images/19017.jpg",
+    "uniqname": "Capra hircus (species in domain Eukaryota)"
   },
   {
     "name": "mouse",
     "ott_id": 542509,
-    "image_url": "/taxa-images/542509.jpg"
+    "image_url": "/taxa-images/542509.jpg",
+    "uniqname": "Mus musculus"
   },
   {
     "name": "rat",
     "ott_id": 271555,
-    "image_url": "/taxa-images/271555.jpg"
+    "image_url": "/taxa-images/271555.jpg",
+    "uniqname": "Rattus norvegicus"
   },
   {
     "name": "hamster",
     "ott_id": 391631,
-    "image_url": "/taxa-images/391631.jpg"
+    "image_url": "/taxa-images/391631.jpg",
+    "uniqname": "Mesocricetus auratus"
   },
   {
     "name": "guinea pig",
     "ott_id": 744000,
-    "image_url": "/taxa-images/744000.jpg"
+    "image_url": "/taxa-images/744000.jpg",
+    "uniqname": "Cavia porcellus"
   },
   {
     "name": "giraffe",
     "ott_id": 768674,
-    "image_url": "/taxa-images/768674.jpg"
+    "image_url": "/taxa-images/768674.jpg",
+    "uniqname": "Giraffa camelopardalis"
   },
   {
     "name": "plains zebra",
     "ott_id": 124776,
-    "image_url": "/taxa-images/124776.jpg"
+    "image_url": "/taxa-images/124776.jpg",
+    "uniqname": "Equus burchellii quagga"
   },
   {
     "name": "hippopotamus",
     "ott_id": 510762,
-    "image_url": "/taxa-images/510762.jpg"
+    "image_url": "/taxa-images/510762.jpg",
+    "uniqname": "Hippopotamus amphibius"
   },
   {
     "name": "rhinoceros",
     "ott_id": 1034218,
-    "image_url": "/taxa-images/1034218.jpg"
+    "image_url": "/taxa-images/1034218.jpg",
+    "uniqname": "Rhinocerotidae"
   },
   {
     "name": "western gorilla",
     "ott_id": 417965,
-    "image_url": "/taxa-images/417965.jpg"
+    "image_url": "/taxa-images/417965.jpg",
+    "uniqname": "Gorilla gorilla"
   },
   {
     "name": "chimpanzee",
     "ott_id": 417950,
-    "image_url": "/taxa-images/417950.jpg"
+    "image_url": "/taxa-images/417950.jpg",
+    "uniqname": "Pan troglodytes"
   },
   {
     "name": "Bornean orangutan",
     "ott_id": 770302,
-    "image_url": "/taxa-images/770302.jpg"
+    "image_url": "/taxa-images/770302.jpg",
+    "uniqname": "Pongo pygmaeus"
   },
   {
     "name": "tiger",
     "ott_id": 42314,
-    "image_url": "/taxa-images/42314.jpg"
+    "image_url": "/taxa-images/42314.jpg",
+    "uniqname": "Panthera tigris"
   },
   {
     "name": "leopard",
     "ott_id": 42324,
-    "image_url": "/taxa-images/42324.jpg"
+    "image_url": "/taxa-images/42324.jpg",
+    "uniqname": "Panthera pardus"
   },
   {
     "name": "cheetah",
     "ott_id": 752759,
-    "image_url": "/taxa-images/752759.jpg"
+    "image_url": "/taxa-images/752759.jpg",
+    "uniqname": "Acinonyx jubatus"
   },
   {
     "name": "red fox",
     "ott_id": 821964,
-    "image_url": "/taxa-images/821964.jpg"
+    "image_url": "/taxa-images/821964.jpg",
+    "uniqname": "Vulpes vulpes"
   },
   {
     "name": "deer",
     "ott_id": 460505,
-    "image_url": "/taxa-images/460505.jpg"
+    "image_url": "/taxa-images/460505.jpg",
+    "uniqname": "Cervidae"
   },
   {
     "name": "moose",
     "ott_id": 460509,
-    "image_url": "/taxa-images/460509.jpg"
+    "image_url": "/taxa-images/460509.jpg",
+    "uniqname": "Alces alces"
   },
   {
     "name": "camel",
     "ott_id": 510767,
-    "image_url": "/taxa-images/510767.jpg"
+    "image_url": "/taxa-images/510767.jpg",
+    "uniqname": "Camelus"
   },
   {
     "name": "llama",
     "ott_id": 986973,
-    "image_url": "/taxa-images/986973.jpg"
+    "image_url": "/taxa-images/986973.jpg",
+    "uniqname": "Lama glama"
   },
   {
     "name": "koala",
     "ott_id": 327624,
-    "image_url": "/taxa-images/327624.jpg"
+    "image_url": "/taxa-images/327624.jpg",
+    "uniqname": "Phascolarctos cinereus"
   },
   {
     "name": "panda",
     "ott_id": 872573,
-    "image_url": "/taxa-images/872573.jpg"
+    "image_url": "/taxa-images/872573.jpg",
+    "uniqname": "Ailuropoda melanoleuca"
   },
   {
     "name": "polar bear",
     "ott_id": 10732,
-    "image_url": "/taxa-images/10732.jpg"
+    "image_url": "/taxa-images/10732.jpg",
+    "uniqname": "Ursus maritimus"
   },
   {
     "name": "bat",
     "ott_id": 574724,
-    "image_url": "/taxa-images/574724.jpg"
+    "image_url": "/taxa-images/574724.jpg",
+    "uniqname": "Chiroptera"
   },
   {
     "name": "true seal",
     "ott_id": 749626,
     "image_url": "/taxa-images/749626.jpg",
+    "uniqname": "Phocidae",
     "comments": "Phocidae are the true (earless) seals. This does not include sea lions or fur seals, which belong to Otariidae."
   },
   {
     "name": "Eurasian otter",
     "ott_id": 348036,
-    "image_url": "/taxa-images/348036.jpg"
+    "image_url": "/taxa-images/348036.jpg",
+    "uniqname": "Lutra lutra"
   },
   {
     "name": "beaver",
     "ott_id": 1048190,
-    "image_url": "/taxa-images/1048190.jpg"
+    "image_url": "/taxa-images/1048190.jpg",
+    "uniqname": "Castor"
   },
   {
     "name": "squirrel family",
     "ott_id": 384218,
-    "image_url": "/taxa-images/384218.jpg"
+    "image_url": "/taxa-images/384218.jpg",
+    "uniqname": "Sciuridae"
   },
   {
     "name": "raccoon",
     "ott_id": 348040,
-    "image_url": "/taxa-images/348040.jpg"
+    "image_url": "/taxa-images/348040.jpg",
+    "uniqname": "Procyon lotor"
   },
   {
     "name": "skunk",
     "ott_id": 231602,
-    "image_url": "/taxa-images/231602.jpg"
+    "image_url": "/taxa-images/231602.jpg",
+    "uniqname": "Mephitis mephitis"
   },
   {
     "name": "hedgehog",
     "ott_id": 796660,
-    "image_url": "/taxa-images/796660.jpg"
+    "image_url": "/taxa-images/796660.jpg",
+    "uniqname": "Erinaceus europaeus"
   },
   {
     "name": "porcupine",
     "ott_id": 848921,
-    "image_url": "/taxa-images/848921.jpg"
+    "image_url": "/taxa-images/848921.jpg",
+    "uniqname": "Erethizon dorsatum"
   },
   {
     "name": "armadillo",
     "ott_id": 796672,
-    "image_url": "/taxa-images/796672.jpg"
+    "image_url": "/taxa-images/796672.jpg",
+    "uniqname": "Dasypus novemcinctus"
   },
   {
     "name": "sloth",
     "ott_id": 495015,
-    "image_url": "/taxa-images/495015.jpg"
+    "image_url": "/taxa-images/495015.jpg",
+    "uniqname": "Folivora"
   },
   {
     "name": "monkey and ape",
     "ott_id": 386195,
-    "image_url": "/taxa-images/386195.jpg"
+    "image_url": "/taxa-images/386195.jpg",
+    "uniqname": "Simiiformes"
   },
   {
     "name": "lemur",
     "ott_id": 702142,
-    "image_url": "/taxa-images/702142.jpg"
+    "image_url": "/taxa-images/702142.jpg",
+    "uniqname": "Lemuriformes"
   },
   {
     "name": "jaguar",
     "ott_id": 42322,
-    "image_url": "/taxa-images/42322.jpg"
+    "image_url": "/taxa-images/42322.jpg",
+    "uniqname": "Panthera onca"
   },
   {
     "name": "hyena",
     "ott_id": 397157,
-    "image_url": "/taxa-images/397157.jpg"
+    "image_url": "/taxa-images/397157.jpg",
+    "uniqname": "Crocuta crocuta"
   },
   {
     "name": "meerkat",
     "ott_id": 803645,
-    "image_url": "/taxa-images/803645.jpg"
+    "image_url": "/taxa-images/803645.jpg",
+    "uniqname": "Suricata suricatta"
   },
   {
     "name": "wombat",
     "ott_id": 835328,
-    "image_url": "/taxa-images/835328.jpg"
+    "image_url": "/taxa-images/835328.jpg",
+    "uniqname": "Vombatus ursinus"
   },
   {
     "name": "platypus",
     "ott_id": 962377,
-    "image_url": "/taxa-images/962377.jpg"
+    "image_url": "/taxa-images/962377.jpg",
+    "uniqname": "Ornithorhynchus anatinus"
   },
   {
     "name": "narwhal",
     "ott_id": 306757,
-    "image_url": "/taxa-images/306757.jpg"
+    "image_url": "/taxa-images/306757.jpg",
+    "uniqname": "Monodon monoceros"
   },
   {
     "name": "walrus",
     "ott_id": 749644,
-    "image_url": "/taxa-images/749644.jpg"
+    "image_url": "/taxa-images/749644.jpg",
+    "uniqname": "Odobenus rosmarus"
   },
   {
     "name": "manatee",
     "ott_id": 226189,
-    "image_url": "/taxa-images/226189.jpg"
+    "image_url": "/taxa-images/226189.jpg",
+    "uniqname": "Trichechus"
   },
   {
     "name": "flying squirrel",
     "ott_id": 23775,
-    "image_url": "/taxa-images/23775.jpg"
+    "image_url": "/taxa-images/23775.jpg",
+    "uniqname": "Pteromyini"
   },
   {
     "name": "shark",
     "ott_id": 78477,
-    "image_url": "/taxa-images/78477.jpg"
+    "image_url": "/taxa-images/78477.jpg",
+    "uniqname": "Selachii"
   },
   {
     "name": "octopus",
     "ott_id": 478542,
-    "image_url": "/taxa-images/478542.jpg"
+    "image_url": "/taxa-images/478542.jpg",
+    "uniqname": "Octopoda"
   },
   {
     "name": "squid and cuttlefish",
     "ott_id": 854107,
-    "image_url": "/taxa-images/854107.jpg"
+    "image_url": "/taxa-images/854107.jpg",
+    "uniqname": "Decapodiformes"
   },
   {
     "name": "true jellyfish",
     "ott_id": 983579,
-    "image_url": "/taxa-images/983579.jpg"
+    "image_url": "/taxa-images/983579.jpg",
+    "uniqname": "Scyphozoa"
   },
   {
     "name": "starfish",
     "ott_id": 451009,
-    "image_url": "/taxa-images/451009.jpg"
+    "image_url": "/taxa-images/451009.jpg",
+    "uniqname": "Asteroidea"
   },
   {
     "name": "true crab",
     "ott_id": 935379,
-    "image_url": "/taxa-images/935379.jpg"
+    "image_url": "/taxa-images/935379.jpg",
+    "uniqname": "Brachyura (infraorder in Protostomia)"
   },
   {
     "name": "seahorse",
     "ott_id": 1007058,
-    "image_url": "/taxa-images/1007058.jpg"
+    "image_url": "/taxa-images/1007058.jpg",
+    "uniqname": "Hippocampus"
   },
   {
     "name": "clownfish",
     "ott_id": 674643,
-    "image_url": "/taxa-images/674643.jpg"
+    "image_url": "/taxa-images/674643.jpg",
+    "uniqname": "Amphiprion ocellaris"
   },
   {
     "name": "sea turtle",
     "ott_id": 243396,
-    "image_url": "/taxa-images/243396.jpg"
+    "image_url": "/taxa-images/243396.jpg",
+    "uniqname": "Chelonioidea"
   },
   {
     "name": "pufferfish",
     "ott_id": 65336,
-    "image_url": "/taxa-images/65336.jpg"
+    "image_url": "/taxa-images/65336.jpg",
+    "uniqname": "Tetraodontidae"
   },
   {
     "name": "swordfish",
     "ott_id": 358621,
-    "image_url": "/taxa-images/358621.jpg"
+    "image_url": "/taxa-images/358621.jpg",
+    "uniqname": "Xiphias gladius"
   },
   {
     "name": "anglerfish",
     "ott_id": 583640,
-    "image_url": "/taxa-images/583640.jpg"
+    "image_url": "/taxa-images/583640.jpg",
+    "uniqname": "Lophiiformes"
   },
   {
     "name": "human",
     "ott_id": 770315,
-    "image_url": "/taxa-images/770315.jpg"
+    "image_url": "/taxa-images/770315.jpg",
+    "uniqname": "Homo sapiens"
   },
   {
     "name": "goldfish",
     "ott_id": 1005907,
-    "image_url": "/taxa-images/1005907.jpg"
+    "image_url": "/taxa-images/1005907.jpg",
+    "uniqname": "Carassius auratus"
   },
   {
     "name": "turkey",
     "ott_id": 446482,
-    "image_url": "/taxa-images/446482.jpg"
+    "image_url": "/taxa-images/446482.jpg",
+    "uniqname": "Meleagris gallopavo"
   },
   {
     "name": "greylag goose",
     "ott_id": 190887,
-    "image_url": "/taxa-images/190887.jpg"
+    "image_url": "/taxa-images/190887.jpg",
+    "uniqname": "Anser anser"
   },
   {
     "name": "African gray parrot",
     "ott_id": 285641,
-    "image_url": "/taxa-images/285641.jpg"
+    "image_url": "/taxa-images/285641.jpg",
+    "uniqname": "Psittacus erithacus"
   },
   {
     "name": "emperor penguin",
     "ott_id": 494370,
-    "image_url": "/taxa-images/494370.jpg"
+    "image_url": "/taxa-images/494370.jpg",
+    "uniqname": "Aptenodytes forsteri"
   },
   {
     "name": "Eurasian eagle-owl",
     "ott_id": 402453,
-    "image_url": "/taxa-images/402453.jpg"
+    "image_url": "/taxa-images/402453.jpg",
+    "uniqname": "Bubo bubo"
   },
   {
     "name": "bald eagle",
     "ott_id": 1012350,
-    "image_url": "/taxa-images/1012350.jpg"
+    "image_url": "/taxa-images/1012350.jpg",
+    "uniqname": "Haliaeetus leucocephalus"
   },
   {
     "name": "peacock",
     "ott_id": 453575,
-    "image_url": "/taxa-images/453575.jpg"
+    "image_url": "/taxa-images/453575.jpg",
+    "uniqname": "Pavo cristatus"
   },
   {
     "name": "flamingo",
     "ott_id": 595567,
-    "image_url": "/taxa-images/595567.jpg"
+    "image_url": "/taxa-images/595567.jpg",
+    "uniqname": "Phoenicopterus roseus"
   },
   {
     "name": "American crow",
     "ott_id": 331952,
-    "image_url": "/taxa-images/331952.jpg"
+    "image_url": "/taxa-images/331952.jpg",
+    "uniqname": "Corvus brachyrhynchos"
   },
   {
     "name": "European robin",
     "ott_id": 507122,
-    "image_url": "/taxa-images/507122.jpg"
+    "image_url": "/taxa-images/507122.jpg",
+    "uniqname": "Erithacus rubecula"
   },
   {
     "name": "ball python",
     "ott_id": 737820,
-    "image_url": "/taxa-images/737820.jpg"
+    "image_url": "/taxa-images/737820.jpg",
+    "uniqname": "Python regius"
   },
   {
     "name": "green iguana",
     "ott_id": 608972,
-    "image_url": "/taxa-images/608972.jpg"
+    "image_url": "/taxa-images/608972.jpg",
+    "uniqname": "Iguana iguana"
   },
   {
     "name": "crocodile",
     "ott_id": 35864,
-    "image_url": "/taxa-images/35864.jpg"
+    "image_url": "/taxa-images/35864.jpg",
+    "uniqname": "Crocodylus niloticus"
   },
   {
     "name": "alligator",
     "ott_id": 335590,
-    "image_url": "/taxa-images/335590.jpg"
+    "image_url": "/taxa-images/335590.jpg",
+    "uniqname": "Alligator mississippiensis"
   },
   {
     "name": "Greek tortoise",
     "ott_id": 207423,
-    "image_url": "/taxa-images/207423.jpg"
+    "image_url": "/taxa-images/207423.jpg",
+    "uniqname": "Testudo graeca"
   },
   {
     "name": "common chameleon",
     "ott_id": 824527,
-    "image_url": "/taxa-images/824527.jpg"
+    "image_url": "/taxa-images/824527.jpg",
+    "uniqname": "Chamaeleo chamaeleon"
   },
   {
     "name": "tokay gecko",
     "ott_id": 953907,
-    "image_url": "/taxa-images/953907.jpg"
+    "image_url": "/taxa-images/953907.jpg",
+    "uniqname": "Gekko gecko"
   },
   {
     "name": "wood ant",
     "ott_id": 744114,
-    "image_url": "/taxa-images/744114.jpg"
+    "image_url": "/taxa-images/744114.jpg",
+    "uniqname": "Formica rufa"
   },
   {
     "name": "honey bee",
     "ott_id": 461645,
-    "image_url": "/taxa-images/461645.jpg"
+    "image_url": "/taxa-images/461645.jpg",
+    "uniqname": "Apis mellifera (species in domain Eukaryota)"
   },
   {
     "name": "seven-spot ladybug",
     "ott_id": 343294,
-    "image_url": "/taxa-images/343294.jpg"
+    "image_url": "/taxa-images/343294.jpg",
+    "uniqname": "Coccinella septempunctata"
   },
   {
     "name": "garden spider",
     "ott_id": 725241,
-    "image_url": "/taxa-images/725241.jpg"
+    "image_url": "/taxa-images/725241.jpg",
+    "uniqname": "Araneus diadematus"
   },
   {
     "name": "desert locust",
     "ott_id": 330338,
-    "image_url": "/taxa-images/330338.jpg"
+    "image_url": "/taxa-images/330338.jpg",
+    "uniqname": "Schistocerca gregaria"
   },
   {
     "name": "emperor dragonfly",
     "ott_id": 485521,
-    "image_url": "/taxa-images/485521.jpg"
+    "image_url": "/taxa-images/485521.jpg",
+    "uniqname": "Anax imperator"
   },
   {
     "name": "mosquito",
     "ott_id": 269666,
-    "image_url": "/taxa-images/269666.jpg"
+    "image_url": "/taxa-images/269666.jpg",
+    "uniqname": "Aedes aegypti"
   },
   {
     "name": "housefly",
     "ott_id": 1011010,
-    "image_url": "/taxa-images/1011010.jpg"
+    "image_url": "/taxa-images/1011010.jpg",
+    "uniqname": "Musca domestica"
   },
   {
     "name": "garden snail",
     "ott_id": 349699,
-    "image_url": "/taxa-images/349699.jpg"
+    "image_url": "/taxa-images/349699.jpg",
+    "uniqname": "Cornu aspersum"
   },
   {
     "name": "earthworm",
     "ott_id": 316441,
-    "image_url": "/taxa-images/316441.jpg"
+    "image_url": "/taxa-images/316441.jpg",
+    "uniqname": "Lumbricus terrestris"
   },
   {
     "name": "apple tree",
     "ott_id": 3902985,
-    "image_url": "/taxa-images/3902985.jpg"
+    "image_url": "/taxa-images/3902985.jpg",
+    "uniqname": "Malus domestica"
   },
   {
     "name": "banana",
     "ott_id": 207474,
-    "image_url": "/taxa-images/207474.jpg"
+    "image_url": "/taxa-images/207474.jpg",
+    "uniqname": "Musa acuminata"
   },
   {
     "name": "strawberry",
     "ott_id": 208027,
-    "image_url": "/taxa-images/208027.jpg"
+    "image_url": "/taxa-images/208027.jpg",
+    "uniqname": "Fragaria"
   },
   {
     "name": "blueberry",
     "ott_id": 567253,
-    "image_url": "/taxa-images/567253.jpg"
+    "image_url": "/taxa-images/567253.jpg",
+    "uniqname": "Vaccinium corymbosum"
   },
   {
     "name": "watermelon",
     "ott_id": 1006251,
-    "image_url": "/taxa-images/1006251.jpg"
+    "image_url": "/taxa-images/1006251.jpg",
+    "uniqname": "Citrullus lanatus"
   },
   {
     "name": "pumpkin",
     "ott_id": 379282,
-    "image_url": "/taxa-images/379282.jpg"
+    "image_url": "/taxa-images/379282.jpg",
+    "uniqname": "Cucurbita pepo"
   },
   {
     "name": "carrot",
     "ott_id": 372836,
-    "image_url": "/taxa-images/372836.jpg"
+    "image_url": "/taxa-images/372836.jpg",
+    "uniqname": "Daucus carota"
   },
   {
     "name": "tomato",
     "ott_id": 378964,
-    "image_url": "/taxa-images/378964.jpg"
+    "image_url": "/taxa-images/378964.jpg",
+    "uniqname": "Solanum lycopersicum"
   },
   {
     "name": "corn",
     "ott_id": 605194,
-    "image_url": "/taxa-images/605194.jpg"
+    "image_url": "/taxa-images/605194.jpg",
+    "uniqname": "Zea mays"
   },
   {
     "name": "Kentucky bluegrass",
     "ott_id": 1079463,
-    "image_url": "/taxa-images/1079463.jpg"
+    "image_url": "/taxa-images/1079463.jpg",
+    "uniqname": "Poa pratensis"
   },
   {
     "name": "saguaro cactus",
     "ott_id": 897402,
-    "image_url": "/taxa-images/897402.jpg"
+    "image_url": "/taxa-images/897402.jpg",
+    "uniqname": "Carnegiea gigantea"
   },
   {
     "name": "Scots pine",
     "ott_id": 568619,
-    "image_url": "/taxa-images/568619.jpg"
+    "image_url": "/taxa-images/568619.jpg",
+    "uniqname": "Pinus sylvestris"
   },
   {
     "name": "button mushroom",
     "ott_id": 564405,
-    "image_url": "/taxa-images/564405.jpg"
+    "image_url": "/taxa-images/564405.jpg",
+    "uniqname": "Agaricus bisporus"
   },
   {
     "name": "swan",
     "ott_id": 140314,
-    "image_url": "/taxa-images/140314.jpg"
+    "image_url": "/taxa-images/140314.jpg",
+    "uniqname": "Cygnus olor"
   },
   {
     "name": "yellowfin tuna",
     "ott_id": 833188,
-    "image_url": "/taxa-images/833188.jpg"
+    "image_url": "/taxa-images/833188.jpg",
+    "uniqname": "Thunnus albacares"
   },
   {
     "name": "Atlantic salmon",
     "ott_id": 688328,
-    "image_url": "/taxa-images/688328.jpg"
+    "image_url": "/taxa-images/688328.jpg",
+    "uniqname": "Salmo salar"
   },
   {
     "name": "killer whale",
     "ott_id": 124215,
-    "image_url": "/taxa-images/124215.jpg"
+    "image_url": "/taxa-images/124215.jpg",
+    "uniqname": "Orcinus orca"
   },
   {
     "name": "white shrimp",
     "ott_id": 169168,
-    "image_url": "/taxa-images/169168.jpg"
+    "image_url": "/taxa-images/169168.jpg",
+    "uniqname": "Penaeus vannamei"
   },
   {
     "name": "staghorn coral",
     "ott_id": 507951,
-    "image_url": "/taxa-images/507951.jpg"
+    "image_url": "/taxa-images/507951.jpg",
+    "uniqname": "Acropora cervicornis"
   },
   {
     "name": "pigeon",
     "ott_id": 938416,
-    "image_url": "/taxa-images/938416.jpg"
+    "image_url": "/taxa-images/938416.jpg",
+    "uniqname": "Columba livia"
   },
   {
     "name": "donkey",
     "ott_id": 519153,
-    "image_url": "/taxa-images/519153.jpg"
+    "image_url": "/taxa-images/519153.jpg",
+    "uniqname": "Equus asinus africanus"
   },
   {
     "name": "aardvark",
     "ott_id": 561087,
-    "image_url": "/taxa-images/561087.jpg"
+    "image_url": "/taxa-images/561087.jpg",
+    "uniqname": "Orycteropus afer"
   },
   {
     "name": "giant anteater",
     "ott_id": 490538,
-    "image_url": "/taxa-images/490538.jpg"
+    "image_url": "/taxa-images/490538.jpg",
+    "uniqname": "Myrmecophaga tridactyla"
   },
   {
     "name": "echidna",
     "ott_id": 16038,
-    "image_url": "/taxa-images/16038.jpg"
+    "image_url": "/taxa-images/16038.jpg",
+    "uniqname": "Tachyglossus aculeatus"
   },
   {
     "name": "tapir",
     "ott_id": 1034223,
-    "image_url": "/taxa-images/1034223.jpg"
+    "image_url": "/taxa-images/1034223.jpg",
+    "uniqname": "Tapirus terrestris"
   },
   {
     "name": "bison",
     "ott_id": 907693,
-    "image_url": "/taxa-images/907693.jpg"
+    "image_url": "/taxa-images/907693.jpg",
+    "uniqname": "Bison bison"
   },
   {
     "name": "red panda",
     "ott_id": 872562,
-    "image_url": "/taxa-images/872562.jpg"
+    "image_url": "/taxa-images/872562.jpg",
+    "uniqname": "Ailurus fulgens"
   },
   {
     "name": "weasel",
     "ott_id": 354525,
-    "image_url": "/taxa-images/354525.jpg"
+    "image_url": "/taxa-images/354525.jpg",
+    "uniqname": "Mustela nivalis"
   },
   {
     "name": "badger",
     "ott_id": 923113,
-    "image_url": "/taxa-images/923113.jpg"
+    "image_url": "/taxa-images/923113.jpg",
+    "uniqname": "Meles meles"
   },
   {
     "name": "opossum",
     "ott_id": 919171,
-    "image_url": "/taxa-images/919171.jpg"
+    "image_url": "/taxa-images/919171.jpg",
+    "uniqname": "Didelphis virginiana"
   },
   {
     "name": "capybara",
     "ott_id": 744018,
-    "image_url": "/taxa-images/744018.jpg"
+    "image_url": "/taxa-images/744018.jpg",
+    "uniqname": "Hydrochoerus hydrochaeris"
   },
   {
     "name": "ostrich",
     "ott_id": 647692,
-    "image_url": "/taxa-images/647692.jpg"
+    "image_url": "/taxa-images/647692.jpg",
+    "uniqname": "Struthio camelus"
   },
   {
     "name": "kiwi",
     "ott_id": 748998,
-    "image_url": "/taxa-images/748998.jpg"
+    "image_url": "/taxa-images/748998.jpg",
+    "uniqname": "Apteryx australis mantelli"
   },
   {
     "name": "pelican",
     "ott_id": 427899,
-    "image_url": "/taxa-images/427899.jpg"
+    "image_url": "/taxa-images/427899.jpg",
+    "uniqname": "Pelecanus onocrotalus"
   },
   {
     "name": "heron",
     "ott_id": 119222,
-    "image_url": "/taxa-images/119222.jpg"
+    "image_url": "/taxa-images/119222.jpg",
+    "uniqname": "Ardea cinerea"
   },
   {
     "name": "hummingbird",
     "ott_id": 759410,
-    "image_url": "/taxa-images/759410.jpg"
+    "image_url": "/taxa-images/759410.jpg",
+    "uniqname": "Archilochus colubris"
   },
   {
     "name": "woodpecker",
     "ott_id": 348848,
-    "image_url": "/taxa-images/348848.jpg"
+    "image_url": "/taxa-images/348848.jpg",
+    "uniqname": "Dendrocopos major"
   },
   {
     "name": "toucan",
     "ott_id": 640527,
-    "image_url": "/taxa-images/640527.jpg"
+    "image_url": "/taxa-images/640527.jpg",
+    "uniqname": "Ramphastos toco"
   },
   {
     "name": "albatross",
     "ott_id": 71459,
-    "image_url": "/taxa-images/71459.jpg"
+    "image_url": "/taxa-images/71459.jpg",
+    "uniqname": "Diomedea exulans"
   },
   {
     "name": "vulture",
     "ott_id": 549517,
-    "image_url": "/taxa-images/549517.jpg"
+    "image_url": "/taxa-images/549517.jpg",
+    "uniqname": "Gyps fulvus"
   },
   {
     "name": "kingfisher",
     "ott_id": 549519,
-    "image_url": "/taxa-images/549519.jpg"
+    "image_url": "/taxa-images/549519.jpg",
+    "uniqname": "Alcedo atthis"
   },
   {
     "name": "salamander",
     "ott_id": 689975,
-    "image_url": "/taxa-images/689975.jpg"
+    "image_url": "/taxa-images/689975.jpg",
+    "uniqname": "Salamandra salamandra"
   },
   {
     "name": "axolotl",
     "ott_id": 984726,
-    "image_url": "/taxa-images/984726.jpg"
+    "image_url": "/taxa-images/984726.jpg",
+    "uniqname": "Ambystoma mexicanum"
   },
   {
     "name": "newt",
     "ott_id": 1041796,
-    "image_url": "/taxa-images/1041796.jpg"
+    "image_url": "/taxa-images/1041796.jpg",
+    "uniqname": "Triturus cristatus"
   },
   {
     "name": "komodo dragon",
     "ott_id": 1091028,
-    "image_url": "/taxa-images/1091028.jpg"
+    "image_url": "/taxa-images/1091028.jpg",
+    "uniqname": "Varanus komodoensis"
   },
   {
     "name": "tuatara",
     "ott_id": 35890,
-    "image_url": "/taxa-images/35890.jpg"
+    "image_url": "/taxa-images/35890.jpg",
+    "uniqname": "Sphenodon punctatus"
   },
   {
     "name": "cobra",
     "ott_id": 217478,
-    "image_url": "/taxa-images/217478.jpg"
+    "image_url": "/taxa-images/217478.jpg",
+    "uniqname": "Naja naja"
   },
   {
     "name": "manta ray",
     "ott_id": 920351,
-    "image_url": "/taxa-images/920351.jpg"
+    "image_url": "/taxa-images/920351.jpg",
+    "uniqname": "Mobula birostris"
   },
   {
     "name": "coelacanth",
     "ott_id": 773491,
-    "image_url": "/taxa-images/773491.jpg"
+    "image_url": "/taxa-images/773491.jpg",
+    "uniqname": "Latimeria chalumnae"
   },
   {
     "name": "lungfish",
     "ott_id": 199334,
-    "image_url": "/taxa-images/199334.jpg"
+    "image_url": "/taxa-images/199334.jpg",
+    "uniqname": "Protopterus annectens"
   },
   {
     "name": "sea anemone",
     "ott_id": 1084476,
-    "image_url": "/taxa-images/1084476.jpg"
+    "image_url": "/taxa-images/1084476.jpg",
+    "uniqname": "Actinia equina"
   },
   {
     "name": "sea urchin",
     "ott_id": 564702,
-    "image_url": "/taxa-images/564702.jpg"
+    "image_url": "/taxa-images/564702.jpg",
+    "uniqname": "Strongylocentrotus purpuratus"
   },
   {
     "name": "sea cucumber",
     "ott_id": 920160,
-    "image_url": "/taxa-images/920160.jpg"
+    "image_url": "/taxa-images/920160.jpg",
+    "uniqname": "Holothuria atra"
   },
   {
     "name": "sponge",
     "ott_id": 373931,
-    "image_url": "/taxa-images/373931.jpg"
+    "image_url": "/taxa-images/373931.jpg",
+    "uniqname": "Spongia officinalis"
   },
   {
     "name": "clam",
     "ott_id": 80121,
-    "image_url": "/taxa-images/80121.jpg"
+    "image_url": "/taxa-images/80121.jpg",
+    "uniqname": "Mercenaria mercenaria"
   },
   {
     "name": "oyster",
     "ott_id": 987409,
-    "image_url": "/taxa-images/987409.jpg"
+    "image_url": "/taxa-images/987409.jpg",
+    "uniqname": "Magallana gigas"
   },
   {
     "name": "mussel",
     "ott_id": 499751,
-    "image_url": "/taxa-images/499751.jpg"
+    "image_url": "/taxa-images/499751.jpg",
+    "uniqname": "Mytilus edulis"
   },
   {
     "name": "nautilus",
     "ott_id": 616359,
-    "image_url": "/taxa-images/616359.jpg"
+    "image_url": "/taxa-images/616359.jpg",
+    "uniqname": "Nautilus pompilius"
   },
   {
     "name": "cuttlefish",
     "ott_id": 528817,
-    "image_url": "/taxa-images/528817.jpg"
+    "image_url": "/taxa-images/528817.jpg",
+    "uniqname": "Sepia officinalis"
   },
   {
     "name": "horseshoe crab",
     "ott_id": 511973,
-    "image_url": "/taxa-images/511973.jpg"
+    "image_url": "/taxa-images/511973.jpg",
+    "uniqname": "Limulus polyphemus"
   },
   {
     "name": "scorpion",
     "ott_id": 990944,
-    "image_url": "/taxa-images/990944.jpg"
+    "image_url": "/taxa-images/990944.jpg",
+    "uniqname": "Pandinus imperator"
   },
   {
     "name": "centipede",
     "ott_id": 3518397,
-    "image_url": "/taxa-images/3518397.jpg"
+    "image_url": "/taxa-images/3518397.jpg",
+    "uniqname": "Scolopendra gigantea"
   },
   {
     "name": "millipede",
     "ott_id": 81620,
-    "image_url": "/taxa-images/81620.jpg"
+    "image_url": "/taxa-images/81620.jpg",
+    "uniqname": "Archispirostreptus gigas"
   },
   {
     "name": "termite",
     "ott_id": 213031,
-    "image_url": "/taxa-images/213031.jpg"
+    "image_url": "/taxa-images/213031.jpg",
+    "uniqname": "Macrotermes bellicosus"
   },
   {
     "name": "praying mantis",
     "ott_id": 656298,
-    "image_url": "/taxa-images/656298.jpg"
+    "image_url": "/taxa-images/656298.jpg",
+    "uniqname": "Mantis religiosa"
   },
   {
     "name": "stag beetle",
     "ott_id": 867953,
-    "image_url": "/taxa-images/867953.jpg"
+    "image_url": "/taxa-images/867953.jpg",
+    "uniqname": "Lucanus cervus"
   },
   {
     "name": "luna moth",
     "ott_id": 180968,
     "image_url": "/taxa-images/180968.jpg",
+    "uniqname": "Actias luna",
     "comments": "Luna moths (Actias luna) belong to the family Saturniidae. 'Moth' is not a formal group — it refers to any Lepidoptera that is not a butterfly."
   },
   {
     "name": "tick",
     "ott_id": 493144,
-    "image_url": "/taxa-images/493144.jpg"
+    "image_url": "/taxa-images/493144.jpg",
+    "uniqname": "Ixodes ricinus"
   },
   {
     "name": "barnacle",
     "ott_id": 323642,
-    "image_url": "/taxa-images/323642.jpg"
+    "image_url": "/taxa-images/323642.jpg",
+    "uniqname": "Balanus balanus"
   },
   {
     "name": "orange",
     "ott_id": 3942433,
-    "image_url": "/taxa-images/3942433.jpg"
+    "image_url": "/taxa-images/3942433.jpg",
+    "uniqname": "Citrus sinensis"
   },
   {
     "name": "grape",
     "ott_id": 756728,
-    "image_url": "/taxa-images/756728.jpg"
+    "image_url": "/taxa-images/756728.jpg",
+    "uniqname": "Vitis vinifera"
   },
   {
     "name": "cherry",
     "ott_id": 162547,
-    "image_url": "/taxa-images/162547.jpg"
+    "image_url": "/taxa-images/162547.jpg",
+    "uniqname": "Prunus avium"
   },
   {
     "name": "peach",
     "ott_id": 259054,
-    "image_url": "/taxa-images/259054.jpg"
+    "image_url": "/taxa-images/259054.jpg",
+    "uniqname": "Prunus persica"
   },
   {
     "name": "pear",
     "ott_id": 972654,
-    "image_url": "/taxa-images/972654.jpg"
+    "image_url": "/taxa-images/972654.jpg",
+    "uniqname": "Pyrus communis"
   },
   {
     "name": "lemon",
     "ott_id": 3942422,
-    "image_url": "/taxa-images/3942422.jpg"
+    "image_url": "/taxa-images/3942422.jpg",
+    "uniqname": "Citrus limon"
   },
   {
     "name": "pineapple",
     "ott_id": 627039,
-    "image_url": "/taxa-images/627039.jpg"
+    "image_url": "/taxa-images/627039.jpg",
+    "uniqname": "Ananas comosus"
   },
   {
     "name": "coconut palm",
     "ott_id": 366250,
-    "image_url": "/taxa-images/366250.jpg"
+    "image_url": "/taxa-images/366250.jpg",
+    "uniqname": "Cocos nucifera"
   },
   {
     "name": "mango",
     "ott_id": 807634,
-    "image_url": "/taxa-images/807634.jpg"
+    "image_url": "/taxa-images/807634.jpg",
+    "uniqname": "Mangifera indica"
   },
   {
     "name": "raspberry",
     "ott_id": 156929,
-    "image_url": "/taxa-images/156929.jpg"
+    "image_url": "/taxa-images/156929.jpg",
+    "uniqname": "Rubus idaeus"
   },
   {
     "name": "avocado",
     "ott_id": 913249,
-    "image_url": "/taxa-images/913249.jpg"
+    "image_url": "/taxa-images/913249.jpg",
+    "uniqname": "Persea americana"
   },
   {
     "name": "plum",
     "ott_id": 731554,
-    "image_url": "/taxa-images/731554.jpg"
+    "image_url": "/taxa-images/731554.jpg",
+    "uniqname": "Prunus domestica"
   },
   {
     "name": "potato",
     "ott_id": 494835,
-    "image_url": "/taxa-images/494835.jpg"
+    "image_url": "/taxa-images/494835.jpg",
+    "uniqname": "Solanum tuberosum"
   },
   {
     "name": "broccoli",
     "ott_id": 833642,
-    "image_url": "/taxa-images/833642.jpg"
+    "image_url": "/taxa-images/833642.jpg",
+    "uniqname": "Brassica oleracea"
   },
   {
     "name": "lettuce",
     "ott_id": 515700,
-    "image_url": "/taxa-images/515700.jpg"
+    "image_url": "/taxa-images/515700.jpg",
+    "uniqname": "Lactuca sativa"
   },
   {
     "name": "onion",
     "ott_id": 781600,
-    "image_url": "/taxa-images/781600.jpg"
+    "image_url": "/taxa-images/781600.jpg",
+    "uniqname": "Allium cepa"
   },
   {
     "name": "pea",
     "ott_id": 359905,
-    "image_url": "/taxa-images/359905.jpg"
+    "image_url": "/taxa-images/359905.jpg",
+    "uniqname": "Pisum sativum"
   },
   {
     "name": "cucumber",
     "ott_id": 1006246,
-    "image_url": "/taxa-images/1006246.jpg"
+    "image_url": "/taxa-images/1006246.jpg",
+    "uniqname": "Cucumis sativus (species in domain Eukaryota)"
   },
   {
     "name": "celery",
     "ott_id": 2472,
-    "image_url": "/taxa-images/2472.jpg"
+    "image_url": "/taxa-images/2472.jpg",
+    "uniqname": "Apium graveolens"
   },
   {
     "name": "spinach",
     "ott_id": 317784,
-    "image_url": "/taxa-images/317784.jpg"
+    "image_url": "/taxa-images/317784.jpg",
+    "uniqname": "Spinacia oleracea"
   },
   {
     "name": "sweet potato",
     "ott_id": 1071040,
-    "image_url": "/taxa-images/1071040.jpg"
+    "image_url": "/taxa-images/1071040.jpg",
+    "uniqname": "Ipomoea batatas"
   },
   {
     "name": "garlic",
     "ott_id": 748370,
-    "image_url": "/taxa-images/748370.jpg"
+    "image_url": "/taxa-images/748370.jpg",
+    "uniqname": "Allium sativum"
   },
   {
     "name": "bell pepper",
     "ott_id": 473836,
-    "image_url": "/taxa-images/473836.jpg"
+    "image_url": "/taxa-images/473836.jpg",
+    "uniqname": "Capsicum annuum"
   },
   {
     "name": "green bean",
     "ott_id": 825707,
-    "image_url": "/taxa-images/825707.jpg"
+    "image_url": "/taxa-images/825707.jpg",
+    "uniqname": "Phaseolus vulgaris"
   },
   {
     "name": "daisy",
     "ott_id": 792843,
-    "image_url": "/taxa-images/792843.jpg"
+    "image_url": "/taxa-images/792843.jpg",
+    "uniqname": "Bellis perennis"
   },
   {
     "name": "dandelion",
     "ott_id": 451182,
-    "image_url": "/taxa-images/451182.jpg"
+    "image_url": "/taxa-images/451182.jpg",
+    "uniqname": "Taraxacum officinale"
   },
   {
     "name": "marigold",
     "ott_id": 717598,
-    "image_url": "/taxa-images/717598.jpg"
+    "image_url": "/taxa-images/717598.jpg",
+    "uniqname": "Tagetes"
   },
   {
     "name": "violet",
     "ott_id": 1039231,
-    "image_url": "/taxa-images/1039231.jpg"
+    "image_url": "/taxa-images/1039231.jpg",
+    "uniqname": "Viola odorata"
   },
   {
     "name": "poppy",
     "ott_id": 867221,
-    "image_url": "/taxa-images/867221.jpg"
+    "image_url": "/taxa-images/867221.jpg",
+    "uniqname": "Papaver rhoeas"
   },
   {
     "name": "hibiscus",
     "ott_id": 378513,
-    "image_url": "/taxa-images/378513.jpg"
+    "image_url": "/taxa-images/378513.jpg",
+    "uniqname": "Hibiscus rosa-sinensis"
   },
   {
     "name": "willow tree",
     "ott_id": 458856,
-    "image_url": "/taxa-images/458856.jpg"
+    "image_url": "/taxa-images/458856.jpg",
+    "uniqname": "Salix (genus in kingdom Archaeplastida)"
   },
   {
     "name": "palm tree",
     "ott_id": 526437,
-    "image_url": "/taxa-images/526437.jpg"
+    "image_url": "/taxa-images/526437.jpg",
+    "uniqname": "Arecaceae"
   },
   {
     "name": "cherry blossom",
     "ott_id": 746756,
-    "image_url": "/taxa-images/746756.jpg"
+    "image_url": "/taxa-images/746756.jpg",
+    "uniqname": "Prunus serrulata"
   },
   {
     "name": "fern",
     "ott_id": 166292,
-    "image_url": "/taxa-images/166292.jpg"
+    "image_url": "/taxa-images/166292.jpg",
+    "uniqname": "Polypodiopsida"
   },
   {
     "name": "clover",
     "ott_id": 935477,
-    "image_url": "/taxa-images/935477.jpg"
+    "image_url": "/taxa-images/935477.jpg",
+    "uniqname": "Trifolium (genus in kingdom Archaeplastida)"
   },
   {
     "name": "moss",
     "ott_id": 246594,
-    "image_url": "/taxa-images/246594.jpg"
+    "image_url": "/taxa-images/246594.jpg",
+    "uniqname": "Bryophyta"
   },
   {
     "name": "ivy",
     "ott_id": 524074,
-    "image_url": "/taxa-images/524074.jpg"
+    "image_url": "/taxa-images/524074.jpg",
+    "uniqname": "Hedera helix"
   },
   {
     "name": "venus flytrap",
     "ott_id": 14971,
-    "image_url": "/taxa-images/14971.jpg"
+    "image_url": "/taxa-images/14971.jpg",
+    "uniqname": "Dionaea muscipula"
   },
   {
     "name": "wheat",
     "ott_id": 31926,
-    "image_url": "/taxa-images/31926.jpg"
+    "image_url": "/taxa-images/31926.jpg",
+    "uniqname": "Triticum aestivum"
   },
   {
     "name": "rice",
     "ott_id": 709894,
-    "image_url": "/taxa-images/709894.jpg"
+    "image_url": "/taxa-images/709894.jpg",
+    "uniqname": "Oryza sativa"
   },
   {
     "name": "aloe vera",
     "ott_id": 62303,
-    "image_url": "/taxa-images/62303.jpg"
+    "image_url": "/taxa-images/62303.jpg",
+    "uniqname": "Aloe vera"
   },
   {
     "name": "hyrax",
     "ott_id": 561107,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Ein%20klippschliefer.jpg"
+    "image_url": "/taxa-images/561107.jpg",
+    "uniqname": "Hyracoidea"
   },
   {
     "name": "binturong",
     "ott_id": 768502,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/162/26805162.jpg"
+    "image_url": "/taxa-images/768502.jpg",
+    "uniqname": "Arctictis binturong"
   },
   {
     "name": "beluga whale",
     "ott_id": 851318,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/774/27789774.jpg"
+    "image_url": "/taxa-images/851318.jpg",
+    "uniqname": "Delphinapterus leucas"
   },
   {
     "name": "yellow canary",
     "ott_id": 903271,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/177/32538177.jpg"
+    "image_url": "/taxa-images/903271.jpg",
+    "uniqname": "Crithagra flaviventris"
   },
   {
     "name": "whale shark",
     "ott_id": 214509,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/366/27225366.jpg"
+    "image_url": "/taxa-images/214509.jpg",
+    "uniqname": "Rhincodon typus"
   },
   {
     "name": "water bear",
     "ott_id": 111438,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Hypsibiusdujardini.jpg"
+    "image_url": "/taxa-images/111438.jpg",
+    "uniqname": "Tardigrada"
   },
   {
     "name": "flying fox",
     "ott_id": 574742,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/112/27157112.jpg"
+    "image_url": "/taxa-images/574742.jpg",
+    "uniqname": "Pteropodidae"
   },
   {
     "name": "horseshoe bat",
     "ott_id": 635025,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/287/27049287.jpg"
+    "image_url": "/taxa-images/635025.jpg",
+    "uniqname": "Rhinolophidae"
   },
   {
     "name": "Old World leaf-nosed bat",
     "ott_id": 316928,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/199/27142199.jpg"
+    "image_url": "/taxa-images/316928.jpg",
+    "uniqname": "Hipposideridae"
   },
   {
     "name": "false vampire bat",
     "ott_id": 813048,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/281/26925281.jpg"
+    "image_url": "/taxa-images/813048.jpg",
+    "uniqname": "Megadermatidae"
   },
   {
     "name": "bumblebee bat",
     "ott_id": 32051,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/057/27290057.jpg"
+    "image_url": "/taxa-images/32051.jpg",
+    "uniqname": "Craseonycteridae"
   },
   {
     "name": "free-tailed bat",
     "ott_id": 238416,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/876/32591876.jpg"
+    "image_url": "/taxa-images/238416.jpg",
+    "uniqname": "Molossidae"
   },
   {
     "name": "vesper bat",
     "ott_id": 238434,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/833/27290833.jpg"
+    "image_url": "/taxa-images/238434.jpg",
+    "uniqname": "Vespertilionidae"
   },
   {
     "name": "mouse-tailed bat",
     "ott_id": 267987,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Greater%20Mouse%20Tailed%20bat%20%28Rhinopoma%20microphyllum%29.jpg"
+    "image_url": "/taxa-images/267987.jpg",
+    "uniqname": "Rhinopomatidae"
   },
   {
     "name": "disk-winged bat",
     "ott_id": 267980,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Thyroptera_discifera.jpg"
+    "image_url": "/taxa-images/267980.jpg",
+    "uniqname": "Thyropteridae"
   },
   {
     "name": "sac-winged bat",
     "ott_id": 581454,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/20/393/1832393.jpg"
+    "image_url": "/taxa-images/581454.jpg",
+    "uniqname": "Emballonuridae"
   },
   {
     "name": "ghost-faced bat",
     "ott_id": 292475,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Mormoops%20blainvillii.jpg"
+    "image_url": "/taxa-images/292475.jpg",
+    "uniqname": "Mormoopidae"
   },
   {
     "name": "New World leaf-nosed bat",
     "ott_id": 289151,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/504/27703504.jpg"
+    "image_url": "/taxa-images/289151.jpg",
+    "uniqname": "Phyllostomidae"
   },
   {
     "name": "vampire bat",
     "ott_id": 1039975,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/819/27715819.jpg"
+    "image_url": "/taxa-images/1039975.jpg",
+    "uniqname": "Desmodontinae"
   },
   {
     "name": "fruit-eating bat",
     "ott_id": 1039976,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/504/27703504.jpg"
+    "image_url": "/taxa-images/1039976.jpg",
+    "uniqname": "Stenodermatinae"
   },
   {
     "name": "funnel-eared bat",
     "ott_id": 1018309,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Natalus%20stramineus.jpg"
+    "image_url": "/taxa-images/1018309.jpg",
+    "uniqname": "Natalidae"
   },
   {
     "name": "smoky bat",
     "ott_id": 1060468,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Furipterus%20horrens.jpg"
+    "image_url": "/taxa-images/1060468.jpg",
+    "uniqname": "Furipteridae"
   },
   {
     "name": "bulldog bat",
     "ott_id": 759861,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Captive%20Noctilio%20leporinus.jpg"
+    "image_url": "/taxa-images/759861.jpg",
+    "uniqname": "Noctilionidae"
   }
 ]
