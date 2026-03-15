@@ -1640,6 +1640,7 @@ function App() {
                       className="clade-btn"
                       onClick={() => selectClade(data.ott_id)}
                       title={`Select ${name} and all its descendants`}
+                      aria-label={`Select ${name} clade`}
                     >🌿</button>
                   )}
                   <button
@@ -1764,6 +1765,7 @@ function App() {
                             className="clade-btn"
                             onClick={(e) => { e.stopPropagation(); selectClade(data.ott_id); }}
                             title={`Select ${name} and all its descendants`}
+                            aria-label={`Select ${name} clade`}
                           >🌿</button>
                         )}
                       </li>
@@ -1831,6 +1833,7 @@ function App() {
                             className="clade-btn"
                             onClick={(e) => { e.stopPropagation(); selectClade(sp.ott_id); }}
                             title={`Select ${sp.name} and all its descendants`}
+                            aria-label={`Select ${sp.name} clade`}
                           >🌿</button>
                         )}
                       </li>
