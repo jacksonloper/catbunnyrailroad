@@ -930,12 +930,6 @@
                                     },
                                     {
                                       "name": "kelps",
-                                      "ott_id": 753588,
-                                      "children": [],
-                                      "isTaxon": true
-                                    },
-                                    {
-                                      "name": "Laminariaceae",
                                       "ott_id": 266749,
                                       "children": [
                                         {
@@ -950,7 +944,8 @@
                                           "children": [],
                                           "isTaxon": true
                                         }
-                                      ]
+                                      ],
+                                      "isTaxon": true
                                     }
                                   ]
                                 },
