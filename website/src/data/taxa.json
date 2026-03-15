@@ -1461,7 +1461,7 @@
     "uniqname": "Glaucophyta"
   },
   {
-    "name": "red alga",
+    "name": "red algae",
     "ott_id": 878953,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Chondrus%20crispus%20-%20K%C3%B6hler%E2%80%93s%20Medizinal-Pflanzen-034.jpg",
     "uniqname": "Rhodophyta"
@@ -1591,5 +1591,101 @@
     "ott_id": 10209,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Welwitschia-mirabilis-female.jpg",
     "uniqname": "Gnetophyta"
+  },
+  {
+    "name": "stramenopiles",
+    "ott_id": 266745,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/664/29738664.jpg",
+    "uniqname": "Stramenopiles"
+  },
+  {
+    "name": "brown algae",
+    "ott_id": 48614,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Kelp-forest-Monterey.jpg",
+    "uniqname": "Phaeophyceae"
+  },
+  {
+    "name": "kelps",
+    "ott_id": 753588,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Macrocystis_pyrifera.jpg",
+    "uniqname": "Lessoniaceae"
+  },
+  {
+    "name": "bull kelp",
+    "ott_id": 437278,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/874/26885874.jpg",
+    "uniqname": "Nereocystis luetkeana"
+  },
+  {
+    "name": "giant kelp",
+    "ott_id": 753585,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/891/26885891.jpg",
+    "uniqname": "Macrocystis pyrifera"
+  },
+  {
+    "name": "diatoms",
+    "ott_id": 5342311,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Diatoms.jpg",
+    "uniqname": "Bacillariophyta"
+  },
+  {
+    "name": "yellow-green algae",
+    "ott_id": 151001,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Alger%2C%20Botydium%20granulatum%2C%20Nordisk%20familjebok.png",
+    "uniqname": "Xanthophyceae"
+  },
+  {
+    "name": "water molds",
+    "ott_id": 555765,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Phytophtora%20reproduction.png",
+    "uniqname": "Peronosporomycetes"
+  },
+  {
+    "name": "rockweeds",
+    "ott_id": 446449,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/043/34146043.jpg",
+    "uniqname": "Fucales"
+  },
+  {
+    "name": "acid kelps / desmarestias",
+    "ott_id": 388859,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Desmerestia%20aculeata.jpg",
+    "uniqname": "Desmarestiales"
+  },
+  {
+    "name": "dictyotas",
+    "ott_id": 48611,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/896/31339896.jpg",
+    "uniqname": "Dictyotales"
+  },
+  {
+    "name": "sea lettuces",
+    "ott_id": 951302,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/099/25666099.jpg",
+    "uniqname": "Ulvales"
+  },
+  {
+    "name": "sea lettuce",
+    "ott_id": 951293,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/099/25666099.jpg",
+    "uniqname": "Ulva"
+  },
+  {
+    "name": "most red seaweeds",
+    "ott_id": 674036,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/627/19670627.jpg",
+    "uniqname": "Florideophycidae"
+  },
+  {
+    "name": "nori group",
+    "ott_id": 999795,
+    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/070/27811070.jpg",
+    "uniqname": "Bangiales"
+  },
+  {
+    "name": "coralline red algae",
+    "ott_id": 238994,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Corallina%20elongata.jpg",
+    "uniqname": "Corallinales"
   }
 ]
