@@ -206,6 +206,45 @@ function Autocomplete({ label, value, onChange, onSelect, trie, selectedItem }) 
 const taxaByName = new Map(taxa.map((t) => [t.name, t]));
 const taxaByOttId = new Map(taxa.map((t) => [t.ott_id, t]));
 
+// ---------------------------------------------------------------------------
+// Clade helpers – find a tree node by ott_id, collect descendant taxa names,
+// and precompute descendant-taxa counts so we know which taxa have ≥2
+// descendants in the curated list.
+// ---------------------------------------------------------------------------
+
+/** Find a node in the full tree by ott_id */
+function findNodeByOttId(node, ottId) {
+  if (node.ott_id === ottId) return node;
+  for (const child of node.children) {
+    const result = findNodeByOttId(child, ottId);
+    if (result) return result;
+  }
+  return null;
+}
+
+/** Collect names of all taxa.json entries that are descendants of a tree node */
+function collectTaxaNames(node) {
+  let names = [];
+  if (taxaByOttId.has(node.ott_id)) names.push(taxaByOttId.get(node.ott_id).name);
+  for (const child of node.children) {
+    names = names.concat(collectTaxaNames(child));
+  }
+  return names;
+}
+
+/** Precompute: for each taxon in taxa.json, how many curated taxa are in its subtree */
+const descendantTaxaCounts = (() => {
+  const counts = new Map();
+  function walk(node) {
+    let count = taxaByOttId.has(node.ott_id) ? 1 : 0;
+    for (const child of node.children) count += walk(child);
+    if (taxaByOttId.has(node.ott_id)) counts.set(node.ott_id, count);
+    return count;
+  }
+  walk(tree);
+  return counts;
+})();
+
 const OUTSIDE_PAGE_SIZE = 20;
 const INGROUP_PAGE_SIZE = 20;
 
@@ -318,6 +357,7 @@ function countTreeNodes(node) {
 function SubtreeView({ subtree, onClose }) {
   const [copied, setCopied] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [activeComment, setActiveComment] = useState(null); // ott_id of open comment
   const [showMaze, setShowMaze] = useState(false);
   const [showUniqNames, setShowUniqNames] = useState(false);
@@ -436,6 +476,13 @@ function SubtreeView({ subtree, onClose }) {
     copyToClipboard(JSON.stringify(enriched, null, 2), () => {
       setCopiedJson(true);
       setTimeout(() => setCopiedJson(false), 2000);
+    });
+  }
+
+  function handleCopyLink() {
+    copyToClipboard(window.location.href, () => {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
     });
   }
 
@@ -1136,6 +1183,13 @@ function SubtreeView({ subtree, onClose }) {
             </button>
             <button
               className="subtree-copy-btn"
+              onClick={handleCopyLink}
+              title="Copy shareable link to clipboard"
+            >
+              {copiedLink ? "✓ Copied!" : "🔗 Share"}
+            </button>
+            <button
+              className="subtree-copy-btn"
               onClick={() => { setShowMaze(true); setMazeData(null); setMazeError(""); }}
               title="Show tree as a grid maze"
             >
@@ -1315,19 +1369,49 @@ function ErrorConsole() {
 // Main App
 // ---------------------------------------------------------------------------
 
+// Parse URL query string for initial state (clade or taxa list)
+const urlInit = (() => {
+  const params = new URLSearchParams(window.location.search);
+  const cladeParam = params.get("clade");
+  const taxaParam = params.get("taxa");
+
+  if (cladeParam) {
+    const ottId = parseInt(cladeParam, 10);
+    if (!isNaN(ottId)) {
+      const node = findNodeByOttId(tree, ottId);
+      if (node) {
+        const names = collectTaxaNames(node);
+        if (names.length >= 2) return { organisms: new Set(names), showTree: true };
+      }
+    }
+  } else if (taxaParam) {
+    const ids = taxaParam
+      .split(",")
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !isNaN(n));
+    const names = new Set();
+    for (const id of ids) {
+      const sp = taxaByOttId.get(id);
+      if (sp) names.add(sp.name);
+    }
+    if (names.size >= 2) return { organisms: names, showTree: true };
+  }
+  return { organisms: new Set(), showTree: false };
+})();
+
 function App() {
   const trie = useMemo(() => buildTrie(taxa), []);
 
   // Central list state
   const [listInput, setListInput] = useState("");
-  const [selectedOrganisms, setSelectedOrganisms] = useState(new Set());
+  const [selectedOrganisms, setSelectedOrganisms] = useState(urlInit.organisms);
 
   // Display state
   const [showIncluded, setShowIncluded] = useState(true);
   const [showOutside, setShowOutside] = useState(true);
   const [inGroupLimit, setInGroupLimit] = useState(INGROUP_PAGE_SIZE);
   const [outsideLimit, setOutsideLimit] = useState(OUTSIDE_PAGE_SIZE);
-  const [showSubtree, setShowSubtree] = useState(false);
+  const [showSubtree, setShowSubtree] = useState(urlInit.showTree);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
@@ -1453,12 +1537,57 @@ function App() {
     setShowSubtree(true);
     setShowImport(false);
     setImportText("");
+    // Update URL for the imported taxa
+    const validIds = [...names].map((n) => taxaByName.get(n)?.ott_id).filter(Boolean);
+    const url = new URL(window.location);
+    url.search = "";
+    url.searchParams.set("taxa", validIds.join(","));
+    window.history.replaceState({}, "", url);
   }
 
   function handleClearList() {
     setSelectedOrganisms(new Set());
     setShowSubtree(false);
     setListInput("");
+    const url = new URL(window.location);
+    url.search = "";
+    window.history.replaceState({}, "", url);
+  }
+
+  /** Update URL and show tree for the current selection */
+  function handleShowSubtree() {
+    setShowSubtree(true);
+    const ids = [];
+    for (const name of selectedOrganisms) {
+      const sp = taxaByName.get(name);
+      if (sp) ids.push(sp.ott_id);
+    }
+    const url = new URL(window.location);
+    url.search = "";
+    url.searchParams.set("taxa", ids.join(","));
+    window.history.replaceState({}, "", url);
+  }
+
+  /** Close tree and clear URL params */
+  function handleCloseSubtree() {
+    setShowSubtree(false);
+    const url = new URL(window.location);
+    url.search = "";
+    window.history.replaceState({}, "", url);
+  }
+
+  /** Replace the selection with a taxon and all its descendants, then show tree */
+  function selectClade(ottId) {
+    const node = findNodeByOttId(tree, ottId);
+    if (!node) return;
+    const names = collectTaxaNames(node);
+    if (names.length < 2) return;
+    setSelectedOrganisms(new Set(names));
+    setShowSubtree(true);
+    const url = new URL(window.location);
+    url.search = "";
+    url.searchParams.set("clade", ottId);
+    window.history.replaceState({}, "", url);
   }
 
   return (
@@ -1506,6 +1635,14 @@ function App() {
                     <img src={data.image_url} alt="" className="chip-img" />
                   )}
                   {name}
+                  {data && descendantTaxaCounts.get(data.ott_id) >= 2 && (
+                    <button
+                      className="clade-btn"
+                      onClick={() => selectClade(data.ott_id)}
+                      title={`Select ${name} and all its descendants`}
+                      aria-label={`Select ${name} clade`}
+                    >🌿</button>
+                  )}
                   <button
                     className="chip-remove"
                     onClick={() => removeFromList(name)}
@@ -1521,7 +1658,7 @@ function App() {
           <div className="list-actions">
             <button
               className="make-tree-btn"
-              onClick={() => setShowSubtree(true)}
+              onClick={handleShowSubtree}
             >
               🌳 Make tree ({selectedOrganisms.size} selected)
             </button>
@@ -1565,7 +1702,7 @@ function App() {
       )}
 
       {showSubtree && subtree && (
-        <SubtreeView subtree={subtree} onClose={() => setShowSubtree(false)} />
+        <SubtreeView subtree={subtree} onClose={handleCloseSubtree} />
       )}
 
       {/* MRCA results */}
@@ -1622,6 +1759,14 @@ function App() {
                             className="comment-star-inline"
                             title={data.comments}
                           >★</span>
+                        )}
+                        {data && descendantTaxaCounts.get(data.ott_id) >= 2 && (
+                          <button
+                            className="clade-btn"
+                            onClick={(e) => { e.stopPropagation(); selectClade(data.ott_id); }}
+                            title={`Select ${name} and all its descendants`}
+                            aria-label={`Select ${name} clade`}
+                          >🌿</button>
                         )}
                       </li>
                     );
@@ -1683,6 +1828,14 @@ function App() {
                         <span className="distance-label">
                           ↑{sp.height} {sp.height === 1 ? "level" : "levels"} up
                         </span>
+                        {descendantTaxaCounts.get(sp.ott_id) >= 2 && (
+                          <button
+                            className="clade-btn"
+                            onClick={(e) => { e.stopPropagation(); selectClade(sp.ott_id); }}
+                            title={`Select ${sp.name} and all its descendants`}
+                            aria-label={`Select ${sp.name} clade`}
+                          >🌿</button>
+                        )}
                       </li>
                     );
                   })}
