@@ -1,0 +1,266 @@
+ott_id,our_name,onezoom_name,scientific_name,status
+563166,cat,Domestic cat,Felis catus,SIMILAR
+247341,wolf and dog,Grey wolf (and domestic dog),Canis lupus,DIFFERENT
+864596,rabbit,European Rabbit,Oryctolagus cuniculus,SIMILAR
+1068218,horse,Horse,Equus caballus,EXACT_MATCH
+490099,cow,Cow,Bos taurus,EXACT_MATCH
+153563,chicken,Red Junglefowl,Gallus gallus,DIFFERENT
+765167,mallard,Mallard,Anas platyrhynchos,EXACT_MATCH
+991547,frog and toad,Frogs and toads,Anura,DIFFERENT
+661439,swallowtail butterfly,swallowtails,Papilionidae,DIFFERENT
+515712,sunflower,common sunflower,Helianthus annuus,SIMILAR
+259066,rose,roses,Rosa,SIMILAR
+698406,dolphin,Oceanic Dolphins,Delphinidae,SIMILAR
+541924,elephant,,Elephantidae,NO_OZ_NAME
+563151,lion,Lion,Panthera leo,EXACT_MATCH
+872567,brown bear,Brown Bear,Ursus arctos,EXACT_MATCH
+730013,pig and wild boar,Eurasian Wild Pig,Sus scrofa,DIFFERENT
+70819,sheep,sheep,Ovis aries,EXACT_MATCH
+19017,goat,Goat,Capra hircus,EXACT_MATCH
+542509,mouse,House Mouse,Mus musculus,SIMILAR
+271555,rat,Brown Rat,Rattus norvegicus,SIMILAR
+391631,hamster,Golden Hamster,Mesocricetus auratus,SIMILAR
+744000,guinea pig,Cavy,Cavia porcellus,DIFFERENT
+768674,giraffe,Giraffe,Giraffa camelopardalis,EXACT_MATCH
+124776,plains zebra,,Equus burchellii quagga,NO_OZ_NAME
+510762,hippopotamus,Common Hippopotamus,Hippopotamus amphibius,SIMILAR
+1034218,rhinoceros,Rhinoceros,Rhinocerotidae,EXACT_MATCH
+417965,western gorilla,Western Gorilla,Gorilla gorilla,EXACT_MATCH
+417950,chimpanzee,Chimpanzee,Pan troglodytes,EXACT_MATCH
+770302,Bornean orangutan,Bornean Orangutan,Pongo pygmaeus,EXACT_MATCH
+42314,tiger,Tiger,Panthera tigris,EXACT_MATCH
+42324,leopard,Leopard,Panthera pardus,EXACT_MATCH
+752759,cheetah,Cheetah,Acinonyx jubatus,EXACT_MATCH
+821964,red fox,Red Fox,Vulpes vulpes,EXACT_MATCH
+460505,deer,"Deer, Moose and more",Cervidae,SIMILAR
+460509,moose,Eurasian Elk,Alces alces,DIFFERENT
+510767,camel,Camels,Camelus,SIMILAR
+986973,llama,Llama,Lama glama,EXACT_MATCH
+327624,koala,Koala,Phascolarctos cinereus,EXACT_MATCH
+872573,panda,Giant Panda,Ailuropoda melanoleuca,SIMILAR
+10732,polar bear,Polar Bear,Ursus maritimus,EXACT_MATCH
+574724,bat,Bats,Chiroptera,SIMILAR
+749626,true seal,True seals,Phocidae,SIMILAR
+348036,Eurasian otter,Eurasian Otter,Lutra lutra,EXACT_MATCH
+1048190,beaver,,Castor,NO_OZ_NAME
+384218,squirrel family,"Squirrels, Chipmunks, and more",Sciuridae,DIFFERENT
+348040,raccoon,Northern Raccoon,Procyon lotor,SIMILAR
+231602,skunk,Striped Skunk,Mephitis mephitis,SIMILAR
+796660,hedgehog,Northern Hedgehog,Erinaceus europaeus,SIMILAR
+848921,porcupine,North American Porcupine,Erethizon dorsatum,SIMILAR
+796672,armadillo,Common Long-nosed Armadillo,Dasypus novemcinctus,SIMILAR
+495015,sloth,Sloths,Folivora,SIMILAR
+386195,monkey and ape,Monkeys and Apes,Simiiformes,DIFFERENT
+702142,lemur,lemurs,Lemuriformes,SIMILAR
+42322,jaguar,Jaguar,Panthera onca,EXACT_MATCH
+397157,hyena,Spotted Hyaena,Crocuta crocuta,DIFFERENT
+803645,meerkat,Meerkat,Suricata suricatta,EXACT_MATCH
+835328,wombat,Common Wombat,Vombatus ursinus,SIMILAR
+962377,platypus,Platypus,Ornithorhynchus anatinus,EXACT_MATCH
+306757,narwhal,Narwhal,Monodon monoceros,EXACT_MATCH
+749644,walrus,Walrus,Odobenus rosmarus,EXACT_MATCH
+226189,manatee,,Trichechus,NO_OZ_NAME
+23775,flying squirrel,,Pteromyini,NO_OZ_NAME
+78477,shark,Sharks,Selachii,SIMILAR
+478542,octopus,Octopods,Octopoda,DIFFERENT
+854107,squid and cuttlefish,,Decapodiformes,NO_OZ_NAME
+983579,true jellyfish,cup animals,Scyphozoa,DIFFERENT
+451009,starfish,sea stars and starfishes,Asteroidea,SIMILAR
+935379,true crab,true crabs,Brachyura,SIMILAR
+1007058,seahorse,,Hippocampus,NO_OZ_NAME
+674643,clownfish,,Amphiprion ocellaris,NO_OZ_NAME
+243396,sea turtle,,Chelonioidea,NO_OZ_NAME
+65336,pufferfish,,Tetraodontidae,NO_OZ_NAME
+358621,swordfish,Swordfish,Xiphias gladius,EXACT_MATCH
+583640,anglerfish,"Anglerfishes, Batfishes, Goosefishes, Frogfishes",Lophiiformes,SIMILAR
+770315,human,Human,Homo sapiens,EXACT_MATCH
+1005907,goldfish,Goldfish,Carassius auratus,EXACT_MATCH
+446482,turkey,Wild Turkey,Meleagris gallopavo,SIMILAR
+190887,greylag goose,Greylag Goose,Anser anser,EXACT_MATCH
+285641,African gray parrot,Grey Parrot,Psittacus erithacus,DIFFERENT
+494370,emperor penguin,Emperor Penguin,Aptenodytes forsteri,EXACT_MATCH
+402453,Eurasian eagle-owl,Eurasian Eagle-owl,Bubo bubo,EXACT_MATCH
+1012350,bald eagle,Bald Eagle,Haliaeetus leucocephalus,EXACT_MATCH
+453575,peacock,Indian Peafowl,Pavo cristatus,DIFFERENT
+595567,flamingo,Greater Flamingo,Phoenicopterus roseus,SIMILAR
+331952,American crow,American Crow,Corvus brachyrhynchos,EXACT_MATCH
+507122,European robin,European Robin,Erithacus rubecula,EXACT_MATCH
+737820,ball python,Ball Python,Python regius,EXACT_MATCH
+608972,green iguana,green iguana,Iguana iguana,EXACT_MATCH
+35864,crocodile,Nile Crocodile,Crocodylus niloticus,SIMILAR
+335590,alligator,American Alligator,Alligator mississippiensis,SIMILAR
+207423,Greek tortoise,,Testudo graeca,NO_OZ_NAME
+824527,common chameleon,Mediterranean Chameleon,Chamaeleo chamaeleon,DIFFERENT
+953907,tokay gecko,Tokay Gecko,Gekko gecko,EXACT_MATCH
+744114,wood ant,Southern wood ant,Formica rufa,SIMILAR
+461645,honey bee,Western Honeybee,Apis mellifera,DIFFERENT
+343294,seven-spot ladybug,seven-spot ladybird,Coccinella septempunctata,DIFFERENT
+725241,garden spider,garden cross spider,Araneus diadematus,DIFFERENT
+330338,desert locust,Gregarious desert locust,Schistocerca gregaria,SIMILAR
+485521,emperor dragonfly,Emperor Dragonfly,Anax imperator,EXACT_MATCH
+269666,mosquito,yellow fever mosquito,Aedes aegypti,SIMILAR
+1011010,housefly,house fly,Musca domestica,DIFFERENT
+349699,garden snail,brown garden snail,Cornu aspersum,SIMILAR
+316441,earthworm,Earthworm,Lumbricus terrestris,EXACT_MATCH
+3902985,apple tree,Orchard Apple,Malus domestica,DIFFERENT
+207474,banana,plantain,Musa acuminata,DIFFERENT
+208027,strawberry,strawberry,Fragaria,EXACT_MATCH
+567253,blueberry,highbush blueberry,Vaccinium corymbosum,SIMILAR
+1006251,watermelon,watermelon,Citrullus lanatus,EXACT_MATCH
+379282,pumpkin,Summer Squash,Cucurbita pepo,DIFFERENT
+372836,carrot,wild carrot,Daucus carota,SIMILAR
+378964,tomato,garden tomato,Solanum lycopersicum,SIMILAR
+605194,corn,corn,Zea mays,EXACT_MATCH
+1079463,Kentucky bluegrass,Smooth Meadow-grass,Poa pratensis,DIFFERENT
+897402,saguaro cactus,saguaro,Carnegiea gigantea,SIMILAR
+568619,Scots pine,Scots Pine,Pinus sylvestris,EXACT_MATCH
+564405,button mushroom,cultivated mushroom,Agaricus bisporus,DIFFERENT
+140314,swan,Mute Swan,Cygnus olor,SIMILAR
+833188,yellowfin tuna,yellowfin tuna,Thunnus albacares,EXACT_MATCH
+688328,Atlantic salmon,Atlantic salmon,Salmo salar,EXACT_MATCH
+124215,killer whale,Killer Whale,Orcinus orca,EXACT_MATCH
+169168,white shrimp,"Pacific white shrimp, white shrimp",Penaeus vannamei,SIMILAR
+507951,staghorn coral,staghorn coral,Acropora cervicornis,EXACT_MATCH
+938416,pigeon,Rock Pigeon,Columba livia,SIMILAR
+519153,donkey,,Equus asinus africanus,NO_OZ_NAME
+561087,aardvark,Aardvark,Orycteropus afer,EXACT_MATCH
+490538,giant anteater,Giant Anteater,Myrmecophaga tridactyla,EXACT_MATCH
+16038,echidna,Short-beaked Echidna,Tachyglossus aculeatus,SIMILAR
+1034223,tapir,Lowland Tapir,Tapirus terrestris,SIMILAR
+907693,bison,American Bison,Bison bison,SIMILAR
+872562,red panda,Red Panda,Ailurus fulgens,EXACT_MATCH
+354525,weasel,Least Weasel,Mustela nivalis,SIMILAR
+923113,badger,Eurasian Badger,Meles meles,SIMILAR
+919171,opossum,Virginia Opossum,Didelphis virginiana,SIMILAR
+744018,capybara,Capybara,Hydrochoerus hydrochaeris,EXACT_MATCH
+647692,ostrich,Ostrich,Struthio camelus,EXACT_MATCH
+748998,kiwi,Northern Brown Kiwi,Apteryx australis mantelli,SIMILAR
+427899,pelican,Great White Pelican,Pelecanus onocrotalus,SIMILAR
+119222,heron,Grey Heron,Ardea cinerea,SIMILAR
+759410,hummingbird,Ruby-throated Hummingbird,Archilochus colubris,SIMILAR
+348848,woodpecker,Great Spotted Woodpecker,Dendrocopos major,SIMILAR
+640527,toucan,Toco Toucan,Ramphastos toco,SIMILAR
+71459,albatross,Wandering Albatross,Diomedea exulans,SIMILAR
+549517,vulture,Griffon Vulture,Gyps fulvus,SIMILAR
+549519,kingfisher,Common Kingfisher,Alcedo atthis,SIMILAR
+689975,salamander,Common Fire Salamander,Salamandra salamandra,SIMILAR
+984726,axolotl,Axolotl,Ambystoma mexicanum,EXACT_MATCH
+1041796,newt,Great Crested Newt,Triturus cristatus,SIMILAR
+1091028,komodo dragon,Komodo Dragon,Varanus komodoensis,EXACT_MATCH
+35890,tuatara,Tuatara,Sphenodon punctatus,EXACT_MATCH
+217478,cobra,Indian Cobra,Naja naja,SIMILAR
+920351,manta ray,giant oceanic manta ray,Mobula birostris,SIMILAR
+773491,coelacanth,Coelacanth,Latimeria chalumnae,EXACT_MATCH
+199334,lungfish,West African lungfish,Protopterus annectens,SIMILAR
+1084476,sea anemone,Beadlet anemone,Actinia equina,DIFFERENT
+564702,sea urchin,Purple sea urchin,Strongylocentrotus purpuratus,SIMILAR
+920160,sea cucumber,lolly fish (holothurian),Holothuria atra,DIFFERENT
+373931,sponge,,Spongia officinalis,NO_OZ_NAME
+80121,clam,northern quahog,Mercenaria mercenaria,DIFFERENT
+987409,oyster,Miyagi oyster,Magallana gigas,SIMILAR
+499751,mussel,Mussel,Mytilus edulis,EXACT_MATCH
+616359,nautilus,Chambered nautilus,Nautilus pompilius,SIMILAR
+528817,cuttlefish,Common cuttlefish,Sepia officinalis,SIMILAR
+511973,horseshoe crab,Horseshoe crab,Limulus polyphemus,EXACT_MATCH
+990944,scorpion,emperor scorpion,Pandinus imperator,SIMILAR
+3518397,centipede,giant centipede,Scolopendra gigantea,SIMILAR
+81620,millipede,African giant black millipede,Archispirostreptus gigas,SIMILAR
+213031,termite,War-like termite,Macrotermes bellicosus,SIMILAR
+656298,praying mantis,praying mantis,Mantis religiosa,EXACT_MATCH
+867953,stag beetle,stag beetle,Lucanus cervus,EXACT_MATCH
+180968,luna moth,luna moth,Actias luna,EXACT_MATCH
+493144,tick,Sheep tick,Ixodes ricinus,SIMILAR
+323642,barnacle,rough barnacle,Balanus balanus,SIMILAR
+3942433,orange,sweet orange,Citrus sinensis,SIMILAR
+756728,grape,European Grape,Vitis vinifera,SIMILAR
+162547,cherry,Wild Cherry,Prunus avium,SIMILAR
+259054,peach,peach,Prunus persica,EXACT_MATCH
+972654,pear,pear,Pyrus communis,EXACT_MATCH
+3942422,lemon,lemon,Citrus limon,EXACT_MATCH
+627039,pineapple,pineapple,Ananas comosus,EXACT_MATCH
+366250,coconut palm,Coconut,Cocos nucifera,SIMILAR
+807634,mango,Indian Mango,Mangifera indica,SIMILAR
+156929,raspberry,,Rubus idaeus,NO_OZ_NAME
+913249,avocado,avocado,Persea americana,EXACT_MATCH
+731554,plum,common plum,Prunus domestica,SIMILAR
+494835,potato,Potato,Solanum tuberosum,EXACT_MATCH
+833642,broccoli,Wild Cabbage,Brassica oleracea,DIFFERENT
+515700,lettuce,lettuce,Lactuca sativa,EXACT_MATCH
+781600,onion,Globe onion,Allium cepa,SIMILAR
+359905,pea,garden pea,Pisum sativum,SIMILAR
+1006246,cucumber,garden cucumber,Cucumis sativus,SIMILAR
+2472,celery,celery,Apium graveolens,EXACT_MATCH
+317784,spinach,spinach,Spinacia oleracea,EXACT_MATCH
+1071040,sweet potato,sweet potato,Ipomoea batatas,EXACT_MATCH
+748370,garlic,Garlic,Allium sativum,EXACT_MATCH
+473836,bell pepper,chili pepper,Capsicum annuum,DIFFERENT
+825707,green bean,Black Bean,Phaseolus vulgaris,DIFFERENT
+792843,daisy,,Bellis perennis,NO_OZ_NAME
+451182,dandelion,common dandelion,Taraxacum officinale,SIMILAR
+717598,marigold,Tagetes,Tagetes,DIFFERENT
+1039231,violet,sweet violet,Viola odorata,SIMILAR
+867221,poppy,Common poppy,Papaver rhoeas,SIMILAR
+378513,hibiscus,Shoe flower,Hibiscus rosa-sinensis,DIFFERENT
+458856,willow tree,willow,Salix,SIMILAR
+526437,palm tree,palms,Arecaceae,DIFFERENT
+746756,cherry blossom,Japanese flowering cherry,Prunus serrulata,DIFFERENT
+166292,fern,ferns,Polypodiopsida,SIMILAR
+935477,clover,clover,Trifolium,EXACT_MATCH
+246594,moss,mosses,Bryophyta,SIMILAR
+524074,ivy,Common Ivy,Hedera helix,SIMILAR
+14971,venus flytrap,Venus flytrap,Dionaea muscipula,EXACT_MATCH
+31926,wheat,bread wheat,Triticum aestivum,SIMILAR
+709894,rice,rice,Oryza sativa,EXACT_MATCH
+62303,aloe vera,aloe,Aloe vera,SIMILAR
+561107,hyrax,Hyraxes,Hyracoidea,SIMILAR
+768502,binturong,Binturong,Arctictis binturong,EXACT_MATCH
+851318,beluga whale,Beluga,Delphinapterus leucas,SIMILAR
+903271,yellow canary,Yellow Canary,Crithagra flaviventris,EXACT_MATCH
+214509,whale shark,Whale shark,Rhincodon typus,EXACT_MATCH
+111438,water bear,Water bears,Tardigrada,SIMILAR
+574742,flying fox,Megabats,Pteropodidae,DIFFERENT
+635025,horseshoe bat,Horseshoe Bats,Rhinolophidae,SIMILAR
+316928,Old World leaf-nosed bat,,Hipposideridae,NO_OZ_NAME
+813048,false vampire bat,false vampire bats,Megadermatidae,SIMILAR
+32051,bumblebee bat,,Craseonycteridae,NO_OZ_NAME
+238416,free-tailed bat,free-tailed bats,Molossidae,SIMILAR
+238434,vesper bat,Vesper Bats,Vespertilionidae,SIMILAR
+267987,mouse-tailed bat,Mouse-tailed Bats,Rhinopomatidae,SIMILAR
+267980,disk-winged bat,disc-winged bats,Thyropteridae,DIFFERENT
+581454,sac-winged bat,"Sac-winged Bats, Sheath-tailed Bats and more",Emballonuridae,SIMILAR
+292475,ghost-faced bat,Mustached Bats and more,Mormoopidae,DIFFERENT
+289151,New World leaf-nosed bat,New World leaf-nosed bats,Phyllostomidae,SIMILAR
+1039975,vampire bat,,Desmodontinae,NO_OZ_NAME
+1039976,fruit-eating bat,,Stenodermatinae,NO_OZ_NAME
+1018309,funnel-eared bat,Funnel-eared Bats,Natalidae,SIMILAR
+1060468,smoky bat,smoky bats and thumbless bats,Furipteridae,SIMILAR
+759861,bulldog bat,bulldog bats,Noctilionidae,SIMILAR
+1018272,slit-faced bat,Slit-faced Bats,Nycteridae,SIMILAR
+759857,New Zealand short-tailed bat,,Mystacinidae,NO_OZ_NAME
+6788,sucker-footed bat,,Myzopodidae,NO_OZ_NAME
+533619,wing-gland bat,,Cistugo,NO_OZ_NAME
+238423,long-fingered bat,Long-winged Bats,Miniopterus,DIFFERENT
+221784,trident bat,Trident bat,Triaenops,EXACT_MATCH
+664970,glaucophyte,Glaucophytes,Glaucophyta,SIMILAR
+878953,red alga,Red algae,Rhodophyta,SIMILAR
+361838,green plant,Green plants,Chloroplastida,SIMILAR
+979501,green alga,green algae,Chlorophyta,SIMILAR
+916750,streptophyte,,Streptophyta,NO_OZ_NAME
+542091,pedinophyte,,Pedinophyceae,NO_OZ_NAME
+5578918,chlorodendrophyte,,Chlorodendrophyceae,NO_OZ_NAME
+930075,mesostigma,,Mesostigmatophyceae,NO_OZ_NAME
+897408,chlorokybus,,Chlorokybophyceae,NO_OZ_NAME
+372052,klebsormidium,,Klebsormidiophyceae,NO_OZ_NAME
+885793,coleochaete,,Coleochaetophyceae,NO_OZ_NAME
+916310,stonewort,charophytes,Charophyceae,DIFFERENT
+56610,land plant,land plants,Embryophyta,SIMILAR
+56601,liverwort,hepatics,Marchantiophyta,DIFFERENT
+738980,hornwort,hornworts,Anthocerotophyta,SIMILAR
+10210,vascular plant,Vascular plants,Tracheophyta,SIMILAR
+144795,clubmoss,,Lycopodiopsida,NO_OZ_NAME
+1007992,euphyllophyte,,Euphyllophyta,NO_OZ_NAME
+10218,seed plant,Seed plants,Spermatophyta,SIMILAR
+5296507,gymnosperm,,Acrogymnospermae,NO_OZ_NAME
+7579470,cycad,,Cycadidae,NO_OZ_NAME
+7580118,ginkgo,,Ginkgophyta,NO_OZ_NAME
+10209,gnetophyte,,Gnetophyta,NO_OZ_NAME
