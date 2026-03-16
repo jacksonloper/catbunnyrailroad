@@ -1457,31 +1457,31 @@
   {
     "name": "glaucophyte",
     "ott_id": 664970,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Glaucocystis%20sp.jpg",
+    "image_url": "/taxa-images/664970.jpg",
     "uniqname": "Glaucophyta"
   },
   {
     "name": "red algae",
     "ott_id": 878953,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Chondrus%20crispus%20-%20K%C3%B6hler%E2%80%93s%20Medizinal-Pflanzen-034.jpg",
+    "image_url": "/taxa-images/878953.jpg",
     "uniqname": "Rhodophyta"
   },
   {
     "name": "green plant",
     "ott_id": 361838,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Taiwan%202009%20East%20Coast%20ShihTiPing%20Giant%20Stone%20Steps%20Algae%20FRD%206581.jpg",
+    "image_url": "/taxa-images/361838.jpg",
     "uniqname": "Chloroplastida"
   },
   {
     "name": "green alga",
     "ott_id": 979501,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Volvocales.png",
+    "image_url": "/taxa-images/979501.png",
     "uniqname": "Chlorophyta"
   },
   {
     "name": "streptophyte",
     "ott_id": 916750,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Diversity%20of%20plants%20%28Streptophyta%29%20version%202.png",
+    "image_url": "/taxa-images/916750.png",
     "uniqname": "Streptophyta"
   },
   {
@@ -1493,7 +1493,7 @@
   {
     "name": "chlorodendrophyte",
     "ott_id": 5578918,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Bacillario008.png",
+    "image_url": "/taxa-images/5578918.png",
     "uniqname": "Chlorodendrophyceae"
   },
   {
@@ -1505,13 +1505,13 @@
   {
     "name": "chlorokybus",
     "ott_id": 897408,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Chlorokybus%20atmophyticus.jpg",
+    "image_url": "/taxa-images/897408.jpg",
     "uniqname": "Chlorokybophyceae"
   },
   {
     "name": "klebsormidium",
     "ott_id": 372052,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Klebsormidium%20bilatum%20Belgium%20%2814759117646%29.jpg",
+    "image_url": "/taxa-images/372052.jpg",
     "uniqname": "Klebsormidiophyceae"
   },
   {
@@ -1565,7 +1565,7 @@
   {
     "name": "seed plant",
     "ott_id": 10218,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Bleeding%20hearts%2C%20Flickr%20awards.jpg",
+    "image_url": "/taxa-images/10218.jpg",
     "uniqname": "Spermatophyta"
   },
   {
@@ -1595,7 +1595,7 @@
   {
     "name": "stramenopiles",
     "ott_id": 266745,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/664/29738664.jpg",
+    "image_url": "/taxa-images/266745.jpg",
     "uniqname": "Stramenopiles"
   },
   {
@@ -1613,13 +1613,13 @@
   {
     "name": "bull kelp",
     "ott_id": 437278,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/874/26885874.jpg",
+    "image_url": "/taxa-images/437278.jpg",
     "uniqname": "Nereocystis luetkeana"
   },
   {
     "name": "giant kelp",
     "ott_id": 753585,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/891/26885891.jpg",
+    "image_url": "/taxa-images/753585.jpg",
     "uniqname": "Macrocystis pyrifera"
   },
   {
@@ -1643,7 +1643,7 @@
   {
     "name": "rockweeds",
     "ott_id": 446449,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/043/34146043.jpg",
+    "image_url": "/taxa-images/446449.jpg",
     "uniqname": "Fucales"
   },
   {
@@ -1655,31 +1655,31 @@
   {
     "name": "dictyotas",
     "ott_id": 48611,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/896/31339896.jpg",
+    "image_url": "/taxa-images/48611.jpg",
     "uniqname": "Dictyotales"
   },
   {
     "name": "sea lettuces",
     "ott_id": 951302,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/099/25666099.jpg",
+    "image_url": "/taxa-images/951302.jpg",
     "uniqname": "Ulvales"
   },
   {
     "name": "sea lettuce",
     "ott_id": 951293,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/099/25666099.jpg",
+    "image_url": "/taxa-images/951293.jpg",
     "uniqname": "Ulva"
   },
   {
     "name": "most red seaweeds",
     "ott_id": 674036,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/627/19670627.jpg",
+    "image_url": "/taxa-images/674036.jpg",
     "uniqname": "Florideophycidae"
   },
   {
     "name": "nori group",
     "ott_id": 999795,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/070/27811070.jpg",
+    "image_url": "/taxa-images/999795.jpg",
     "uniqname": "Bangiales"
   },
   {
@@ -1697,61 +1697,163 @@
   {
     "name": "asparagus fern",
     "ott_id": 672858,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/297/32451297.jpg",
+    "image_url": "/taxa-images/672858.jpg",
     "uniqname": "Asparagus setaceus"
   },
   {
     "name": "asparagus",
     "ott_id": 748359,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/210/26821210.jpg",
+    "image_url": "/taxa-images/748359.jpg",
     "uniqname": "Asparagus officinalis"
   },
   {
     "name": "hyacinth",
     "ott_id": 712150,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/806/32366806.jpg",
+    "image_url": "/taxa-images/712150.jpg",
     "uniqname": "Hyacinthus orientalis"
   },
   {
     "name": "agave",
     "ott_id": 447325,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/986/27167986.jpg",
+    "image_url": "/taxa-images/447325.jpg",
     "uniqname": "Agave americana"
   },
   {
     "name": "snake plant",
     "ott_id": 497827,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/046/1994046.jpg",
+    "image_url": "/taxa-images/497827.jpg",
     "uniqname": "Sansevieria trifasciata"
   },
   {
     "name": "iris",
     "ott_id": 229529,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/910/1385910.jpg",
+    "image_url": "/taxa-images/229529.jpg",
     "uniqname": "Iris (genus in kingdom Archaeplastida)"
   },
   {
     "name": "dwarf iris",
     "ott_id": 465347,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/776/1993776.jpg",
+    "image_url": "/taxa-images/465347.jpg",
     "uniqname": "Iris pumila"
   },
   {
     "name": "crocus",
     "ott_id": 740507,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/793/25589793.jpg",
+    "image_url": "/taxa-images/740507.jpg",
     "uniqname": "Crocus"
   },
   {
     "name": "daffodil",
     "ott_id": 625033,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/892/25704892.jpg",
+    "image_url": "/taxa-images/625033.jpg",
     "uniqname": "Narcissus poeticus"
   },
   {
     "name": "chives",
     "ott_id": 626975,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/906/25592906.jpg",
+    "image_url": "/taxa-images/626975.jpg",
     "uniqname": "Allium schoenoprasum"
+  },
+  {
+    "name": "spruce",
+    "ott_id": 517942,
+    "image_url": "/taxa-images/517942.jpg",
+    "uniqname": "Picea"
+  },
+  {
+    "name": "cedar",
+    "ott_id": 924422,
+    "image_url": "/taxa-images/924422.jpg",
+    "uniqname": "Cedrus"
+  },
+  {
+    "name": "redwood",
+    "ott_id": 538150,
+    "image_url": "/taxa-images/538150.jpg",
+    "uniqname": "Sequoia sempervirens"
+  },
+  {
+    "name": "juniper",
+    "ott_id": 836788,
+    "image_url": "/taxa-images/836788.jpg",
+    "uniqname": "Juniperus"
+  },
+  {
+    "name": "tiger lily",
+    "ott_id": 73799,
+    "image_url": "/taxa-images/73799.jpg",
+    "uniqname": "Lilium lancifolium"
+  },
+  {
+    "name": "Easter lily",
+    "ott_id": 592248,
+    "image_url": "/taxa-images/592248.jpg",
+    "uniqname": "Lilium longiflorum"
+  },
+  {
+    "name": "tulip",
+    "ott_id": 878707,
+    "image_url": "/taxa-images/878707.jpg",
+    "uniqname": "Tulipa gesneriana"
+  },
+  {
+    "name": "gladiolus",
+    "ott_id": 524985,
+    "image_url": "/taxa-images/524985.jpg",
+    "uniqname": "Gladiolus"
+  },
+  {
+    "name": "bamboo",
+    "ott_id": 256629,
+    "image_url": "/taxa-images/256629.jpg",
+    "uniqname": "Phyllostachys edulis"
+  },
+  {
+    "name": "sugarcane",
+    "ott_id": 1079465,
+    "image_url": "/taxa-images/1079465.jpg",
+    "uniqname": "Saccharum officinarum"
+  },
+  {
+    "name": "orchid",
+    "ott_id": 406191,
+    "image_url": "/taxa-images/406191.jpg",
+    "uniqname": "Phalaenopsis amabilis"
+  },
+  {
+    "name": "blackberry",
+    "ott_id": 3905629,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Rubus%20vestitus%20-%20Botanischer%20Garten%2C%20Frankfurt%20am%20Main%20-%20DSC02477.JPG",
+    "uniqname": "Rubus vestitus"
+  },
+  {
+    "name": "peanut",
+    "ott_id": 39541,
+    "image_url": "/taxa-images/39541.jpg",
+    "uniqname": "Arachis hypogaea"
+  },
+  {
+    "name": "petunia",
+    "ott_id": 232467,
+    "image_url": "/taxa-images/232467.jpg",
+    "uniqname": "Petunia axillaris"
+  },
+  {
+    "name": "oak",
+    "ott_id": 239659,
+    "image_url": "/taxa-images/239659.jpg",
+    "uniqname": "Quercus robur"
+  },
+  {
+    "name": "maple",
+    "ott_id": 948916,
+    "image_url": "/taxa-images/948916.jpg",
+    "uniqname": "Acer saccharum"
+  },
+  {
+    "name": "birch",
+    "ott_id": 267719,
+    "image_url": "/taxa-images/267719.jpg",
+    "uniqname": "Betula pendula"
   }
 ]
