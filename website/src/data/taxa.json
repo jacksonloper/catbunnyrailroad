@@ -1523,13 +1523,13 @@
   {
     "name": "stonewort",
     "ott_id": 916310,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/CharaFragilis.jpg",
+    "image_url": "/taxa-images/916310.jpg",
     "uniqname": "Charophyceae"
   },
   {
     "name": "land plant",
     "ott_id": 56610,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Plants.jpg",
+    "image_url": "/taxa-images/56610.jpg",
     "uniqname": "Embryophyta"
   },
   {
@@ -1541,7 +1541,7 @@
   {
     "name": "hornwort",
     "ott_id": 738980,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Phaeoceros%20laevis.jpg",
+    "image_url": "/taxa-images/738980.jpg",
     "uniqname": "Anthocerotophyta"
   },
   {
@@ -1571,7 +1571,7 @@
   {
     "name": "gymnosperm",
     "ott_id": 5296507,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Gymnospermae.jpg",
+    "image_url": "/taxa-images/5296507.jpg",
     "uniqname": "Acrogymnospermae"
   },
   {
@@ -1583,7 +1583,7 @@
   {
     "name": "ginkgo",
     "ott_id": 7580118,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Ginkgo%20biloba0.jpg",
+    "image_url": "/taxa-images/7580118.jpg",
     "uniqname": "Ginkgophyta"
   },
   {
@@ -1607,7 +1607,7 @@
   {
     "name": "kelps",
     "ott_id": 266749,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Macrocystis_pyrifera.jpg",
+    "image_url": "/taxa-images/266749.jpg",
     "uniqname": "Laminariaceae"
   },
   {
@@ -1933,5 +1933,137 @@
     "ott_id": 820645,
     "image_url": "/taxa-images/820645.jpg",
     "uniqname": "Salvia officinalis"
+  },
+  {
+    "name": "hairy bittercress",
+    "ott_id": 608999,
+    "image_url": "/taxa-images/608999.jpg",
+    "uniqname": "Cardamine hirsuta"
+  },
+  {
+    "name": "Swiss cheese plant",
+    "ott_id": 247717,
+    "image_url": "/taxa-images/247717.jpg",
+    "uniqname": "Monstera deliciosa"
+  },
+  {
+    "name": "money plant",
+    "ott_id": 464805,
+    "image_url": "/taxa-images/464805.jpg",
+    "uniqname": "Lunaria annua"
+  },
+  {
+    "name": "butterfly mariposa lily",
+    "ott_id": 30138,
+    "image_url": "/taxa-images/30138.jpg",
+    "uniqname": "Calochortus venustus"
+  },
+  {
+    "name": "coneflower",
+    "ott_id": 608911,
+    "image_url": "/taxa-images/608911.jpg",
+    "uniqname": "Echinacea"
+  },
+  {
+    "name": "black eyed Susan",
+    "ott_id": 837485,
+    "image_url": "/taxa-images/837485.jpg",
+    "uniqname": "Rudbeckia hirta"
+  },
+  {
+    "name": "peony",
+    "ott_id": 352877,
+    "image_url": "/taxa-images/352877.jpg",
+    "uniqname": "Paeonia lactiflora"
+  },
+  {
+    "name": "swamp dewberry",
+    "ott_id": 412675,
+    "image_url": "/taxa-images/412675.jpg",
+    "uniqname": "Rubus hispidus"
+  },
+  {
+    "name": "trumpet vine",
+    "ott_id": 1069511,
+    "image_url": "/taxa-images/1069511.jpg",
+    "uniqname": "Campsis radicans"
+  },
+  {
+    "name": "tobacco",
+    "ott_id": 222787,
+    "image_url": "/taxa-images/222787.jpg",
+    "uniqname": "Nicotiana tabacum"
+  },
+  {
+    "name": "anise hyssop",
+    "ott_id": 1062003,
+    "image_url": "/taxa-images/1062003.jpg",
+    "uniqname": "Agastache foeniculum"
+  },
+  {
+    "name": "milkweed",
+    "ott_id": 148395,
+    "image_url": "/taxa-images/148395.jpg",
+    "uniqname": "Asclepias syriaca"
+  },
+  {
+    "name": "poison ivy",
+    "ott_id": 411489,
+    "image_url": "/taxa-images/411489.jpg",
+    "uniqname": "Toxicodendron radicans"
+  },
+  {
+    "name": "mulberry",
+    "ott_id": 658488,
+    "image_url": "/taxa-images/658488.jpg",
+    "uniqname": "Morus alba"
+  },
+  {
+    "name": "tree of heaven",
+    "ott_id": 30793,
+    "image_url": "/taxa-images/30793.jpg",
+    "uniqname": "Ailanthus altissima"
+  },
+  {
+    "name": "Adams needle",
+    "ott_id": 974212,
+    "image_url": "/taxa-images/974212.jpg",
+    "uniqname": "Yucca filamentosa"
+  },
+  {
+    "name": "curly dock",
+    "ott_id": 516846,
+    "image_url": "/taxa-images/516846.jpg",
+    "uniqname": "Rumex crispus"
+  },
+  {
+    "name": "chicory",
+    "ott_id": 692350,
+    "image_url": "/taxa-images/692350.jpg",
+    "uniqname": "Cichorium intybus"
+  },
+  {
+    "name": "Canadian anemone",
+    "ott_id": 483272,
+    "image_url": "/taxa-images/483272.jpg",
+    "uniqname": "Anemone canadensis"
+  },
+  {
+    "name": "Philadelphia fleabane",
+    "ott_id": 957388,
+    "image_url": "/taxa-images/957388.jpg",
+    "uniqname": "Erigeron philadelphicus"
+  },
+  {
+    "name": "black seed plantain",
+    "ott_id": 989042,
+    "image_url": "/taxa-images/989042.jpg",
+    "uniqname": "Plantago rugelii"
+  },
+  {
+    "name": "motherwort",
+    "ott_id": 285418,
+    "image_url": "/taxa-images/285418.jpg",
+    "uniqname": "Leonurus cardiaca"
   }
 ]
