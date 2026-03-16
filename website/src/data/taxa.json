@@ -1547,7 +1547,7 @@
   {
     "name": "vascular plant",
     "ott_id": 10210,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/PinusSylvestris.jpg",
+    "image_url": "/taxa-images/10210.jpg",
     "uniqname": "Tracheophyta"
   },
   {
@@ -1559,7 +1559,7 @@
   {
     "name": "euphyllophyte",
     "ott_id": 1007992,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Illustration%20Crocus%20vernus0.jpg",
+    "image_url": "/taxa-images/1007992.jpg",
     "uniqname": "Euphyllophyta"
   },
   {
@@ -1601,7 +1601,7 @@
   {
     "name": "brown algae",
     "ott_id": 48614,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Kelp-forest-Monterey.jpg",
+    "image_url": "/taxa-images/48614.jpg",
     "uniqname": "Phaeophyceae"
   },
   {
@@ -1637,7 +1637,7 @@
   {
     "name": "water molds",
     "ott_id": 555765,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Phytophtora%20reproduction.png",
+    "image_url": "/taxa-images/555765.png",
     "uniqname": "Peronosporomycetes"
   },
   {
@@ -1685,7 +1685,7 @@
   {
     "name": "coralline red algae",
     "ott_id": 238994,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Corallina%20elongata.jpg",
+    "image_url": "/taxa-images/238994.jpg",
     "uniqname": "Corallinales"
   },
   {
@@ -2065,5 +2065,53 @@
     "ott_id": 285418,
     "image_url": "/taxa-images/285418.jpg",
     "uniqname": "Leonurus cardiaca"
+  },
+  {
+    "name": "mole",
+    "ott_id": 222358,
+    "image_url": "/taxa-images/222358.jpg",
+    "uniqname": "Talpidae"
+  },
+  {
+    "name": "European mole",
+    "ott_id": 222362,
+    "image_url": "/taxa-images/222362.jpg",
+    "uniqname": "Talpa europaea"
+  },
+  {
+    "name": "Eastern mole",
+    "ott_id": 1088414,
+    "image_url": "/taxa-images/1088414.jpg",
+    "uniqname": "Scalopus aquaticus"
+  },
+  {
+    "name": "star-nosed mole",
+    "ott_id": 292504,
+    "image_url": "/taxa-images/292504.jpg",
+    "uniqname": "Condylura cristata"
+  },
+  {
+    "name": "Southern magnolia",
+    "ott_id": 622553,
+    "image_url": "/taxa-images/622553.jpg",
+    "uniqname": "Magnolia grandiflora"
+  },
+  {
+    "name": "star magnolia",
+    "ott_id": 664533,
+    "image_url": "/taxa-images/664533.jpg",
+    "uniqname": "Magnolia stellata"
+  },
+  {
+    "name": "tulip tree",
+    "ott_id": 777299,
+    "image_url": "/taxa-images/777299.jpg",
+    "uniqname": "Liriodendron tulipifera"
+  },
+  {
+    "name": "magnoliid",
+    "ott_id": 31010,
+    "image_url": "/taxa-images/31010.jpg",
+    "uniqname": "Magnoliidae"
   }
 ]
