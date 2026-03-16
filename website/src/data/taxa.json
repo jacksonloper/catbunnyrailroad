@@ -1577,7 +1577,7 @@
   {
     "name": "cycad",
     "ott_id": 7579470,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Cycas%20circinalis%20male%20cone%20in%20Olomouc.jpg",
+    "image_url": "/taxa-images/7579470.jpg",
     "uniqname": "Cycadidae"
   },
   {
@@ -1589,7 +1589,7 @@
   {
     "name": "gnetophyte",
     "ott_id": 10209,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Welwitschia-mirabilis-female.jpg",
+    "image_url": "/taxa-images/10209.jpg",
     "uniqname": "Gnetophyta"
   },
   {
@@ -1631,7 +1631,7 @@
   {
     "name": "yellow-green algae",
     "ott_id": 151001,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Alger%2C%20Botydium%20granulatum%2C%20Nordisk%20familjebok.png",
+    "image_url": "/taxa-images/151001.png",
     "uniqname": "Xanthophyceae"
   },
   {
@@ -1649,7 +1649,7 @@
   {
     "name": "acid kelps / desmarestias",
     "ott_id": 388859,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Desmerestia%20aculeata.jpg",
+    "image_url": "/taxa-images/388859.jpg",
     "uniqname": "Desmarestiales"
   },
   {
@@ -1690,9 +1690,9 @@
   },
   {
     "name": "Asparagales",
-    "ott_id": 5298374,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Asperge_in_bloei_Asparagus_officinalis.jpg",
-    "uniqname": "Asparagales"
+    "ott_id": 17701,
+    "image_url": "/taxa-images/17701.jpg",
+    "uniqname": "Amaryllidaceae"
   },
   {
     "name": "asparagus fern",
