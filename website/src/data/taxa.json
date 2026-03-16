@@ -1499,7 +1499,7 @@
   {
     "name": "mesostigma",
     "ott_id": 930075,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Mesostigma%20viride%20534857918.jpg",
+    "image_url": "/taxa-images/930075.jpg",
     "uniqname": "Mesostigmatophyceae"
   },
   {
@@ -1517,7 +1517,7 @@
   {
     "name": "coleochaete",
     "ott_id": 885793,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/British%20fresh-water%20algae%2C%20exclusive%20of%20Desmidieae%20and%20Diatomaceae%20%281882-1884%29%20%2820409523652%29.jpg",
+    "image_url": "/taxa-images/885793.jpg",
     "uniqname": "Coleochaetophyceae"
   },
   {
@@ -1535,7 +1535,7 @@
   {
     "name": "liverwort",
     "ott_id": 56601,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Assortment%20of%20Hepaticae%20from%20Kunstformen%20der%20Natur%20%281904%29%2C%20plate%2082.jpg",
+    "image_url": "/taxa-images/56601.jpg",
     "uniqname": "Marchantiophyta"
   },
   {
@@ -1553,7 +1553,7 @@
   {
     "name": "clubmoss",
     "ott_id": 144795,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Lycopodium%20plant.jpg",
+    "image_url": "/taxa-images/144795.jpg",
     "uniqname": "Lycopodiopsida"
   },
   {
@@ -1855,5 +1855,83 @@
     "ott_id": 267719,
     "image_url": "/taxa-images/267719.jpg",
     "uniqname": "Betula pendula"
+  },
+  {
+    "name": "euphorbia",
+    "ott_id": 109494,
+    "image_url": "/taxa-images/109494.jpg",
+    "uniqname": "Euphorbia"
+  },
+  {
+    "name": "cactiform euphorbia",
+    "ott_id": 683659,
+    "image_url": "/taxa-images/683659.jpg",
+    "uniqname": "Euphorbia ingens"
+  },
+  {
+    "name": "poinsettia",
+    "ott_id": 756493,
+    "image_url": "/taxa-images/756493.jpg",
+    "uniqname": "Euphorbia pulcherrima"
+  },
+  {
+    "name": "sausage tree",
+    "ott_id": 482933,
+    "image_url": "/taxa-images/482933.jpg",
+    "uniqname": "Kigelia africana"
+  },
+  {
+    "name": "cranesbill geranium",
+    "ott_id": 948948,
+    "image_url": "/taxa-images/948948.jpg",
+    "uniqname": "Geranium"
+  },
+  {
+    "name": "rose geranium",
+    "ott_id": 396481,
+    "image_url": "/taxa-images/396481.jpg",
+    "uniqname": "Pelargonium graveolens"
+  },
+  {
+    "name": "ground ivy",
+    "ott_id": 22375,
+    "image_url": "/taxa-images/22375.jpg",
+    "uniqname": "Glechoma hederacea"
+  },
+  {
+    "name": "stinging nettle",
+    "ott_id": 267705,
+    "image_url": "/taxa-images/267705.jpg",
+    "uniqname": "Urtica dioica"
+  },
+  {
+    "name": "white dead nettle",
+    "ott_id": 332796,
+    "image_url": "/taxa-images/332796.jpg",
+    "uniqname": "Lamium album"
+  },
+  {
+    "name": "red dead nettle",
+    "ott_id": 907319,
+    "image_url": "/taxa-images/907319.jpg",
+    "uniqname": "Lamium purpureum"
+  },
+  {
+    "name": "creeping thistle",
+    "ott_id": 591412,
+    "image_url": "/taxa-images/591412.jpg",
+    "uniqname": "Cirsium arvense"
+  },
+  {
+    "name": "globe thistle",
+    "ott_id": 25036,
+    "image_url": "/taxa-images/25036.jpg",
+    "uniqname": "Echinops sphaerocephalus"
+  },
+  {
+    "name": "sage",
+    "ott_id": 820645,
+    "image_url": "/taxa-images/820645.jpg",
+    "uniqname": "Salvia officinalis"
   }
 ]
