@@ -249,10 +249,10 @@ function SubtreeView({ subtree, onClose }) {
   const [mazeLoading, setMazeLoading] = useState(false);
   const [mazeWallView, setMazeWallView] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
-  const [showPack, setShowPack] = useState(false);
-  const [packShowLegend, setPackShowLegend] = useState(false);
+  const [showTreemap, setShowTreemap] = useState(false);
+  const [treemapShowLegend, setTreemapShowLegend] = useState(false);
   const treeSvgRef = useRef(null);
-  const packSvgRef = useRef(null);
+  const treemapSvgRef = useRef(null);
   const workerRef = useRef(null);
 
   // Cancel any in-flight worker
@@ -897,7 +897,7 @@ function SubtreeView({ subtree, onClose }) {
       } catch (err) { console.warn("Failed to load image:", srcUrl, err); }
     }));
 
-    const legendEntries = packShowLegend ? buildTreemapLegendEntries() : [];
+    const legendEntries = treemapShowLegend ? buildTreemapLegendEntries() : [];
     const legendImgSize = 16;
     const legendRowH = 22;
     const legendPadTop = 12;
@@ -934,7 +934,7 @@ function SubtreeView({ subtree, onClose }) {
       lines.push(`<text x="${cx}" y="${cy + imgS / 2 + 4}" text-anchor="middle" font-size="7" fill="#333" font-family="sans-serif">${capName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
     }
     // Legend
-    if (packShowLegend && legendEntries.length > 0) {
+    if (treemapShowLegend && legendEntries.length > 0) {
       const ly0 = treemapH + legendPadTop;
       for (let i = 0; i < legendEntries.length; i++) {
         const e = legendEntries[i];
@@ -967,7 +967,7 @@ function SubtreeView({ subtree, onClose }) {
     const { rects, maxDepth } = treemapData;
     const leafRects = rects.filter((r) => r.isLeaf && r.node.isTaxon);
 
-    const legendEntries = packShowLegend ? buildTreemapLegendEntries() : [];
+    const legendEntries = treemapShowLegend ? buildTreemapLegendEntries() : [];
     const legendImgSize = 16;
     const legendRowH = 22;
     const legendPadTop = 12;
@@ -1056,7 +1056,7 @@ function SubtreeView({ subtree, onClose }) {
     }
 
     // Legend
-    if (packShowLegend && legendEntries.length > 0) {
+    if (treemapShowLegend && legendEntries.length > 0) {
       ctx.textAlign = "left";
       for (let i = 0; i < legendEntries.length; i++) {
         const e = legendEntries[i];
@@ -1119,11 +1119,11 @@ function SubtreeView({ subtree, onClose }) {
   }
 
   // ---- Treemap view ----
-  if (showPack) {
+  if (showTreemap) {
     const { rects, maxDepth } = treemapData;
     const leafRects = rects.filter((r) => r.isLeaf && r.node.isTaxon);
     const internalRects = [...rects].filter((r) => !r.isLeaf).sort((a, b) => a.depth - b.depth);
-    const legendEntries = packShowLegend ? buildTreemapLegendEntries() : [];
+    const legendEntries = treemapShowLegend ? buildTreemapLegendEntries() : [];
 
     return (
       <div className="subtree-overlay">
@@ -1133,7 +1133,7 @@ function SubtreeView({ subtree, onClose }) {
             <div className="subtree-header-actions">
               <button
                 className="subtree-copy-btn"
-                onClick={() => { setShowPack(false); }}
+                onClick={() => { setShowTreemap(false); }}
               >
                 🌳 Back to tree
               </button>
@@ -1154,8 +1154,8 @@ function SubtreeView({ subtree, onClose }) {
               <label className="maze-size-label">
                 <input
                   type="checkbox"
-                  checked={packShowLegend}
-                  onChange={(e) => setPackShowLegend(e.target.checked)}
+                  checked={treemapShowLegend}
+                  onChange={(e) => setTreemapShowLegend(e.target.checked)}
                 />
                 Legend
               </label>
@@ -1172,7 +1172,7 @@ function SubtreeView({ subtree, onClose }) {
           </div>
           <div className="subtree-content">
             <svg
-              ref={packSvgRef}
+              ref={treemapSvgRef}
               className="treemap-svg"
               width={treemapW}
               height={treemapH}
@@ -1228,7 +1228,7 @@ function SubtreeView({ subtree, onClose }) {
                 );
               })}
             </svg>
-            {packShowLegend && legendEntries.length > 0 && (
+            {treemapShowLegend && legendEntries.length > 0 && (
               <div className="maze-legend">
                 {legendEntries.map((e) => (
                   <div key={e.ottId} className="maze-legend-item">
@@ -1476,7 +1476,7 @@ function SubtreeView({ subtree, onClose }) {
             </button>
             <button
               className="subtree-copy-btn"
-              onClick={() => { setShowPack(true); }}
+              onClick={() => { setShowTreemap(true); }}
               title="Show tree as nested treemap"
             >
               🟩 Treemap
