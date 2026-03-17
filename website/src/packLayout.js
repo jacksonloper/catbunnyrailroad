@@ -21,6 +21,33 @@ export function depthColor(depth, maxDepth) {
 }
 
 /**
+ * Determine how a label should be oriented to fit inside a treemap cell,
+ * or null if it doesn't fit in either orientation.
+ *
+ * The principle: a label is only shown when its estimated pixel width
+ * (and height) fit entirely within the cell, with a small padding margin.
+ * If horizontal doesn't fit, try rotating 90°.  If neither fits, hide it.
+ *
+ * @param {string} label    – the text to display
+ * @param {number} cellW    – cell width in px
+ * @param {number} cellH    – cell height in px
+ * @param {number} [fontSize=7] – font size in px
+ * @returns {"h"|"v"|null}  – "h" horizontal, "v" rotated 90°, or null (hidden)
+ */
+export function labelFit(label, cellW, cellH, fontSize = 7) {
+  const charW = fontSize * 0.6; // approximate char width for sans-serif
+  const textW = label.length * charW;
+  const textH = fontSize;
+  const pad = 2;
+
+  // Horizontal: text runs left-to-right
+  if (textW + pad <= cellW && textH + pad <= cellH) return "h";
+  // Vertical: text rotated 90° (runs bottom-to-top)
+  if (textW + pad <= cellH && textH + pad <= cellW) return "v";
+  return null;
+}
+
+/**
  * Compute nested-treemap layout for a subtree.
  *
  * @param {object} subtree  – tree node with { name, ott_id, isTaxon, children }

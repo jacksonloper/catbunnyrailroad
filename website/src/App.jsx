@@ -4,7 +4,7 @@ import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
 import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
-import { computeTreemapLayout, depthColor } from "./packLayout.js";
+import { computeTreemapLayout, depthColor, labelFit } from "./packLayout.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
 import "./App.css";
@@ -923,15 +923,24 @@ function SubtreeView({ subtree, onClose }) {
       const rh = r.y1 - r.y0;
       const cx = r.x0 + rw / 2;
       const cy = r.y0 + rh / 2;
-      const imgS = Math.min(rw, rh, 20) * 0.6;
-      if (resolvedUrl) {
-        lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - imgS / 2}" y="${cy - imgS / 2 - 4}" width="${imgS}" height="${imgS}" clip-path="inset(0 round 3px)"/>`);
-      } else {
-        lines.push(`<circle cx="${cx}" cy="${cy - 4}" r="${imgS / 2}" fill="#e07020"/>`);
-      }
       const dn = displayName(r.node);
       const capName = showUniqNames ? dn : capitalize(dn);
-      lines.push(`<text x="${cx}" y="${cy + imgS / 2 + 4}" text-anchor="middle" font-size="7" fill="#333" font-family="sans-serif">${capName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
+      const fit = labelFit(dn, rw, rh);
+      if (!fit) continue;
+
+      const imgS = Math.min(rw, rh, 20) * 0.6;
+      const showImg = fit === "h" && imgS + 11 <= rh;
+      if (showImg) {
+        if (resolvedUrl) {
+          lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - imgS / 2}" y="${cy - imgS / 2 - 4}" width="${imgS}" height="${imgS}" clip-path="inset(0 round 3px)"/>`);
+        } else {
+          lines.push(`<circle cx="${cx}" cy="${cy - 4}" r="${imgS / 2}" fill="#e07020"/>`);
+        }
+      }
+      const textY = showImg ? cy + imgS / 2 + 4 : cy;
+      const baseline = showImg ? "" : ` dominant-baseline="central"`;
+      const transform = fit === "v" ? ` transform="rotate(-90,${cx},${cy})"` : "";
+      lines.push(`<text x="${cx}" y="${textY}" text-anchor="middle"${baseline} font-size="7" fill="#333" font-family="sans-serif"${transform}>${capName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
     }
     // Legend
     if (treemapShowLegend && legendEntries.length > 0) {
@@ -1027,32 +1036,48 @@ function SubtreeView({ subtree, onClose }) {
       const rh = r.y1 - r.y0;
       const cx = r.x0 + rw / 2;
       const cy = r.y0 + rh / 2;
-      const imgS = Math.min(rw, rh, 20) * 0.6;
-      const bitmap = sp?.image_url && bitmaps.get(sp.image_url);
-      if (bitmap) {
-        const imgX = (cx - imgS / 2) * scale;
-        const imgY = (cy - imgS / 2 - 4) * scale;
-        const imgW = imgS * scale;
-        const imgH = imgS * scale;
-        ctx.save();
-        ctx.beginPath();
-        traceRoundedRect(ctx, imgX, imgY, imgW, imgH, 3 * scale);
-        ctx.clip();
-        ctx.drawImage(bitmap, imgX, imgY, imgW, imgH);
-        ctx.restore();
-      } else {
-        ctx.fillStyle = "#e07020";
-        ctx.beginPath();
-        ctx.arc(cx * scale, (cy - 4) * scale, (imgS / 2) * scale, 0, 2 * Math.PI);
-        ctx.fill();
-      }
       const dn = displayName(r.node);
       const capName = showUniqNames ? dn : capitalize(dn);
+      const fit = labelFit(dn, rw, rh);
+      if (!fit) continue;
+
+      const imgS = Math.min(rw, rh, 20) * 0.6;
+      const showImg = fit === "h" && imgS + 11 <= rh;
+      if (showImg) {
+        const bitmap = sp?.image_url && bitmaps.get(sp.image_url);
+        if (bitmap) {
+          const imgX = (cx - imgS / 2) * scale;
+          const imgY = (cy - imgS / 2 - 4) * scale;
+          const imgW = imgS * scale;
+          const imgH = imgS * scale;
+          ctx.save();
+          ctx.beginPath();
+          traceRoundedRect(ctx, imgX, imgY, imgW, imgH, 3 * scale);
+          ctx.clip();
+          ctx.drawImage(bitmap, imgX, imgY, imgW, imgH);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = "#e07020";
+          ctx.beginPath();
+          ctx.arc(cx * scale, (cy - 4) * scale, (imgS / 2) * scale, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+      }
       ctx.font = `${7 * scale}px sans-serif`;
       ctx.fillStyle = "#333";
       ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      ctx.fillText(capName, cx * scale, (cy + imgS / 2 + 4) * scale);
+      if (fit === "v") {
+        ctx.save();
+        ctx.translate(cx * scale, cy * scale);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textBaseline = "middle";
+        ctx.fillText(capName, 0, 0);
+        ctx.restore();
+      } else {
+        const textY = showImg ? cy + imgS / 2 + 4 : cy;
+        ctx.textBaseline = showImg ? "top" : "middle";
+        ctx.fillText(capName, cx * scale, textY * scale);
+      }
     }
 
     // Legend
@@ -1199,27 +1224,36 @@ function SubtreeView({ subtree, onClose }) {
                 const rh = r.y1 - r.y0;
                 const cx = r.x0 + rw / 2;
                 const cy = r.y0 + rh / 2;
-                const imgS = Math.min(rw, rh, 20) * 0.6;
                 const dn = displayName(r.node);
+                const fit = labelFit(dn, rw, rh);
+                if (!fit) return null;
+
+                const imgS = Math.min(rw, rh, 20) * 0.6;
+                // Show image only when horizontal and enough room for combo
+                const showImg = fit === "h" && imgS + 11 <= rh;
                 return (
                   <g key={r.node.ott_id ?? `t-${r.x0}-${r.y0}`}>
-                    {sp?.image_url ? (
-                      <image
-                        href={sp.image_url}
-                        x={cx - imgS / 2}
-                        y={cy - imgS / 2 - 4}
-                        width={imgS}
-                        height={imgS}
-                        clipPath="inset(0 round 3px)"
-                      />
-                    ) : (
-                      <circle cx={cx} cy={cy - 4} r={imgS / 2} fill="#e07020" />
+                    {showImg && (
+                      sp?.image_url ? (
+                        <image
+                          href={sp.image_url}
+                          x={cx - imgS / 2}
+                          y={cy - imgS / 2 - 4}
+                          width={imgS}
+                          height={imgS}
+                          clipPath="inset(0 round 3px)"
+                        />
+                      ) : (
+                        <circle cx={cx} cy={cy - 4} r={imgS / 2} fill="#e07020" />
+                      )
                     )}
                     <text
                       x={cx}
-                      y={cy + imgS / 2 + 4}
+                      y={showImg ? cy + imgS / 2 + 4 : cy}
                       textAnchor="middle"
+                      dominantBaseline={showImg ? undefined : "central"}
                       className="treemap-label"
+                      transform={fit === "v" ? `rotate(-90,${cx},${cy})` : undefined}
                       style={showUniqNames ? { textTransform: "none" } : undefined}
                     >
                       {dn}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeTreemapLayout, depthColor } from "./packLayout.js";
+import { computeTreemapLayout, depthColor, labelFit } from "./packLayout.js";
 
 // ---- helpers ----
 
@@ -28,6 +28,50 @@ describe("depthColor", () => {
   it("handles maxDepth 0 gracefully", () => {
     const c = depthColor(0, 0);
     expect(c).toMatch(/^hsl\(/);
+  });
+});
+
+// ---- labelFit ----
+
+describe("labelFit", () => {
+  // fontSize defaults to 7 → charW = 4.2, textH = 7, pad = 2
+  // "cat" → textW = 3*4.2 = 12.6
+
+  it("returns 'h' when label fits horizontally", () => {
+    expect(labelFit("cat", 50, 20)).toBe("h");
+  });
+
+  it("returns 'v' when label only fits rotated", () => {
+    // 12.6+2 = 14.6 > 10 (no horizontal), but 14.6 ≤ 50 and 7+2 = 9 ≤ 10 (vertical ok)
+    expect(labelFit("cat", 10, 50)).toBe("v");
+  });
+
+  it("returns null when label doesn't fit either way", () => {
+    expect(labelFit("american pitcher plant", 10, 10)).toBeNull();
+  });
+
+  it("returns 'h' for a short label in a roomy cell", () => {
+    expect(labelFit("x", 20, 20)).toBe("h");
+  });
+
+  it("returns null for a label in a tiny cell", () => {
+    expect(labelFit("x", 3, 3)).toBeNull();
+  });
+
+  it("prefers horizontal when both orientations fit", () => {
+    expect(labelFit("ab", 50, 50)).toBe("h");
+  });
+
+  it("handles empty string label", () => {
+    // textW = 0, pad = 2 → needs cellW ≥ 2 and cellH ≥ 9
+    expect(labelFit("", 5, 10)).toBe("h");
+  });
+
+  it("returns null when cell height is too short for text", () => {
+    // textH + pad = 9, cellH = 8 → too short even for horizontal
+    // textW("a") + pad = 6.2, cellW = 20 → width ok but height too short
+    // vertical: textW + pad = 6.2 ≤ 8? yes. textH + pad = 9 ≤ 20? yes → "v"
+    expect(labelFit("a", 20, 8)).toBe("v");
   });
 });
 
