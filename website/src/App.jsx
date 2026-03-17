@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
@@ -230,6 +230,7 @@ function countTreeNodes(node) {
 }
 
 function SubtreeView({ subtree, onClose }) {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -1139,6 +1140,7 @@ function SubtreeView({ subtree, onClose }) {
               const sp = taxaByOttId.get(l.node.ott_id);
               const dn = displayName(l.node);
               const starX = l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + dn.length * pxPerChar + 4;
+              const exploreX = starX + (sp?.comments ? pxPerChar + 4 : 0);
               return (
                 <g key={l.node.ott_id ?? l.node.name}>
                   {sp?.image_url && (
@@ -1170,6 +1172,18 @@ function SubtreeView({ subtree, onClose }) {
                       style={{ cursor: "pointer" }}
                     >
                       ★
+                    </text>
+                  )}
+                  {l.node.ott_id && (
+                    <text
+                      x={exploreX}
+                      y={l.y}
+                      dominantBaseline="central"
+                      className="subtree-explore-icon"
+                      onClick={() => navigate(`/explore/${l.node.ott_id}`)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      🔍
                     </text>
                   )}
                 </g>
@@ -1684,6 +1698,15 @@ function App() {
                             aria-label={`Select ${name} clade`}
                           >🌿</button>
                         )}
+                        {data?.ott_id && (
+                          <Link
+                            to={`/explore/${data.ott_id}`}
+                            className="explore-btn"
+                            onClick={(e) => e.stopPropagation()}
+                            title={`Explore ${name}`}
+                            aria-label={`Explore ${name}`}
+                          >🔍</Link>
+                        )}
                       </li>
                     );
                   })}
@@ -1751,6 +1774,15 @@ function App() {
                             title={`Select ${sp.name} and all its descendants`}
                             aria-label={`Select ${sp.name} clade`}
                           >🌿</button>
+                        )}
+                        {sp.ott_id && (
+                          <Link
+                            to={`/explore/${sp.ott_id}`}
+                            className="explore-btn"
+                            onClick={(e) => e.stopPropagation()}
+                            title={`Explore ${sp.name}`}
+                            aria-label={`Explore ${sp.name}`}
+                          >🔍</Link>
                         )}
                       </li>
                     );
