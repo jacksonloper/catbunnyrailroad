@@ -48,6 +48,30 @@ export function labelFit(label, cellW, cellH, fontSize = 7) {
 }
 
 /**
+ * Decide how to represent a leaf cell in the treemap.
+ *
+ * Priority order:
+ *  1. "label-h" – horizontal text label fits
+ *  2. "label-v" – vertical (90°-rotated) text label fits
+ *  3. "img"     – cell is at least minImg × minImg so a square thumbnail fits
+ *  4. "dot"     – cell exists but is too small for anything else; show a dot
+ *
+ * @param {string} label       – display name of the taxon
+ * @param {number} cellW       – cell width in px
+ * @param {number} cellH       – cell height in px
+ * @param {number} [fontSize=7]  – font size in px (for label measurement)
+ * @param {number} [minImg=6]    – minimum cell dimension to show a thumbnail
+ * @returns {"label-h"|"label-v"|"img"|"dot"}
+ */
+export function cellRep(label, cellW, cellH, fontSize = 7, minImg = 6) {
+  const fit = labelFit(label, cellW, cellH, fontSize);
+  if (fit === "h") return "label-h";
+  if (fit === "v") return "label-v";
+  if (cellW >= minImg && cellH >= minImg) return "img";
+  return "dot";
+}
+
+/**
  * Compute nested-treemap layout for a subtree.
  *
  * @param {object} subtree  – tree node with { name, ott_id, isTaxon, children }

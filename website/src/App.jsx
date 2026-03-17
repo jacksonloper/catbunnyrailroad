@@ -4,7 +4,7 @@ import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
 import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
-import { computeTreemapLayout, depthColor, labelFit } from "./packLayout.js";
+import { computeTreemapLayout, depthColor, labelFit, cellRep } from "./packLayout.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
 import "./App.css";
@@ -253,6 +253,11 @@ function SubtreeView({ subtree, onClose }) {
   const [treemapShowLegend, setTreemapShowLegend] = useState(false);
   const treeSvgRef = useRef(null);
   const treemapSvgRef = useRef(null);
+  const treemapContainerRef = useRef(null);
+  const [tmZoom, setTmZoom] = useState(1);
+  const [tmPan, setTmPan] = useState({ x: 0, y: 0 });
+  const tmDragRef = useRef(null);       // { startX, startY, panX, panY }
+  const tmPinchRef = useRef(null);      // { dist, zoom }
   const workerRef = useRef(null);
 
   // Cancel any in-flight worker
@@ -314,8 +319,12 @@ function SubtreeView({ subtree, onClose }) {
   const ottIds = useMemo(() => collectSubtreeOtts(subtree), [subtree]);
 
   // Nested-treemap layout (computed eagerly, no worker needed)
-  const treemapW = 700;
-  const treemapH = 500;
+  // Virtual canvas is large so cells are big enough for labels at zoom;
+  // displayed inside a viewport via CSS transform scale.
+  const treemapW = 2100;
+  const treemapH = 1500;
+  const treemapViewW = 700;   // viewport CSS width
+  const treemapViewH = 500;   // viewport CSS height
   const treemapData = useMemo(() => computeTreemapLayout(subtree, treemapW, treemapH), [subtree]);
 
   const labelOffset = 8;
@@ -925,9 +934,25 @@ function SubtreeView({ subtree, onClose }) {
       const cy = r.y0 + rh / 2;
       const dn = displayName(r.node);
       const capName = showUniqNames ? dn : capitalize(dn);
-      const fit = labelFit(dn, rw, rh);
-      if (!fit) continue;
+      const rep = cellRep(dn, rw, rh);
 
+      if (rep === "dot") {
+        const dotR = Math.max(1, Math.min(rw, rh) * 0.3);
+        lines.push(`<circle cx="${cx}" cy="${cy}" r="${dotR}" fill="${resolvedUrl ? '#e07020' : '#888'}"/>`);
+        continue;
+      }
+      if (rep === "img") {
+        const imgS = Math.min(rw, rh) * 0.85;
+        if (resolvedUrl) {
+          lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - imgS / 2}" y="${cy - imgS / 2}" width="${imgS}" height="${imgS}" clip-path="inset(0 round 2px)"/>`);
+        } else {
+          lines.push(`<circle cx="${cx}" cy="${cy}" r="${imgS / 2}" fill="#e07020"/>`);
+        }
+        continue;
+      }
+
+      // label-h or label-v
+      const fit = rep === "label-h" ? "h" : "v";
       const imgS = Math.min(rw, rh, 20) * 0.6;
       const showImg = fit === "h" && imgS + 11 <= rh;
       if (showImg) {
@@ -1150,6 +1175,62 @@ function SubtreeView({ subtree, onClose }) {
     const internalRects = [...rects].filter((r) => !r.isLeaf).sort((a, b) => a.depth - b.depth);
     const legendEntries = treemapShowLegend ? buildTreemapLegendEntries() : [];
 
+    // Zoom-adjusted representation: scale cell sizes by current zoom
+    const fontSize = 7;
+    const minImg = 6;
+
+    // Zoom / pan event handlers
+    const clampPan = (px, py, z) => {
+      const maxPx = Math.max(0, (treemapW * z - treemapViewW) / 2);
+      const maxPy = Math.max(0, (treemapH * z - treemapViewH) / 2);
+      return { x: Math.max(-maxPx, Math.min(maxPx, px)), y: Math.max(-maxPy, Math.min(maxPy, py)) };
+    };
+    const handleWheel = (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      const next = Math.max(1, Math.min(10, tmZoom * delta));
+      setTmZoom(next);
+      setTmPan((p) => clampPan(p.x, p.y, next));
+    };
+    const handlePointerDown = (e) => {
+      if (e.pointerType === "touch") return; // handled via touch events
+      e.currentTarget.setPointerCapture(e.pointerId);
+      tmDragRef.current = { startX: e.clientX, startY: e.clientY, panX: tmPan.x, panY: tmPan.y };
+    };
+    const handlePointerMove = (e) => {
+      if (!tmDragRef.current) return;
+      const dx = e.clientX - tmDragRef.current.startX;
+      const dy = e.clientY - tmDragRef.current.startY;
+      setTmPan(clampPan(tmDragRef.current.panX + dx, tmDragRef.current.panY + dy, tmZoom));
+    };
+    const handlePointerUp = () => { tmDragRef.current = null; };
+    const pinchDist = (ts) => Math.hypot(ts[0].clientX - ts[1].clientX, ts[0].clientY - ts[1].clientY);
+    const handleTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        tmPinchRef.current = { dist: pinchDist(e.touches), zoom: tmZoom };
+      } else if (e.touches.length === 1) {
+        tmDragRef.current = { startX: e.touches[0].clientX, startY: e.touches[0].clientY, panX: tmPan.x, panY: tmPan.y };
+      }
+    };
+    const handleTouchMove = (e) => {
+      if (e.touches.length === 2 && tmPinchRef.current) {
+        e.preventDefault();
+        const d = pinchDist(e.touches);
+        const next = Math.max(1, Math.min(10, tmPinchRef.current.zoom * (d / tmPinchRef.current.dist)));
+        setTmZoom(next);
+        setTmPan((p) => clampPan(p.x, p.y, next));
+      } else if (e.touches.length === 1 && tmDragRef.current) {
+        const dx = e.touches[0].clientX - tmDragRef.current.startX;
+        const dy = e.touches[0].clientY - tmDragRef.current.startY;
+        setTmPan(clampPan(tmDragRef.current.panX + dx, tmDragRef.current.panY + dy, tmZoom));
+      }
+    };
+    const handleTouchEnd = () => { tmDragRef.current = null; tmPinchRef.current = null; };
+
+    // The base (fit-in-viewport) scale
+    const baseScale = Math.min(treemapViewW / treemapW, treemapViewH / treemapH);
+
     return (
       <div className="subtree-overlay">
         <div className="subtree-panel">
@@ -1158,7 +1239,7 @@ function SubtreeView({ subtree, onClose }) {
             <div className="subtree-header-actions">
               <button
                 className="subtree-copy-btn"
-                onClick={() => { setShowTreemap(false); }}
+                onClick={() => { setShowTreemap(false); setTmZoom(1); setTmPan({ x: 0, y: 0 }); }}
               >
                 🌳 Back to tree
               </button>
@@ -1176,6 +1257,9 @@ function SubtreeView({ subtree, onClose }) {
               >
                 💾 PNG
               </button>
+              <button className="subtree-copy-btn" onClick={() => { setTmZoom((z) => Math.min(10, z * 1.3)); }} title="Zoom in">➕</button>
+              <button className="subtree-copy-btn" onClick={() => { const nz = Math.max(1, tmZoom * 0.77); setTmZoom(nz); setTmPan((p) => clampPan(p.x, p.y, nz)); }} title="Zoom out">➖</button>
+              <button className="subtree-copy-btn" onClick={() => { setTmZoom(1); setTmPan({ x: 0, y: 0 }); }} title="Reset zoom">↺</button>
               <label className="maze-size-label">
                 <input
                   type="checkbox"
@@ -1196,12 +1280,30 @@ function SubtreeView({ subtree, onClose }) {
             </div>
           </div>
           <div className="subtree-content">
+            <div
+              ref={treemapContainerRef}
+              className="treemap-viewport"
+              style={{ width: treemapViewW, height: treemapViewH }}
+              onWheel={handleWheel}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchEnd}
+            >
             <svg
               ref={treemapSvgRef}
               className="treemap-svg"
               width={treemapW}
               height={treemapH}
               viewBox={`0 0 ${treemapW} ${treemapH}`}
+              style={{
+                transform: `scale(${baseScale * tmZoom}) translate(${tmPan.x / (baseScale * tmZoom)}px, ${tmPan.y / (baseScale * tmZoom)}px)`,
+                transformOrigin: "0 0",
+              }}
             >
               {/* Internal rects (parents behind children) */}
               {internalRects.map((r, i) => (
@@ -1217,7 +1319,7 @@ function SubtreeView({ subtree, onClose }) {
                   opacity={0.6}
                 />
               ))}
-              {/* Leaf taxa rects with images */}
+              {/* Leaf taxa: label → image → dot fallback */}
               {leafRects.map((r) => {
                 const sp = taxaByOttId.get(r.node.ott_id);
                 const rw = r.x1 - r.x0;
@@ -1225,11 +1327,42 @@ function SubtreeView({ subtree, onClose }) {
                 const cx = r.x0 + rw / 2;
                 const cy = r.y0 + rh / 2;
                 const dn = displayName(r.node);
-                const fit = labelFit(dn, rw, rh);
-                if (!fit) return null;
+                const rep = cellRep(dn, rw, rh, fontSize, minImg);
 
+                if (rep === "dot") {
+                  const dotR = Math.max(1, Math.min(rw, rh) * 0.3);
+                  return (
+                    <circle
+                      key={r.node.ott_id ?? `t-${r.x0}-${r.y0}`}
+                      cx={cx} cy={cy} r={dotR}
+                      fill={sp?.image_url ? "#e07020" : "#888"}
+                    />
+                  );
+                }
+
+                if (rep === "img") {
+                  const imgS = Math.min(rw, rh) * 0.85;
+                  return (
+                    <g key={r.node.ott_id ?? `t-${r.x0}-${r.y0}`}>
+                      {sp?.image_url ? (
+                        <image
+                          href={sp.image_url}
+                          x={cx - imgS / 2}
+                          y={cy - imgS / 2}
+                          width={imgS}
+                          height={imgS}
+                          clipPath="inset(0 round 2px)"
+                        />
+                      ) : (
+                        <circle cx={cx} cy={cy} r={imgS / 2} fill="#e07020" />
+                      )}
+                    </g>
+                  );
+                }
+
+                // label-h or label-v
+                const fit = rep === "label-h" ? "h" : "v";
                 const imgS = Math.min(rw, rh, 20) * 0.6;
-                // Show image only when horizontal and enough room for combo
                 const showImg = fit === "h" && imgS + 11 <= rh;
                 return (
                   <g key={r.node.ott_id ?? `t-${r.x0}-${r.y0}`}>
@@ -1262,6 +1395,7 @@ function SubtreeView({ subtree, onClose }) {
                 );
               })}
             </svg>
+            </div>
             {treemapShowLegend && legendEntries.length > 0 && (
               <div className="maze-legend">
                 {legendEntries.map((e) => (

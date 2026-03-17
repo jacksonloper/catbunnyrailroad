@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeTreemapLayout, depthColor, labelFit } from "./packLayout.js";
+import { computeTreemapLayout, depthColor, labelFit, cellRep } from "./packLayout.js";
 
 // ---- helpers ----
 
@@ -72,6 +72,39 @@ describe("labelFit", () => {
     // textW("a") + pad = 6.2, cellW = 20 → width ok but height too short
     // vertical: textW + pad = 6.2 ≤ 8? yes. textH + pad = 9 ≤ 20? yes → "v"
     expect(labelFit("a", 20, 8)).toBe("v");
+  });
+});
+
+// ---- cellRep ----
+
+describe("cellRep", () => {
+  it("returns 'label-h' when label fits horizontally", () => {
+    expect(cellRep("cat", 50, 20)).toBe("label-h");
+  });
+
+  it("returns 'label-v' when label only fits rotated", () => {
+    expect(cellRep("cat", 10, 50)).toBe("label-v");
+  });
+
+  it("returns 'img' when label doesn't fit but cell is large enough for thumbnail", () => {
+    expect(cellRep("american pitcher plant", 10, 10)).toBe("img");
+  });
+
+  it("returns 'dot' when cell is too small for everything", () => {
+    expect(cellRep("cat", 3, 3)).toBe("dot");
+  });
+
+  it("returns 'img' for cell exactly at minImg threshold", () => {
+    expect(cellRep("a very long species name", 6, 6)).toBe("img");
+  });
+
+  it("returns 'dot' for cell just below minImg threshold", () => {
+    expect(cellRep("test", 5, 5)).toBe("dot");
+  });
+
+  it("respects custom minImg parameter", () => {
+    expect(cellRep("test", 8, 8, 7, 10)).toBe("dot");
+    expect(cellRep("test", 10, 10, 7, 10)).toBe("img");
   });
 });
 
