@@ -196,7 +196,7 @@ export default function ExplorePage() {
     if (!mrca) return;
 
     // If the MRCA has an ott_id, use ?clade= (compact & stable)
-    if (mrca.ott_id != null) {
+    if (mrca.ott_id !== null && mrca.ott_id !== undefined) {
       navigate(`/?clade=${mrca.ott_id}`);
     } else {
       // Fallback: list all descendant taxa OTT IDs
@@ -253,7 +253,7 @@ export default function ExplorePage() {
         <div className="explore-breadcrumbs">
           {namedAncestors.map((a, i) => (
             <span key={a.ott_id}>
-              {a.ott_id != null ? (
+              {a.ott_id !== null && a.ott_id !== undefined ? (
                 <button
                   className="breadcrumb-link"
                   onClick={() => goTo(a.ott_id)}
