@@ -845,12 +845,12 @@ h2 {
   text-transform: capitalize;
 }
 
-/* ------ Pack view ------ */
+/* ------ Treemap view ------ */
 
-.pack-svg {
+.treemap-svg {
   display: block;
 }
-.pack-label {
+.treemap-label {
   font-size: 7px;
   fill: #333;
   font-family: sans-serif;

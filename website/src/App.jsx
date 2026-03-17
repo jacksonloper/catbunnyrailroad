@@ -4,7 +4,7 @@ import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
 import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
-import { computePackLayout, depthColor } from "./packLayout.js";
+import { computeTreemapLayout, depthColor } from "./packLayout.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
 import "./App.css";
@@ -313,9 +313,10 @@ function SubtreeView({ subtree, onClose }) {
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
   const ottIds = useMemo(() => collectSubtreeOtts(subtree), [subtree]);
 
-  // Circle-packing layout (computed eagerly, no worker needed)
-  const packSize = 600;
-  const packData = useMemo(() => computePackLayout(subtree, packSize), [subtree]);
+  // Nested-treemap layout (computed eagerly, no worker needed)
+  const treemapW = 700;
+  const treemapH = 500;
+  const treemapData = useMemo(() => computeTreemapLayout(subtree, treemapW, treemapH), [subtree]);
 
   const labelOffset = 8;
   const imgSize = 20;
@@ -872,13 +873,13 @@ function SubtreeView({ subtree, onClose }) {
     }, "image/png");
   }
 
-  // ---- Pack SVG export ----
-  async function handleSavePackSvg() {
-    const { circles, maxDepth } = packData;
-    const leafCircles = circles.filter((c) => c.isLeaf && c.node.isTaxon);
+  // ---- Treemap SVG export ----
+  async function handleSaveTreemapSvg() {
+    const { rects, maxDepth } = treemapData;
+    const leafRects = rects.filter((r) => r.isLeaf && r.node.isTaxon);
     const uniqueUrls = new Set();
-    for (const c of leafCircles) {
-      const sp = taxaByOttId.get(c.node.ott_id);
+    for (const r of leafRects) {
+      const sp = taxaByOttId.get(r.node.ott_id);
       if (sp?.image_url) uniqueUrls.add(sp.image_url);
     }
     const dataUrls = new Map();
@@ -896,41 +897,45 @@ function SubtreeView({ subtree, onClose }) {
       } catch (err) { console.warn("Failed to load image:", srcUrl, err); }
     }));
 
-    const legendEntries = packShowLegend ? buildPackLegendEntries() : [];
+    const legendEntries = packShowLegend ? buildTreemapLegendEntries() : [];
     const legendImgSize = 16;
     const legendRowH = 22;
     const legendPadTop = 12;
     const legendH = legendEntries.length > 0 ? legendPadTop + legendEntries.length * legendRowH + 4 : 0;
-    const totalH = packSize + legendH;
+    const totalH = treemapH + legendH;
 
     const lines = [];
-    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${packSize}" height="${totalH}" viewBox="0 0 ${packSize} ${totalH}">`);
-    lines.push(`<rect width="${packSize}" height="${totalH}" fill="white"/>`);
-    // Internal circles (deepest first so parents are behind)
-    const sorted = [...circles].sort((a, b) => a.depth - b.depth);
-    for (const c of sorted) {
-      if (c.isLeaf) continue;
-      const fill = depthColor(c.depth, maxDepth);
-      lines.push(`<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="${fill}" stroke="#fff" stroke-width="1" opacity="0.5"/>`);
+    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${treemapW}" height="${totalH}" viewBox="0 0 ${treemapW} ${totalH}">`);
+    lines.push(`<rect width="${treemapW}" height="${totalH}" fill="white"/>`);
+    // Internal rects (shallowest first so parents are behind)
+    const sorted = [...rects].sort((a, b) => a.depth - b.depth);
+    for (const r of sorted) {
+      if (r.isLeaf) continue;
+      const fill = depthColor(r.depth, maxDepth);
+      lines.push(`<rect x="${r.x0}" y="${r.y0}" width="${r.x1 - r.x0}" height="${r.y1 - r.y0}" fill="${fill}" stroke="#fff" stroke-width="1" opacity="0.6"/>`);
     }
     // Leaf taxa
-    for (const c of leafCircles) {
-      const sp = taxaByOttId.get(c.node.ott_id);
+    for (const r of leafRects) {
+      const sp = taxaByOttId.get(r.node.ott_id);
       const imgUrl = sp?.image_url;
       const resolvedUrl = dataUrls.get(imgUrl) ?? imgUrl;
-      const imgR = Math.min(c.r * 0.7, 10);
+      const rw = r.x1 - r.x0;
+      const rh = r.y1 - r.y0;
+      const cx = r.x0 + rw / 2;
+      const cy = r.y0 + rh / 2;
+      const imgS = Math.min(rw, rh, 20) * 0.6;
       if (resolvedUrl) {
-        lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${c.x - imgR}" y="${c.y - imgR}" width="${imgR * 2}" height="${imgR * 2}" clip-path="inset(0 round ${imgR}px)"/>`);
+        lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${cx - imgS / 2}" y="${cy - imgS / 2 - 4}" width="${imgS}" height="${imgS}" clip-path="inset(0 round 3px)"/>`);
       } else {
-        lines.push(`<circle cx="${c.x}" cy="${c.y}" r="${imgR}" fill="#e07020"/>`);
+        lines.push(`<circle cx="${cx}" cy="${cy - 4}" r="${imgS / 2}" fill="#e07020"/>`);
       }
-      const dn = displayName(c.node);
+      const dn = displayName(r.node);
       const capName = showUniqNames ? dn : capitalize(dn);
-      lines.push(`<text x="${c.x}" y="${c.y + imgR + 8}" text-anchor="middle" font-size="7" fill="#333" font-family="sans-serif">${capName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
+      lines.push(`<text x="${cx}" y="${cy + imgS / 2 + 4}" text-anchor="middle" font-size="7" fill="#333" font-family="sans-serif">${capName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
     }
     // Legend
     if (packShowLegend && legendEntries.length > 0) {
-      const ly0 = packSize + legendPadTop;
+      const ly0 = treemapH + legendPadTop;
       for (let i = 0; i < legendEntries.length; i++) {
         const e = legendEntries[i];
         const ry = ly0 + i * legendRowH;
@@ -950,34 +955,34 @@ function SubtreeView({ subtree, onClose }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "pack.svg";
+    a.download = "treemap.svg";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
-  // ---- Pack PNG export ----
-  async function handleSavePackPng() {
-    const { circles, maxDepth } = packData;
-    const leafCircles = circles.filter((c) => c.isLeaf && c.node.isTaxon);
+  // ---- Treemap PNG export ----
+  async function handleSaveTreemapPng() {
+    const { rects, maxDepth } = treemapData;
+    const leafRects = rects.filter((r) => r.isLeaf && r.node.isTaxon);
 
-    const legendEntries = packShowLegend ? buildPackLegendEntries() : [];
+    const legendEntries = packShowLegend ? buildTreemapLegendEntries() : [];
     const legendImgSize = 16;
     const legendRowH = 22;
     const legendPadTop = 12;
     const legendH = legendEntries.length > 0 ? legendPadTop + legendEntries.length * legendRowH + 4 : 0;
-    const totalH = packSize + legendH;
+    const totalH = treemapH + legendH;
 
     const printPx = 2550;
-    const scale = printPx / Math.max(packSize, totalH);
-    const canvasW = Math.round(packSize * scale);
+    const scale = printPx / Math.max(treemapW, totalH);
+    const canvasW = Math.round(treemapW * scale);
     const canvasH = Math.round(totalH * scale);
 
     // Fetch images
     const uniqueUrls = new Set();
-    for (const c of leafCircles) {
-      const sp = taxaByOttId.get(c.node.ott_id);
+    for (const r of leafRects) {
+      const sp = taxaByOttId.get(r.node.ott_id);
       if (sp?.image_url) uniqueUrls.add(sp.image_url);
     }
     for (const e of legendEntries) {
@@ -1002,50 +1007,52 @@ function SubtreeView({ subtree, onClose }) {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvasW, canvasH);
 
-    // Internal circles
-    const sorted = [...circles].sort((a, b) => a.depth - b.depth);
-    for (const c of sorted) {
-      if (c.isLeaf) continue;
-      ctx.globalAlpha = 0.5;
-      ctx.fillStyle = depthColor(c.depth, maxDepth);
-      ctx.beginPath();
-      ctx.arc(c.x * scale, c.y * scale, c.r * scale, 0, 2 * Math.PI);
-      ctx.fill();
+    // Internal rects
+    const sorted = [...rects].sort((a, b) => a.depth - b.depth);
+    for (const r of sorted) {
+      if (r.isLeaf) continue;
+      ctx.globalAlpha = 0.6;
+      ctx.fillStyle = depthColor(r.depth, maxDepth);
+      ctx.fillRect(r.x0 * scale, r.y0 * scale, (r.x1 - r.x0) * scale, (r.y1 - r.y0) * scale);
       ctx.globalAlpha = 1;
       ctx.strokeStyle = "#fff";
       ctx.lineWidth = 1 * scale;
-      ctx.stroke();
+      ctx.strokeRect(r.x0 * scale, r.y0 * scale, (r.x1 - r.x0) * scale, (r.y1 - r.y0) * scale);
     }
 
     // Leaf taxa
-    for (const c of leafCircles) {
-      const sp = taxaByOttId.get(c.node.ott_id);
-      const imgR = Math.min(c.r * 0.7, 10);
+    for (const r of leafRects) {
+      const sp = taxaByOttId.get(r.node.ott_id);
+      const rw = r.x1 - r.x0;
+      const rh = r.y1 - r.y0;
+      const cx = r.x0 + rw / 2;
+      const cy = r.y0 + rh / 2;
+      const imgS = Math.min(rw, rh, 20) * 0.6;
       const bitmap = sp?.image_url && bitmaps.get(sp.image_url);
       if (bitmap) {
-        const imgX = (c.x - imgR) * scale;
-        const imgY = (c.y - imgR) * scale;
-        const imgW = imgR * 2 * scale;
-        const imgH = imgR * 2 * scale;
+        const imgX = (cx - imgS / 2) * scale;
+        const imgY = (cy - imgS / 2 - 4) * scale;
+        const imgW = imgS * scale;
+        const imgH = imgS * scale;
         ctx.save();
         ctx.beginPath();
-        ctx.arc(c.x * scale, c.y * scale, imgR * scale, 0, 2 * Math.PI);
+        traceRoundedRect(ctx, imgX, imgY, imgW, imgH, 3 * scale);
         ctx.clip();
         ctx.drawImage(bitmap, imgX, imgY, imgW, imgH);
         ctx.restore();
       } else {
         ctx.fillStyle = "#e07020";
         ctx.beginPath();
-        ctx.arc(c.x * scale, c.y * scale, imgR * scale, 0, 2 * Math.PI);
+        ctx.arc(cx * scale, (cy - 4) * scale, (imgS / 2) * scale, 0, 2 * Math.PI);
         ctx.fill();
       }
-      const dn = displayName(c.node);
+      const dn = displayName(r.node);
       const capName = showUniqNames ? dn : capitalize(dn);
       ctx.font = `${7 * scale}px sans-serif`;
       ctx.fillStyle = "#333";
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      ctx.fillText(capName, c.x * scale, (c.y + imgR + 8) * scale);
+      ctx.fillText(capName, cx * scale, (cy + imgS / 2 + 4) * scale);
     }
 
     // Legend
@@ -1053,7 +1060,7 @@ function SubtreeView({ subtree, onClose }) {
       ctx.textAlign = "left";
       for (let i = 0; i < legendEntries.length; i++) {
         const e = legendEntries[i];
-        const ry = (packSize + legendPadTop + i * legendRowH) * scale;
+        const ry = (treemapH + legendPadTop + i * legendRowH) * scale;
         const bitmap = e.imageUrl && bitmaps.get(e.imageUrl);
         if (bitmap) {
           const imgX = 4 * scale;
@@ -1084,7 +1091,7 @@ function SubtreeView({ subtree, onClose }) {
       const pngUrl = URL.createObjectURL(pngBlob);
       const a = document.createElement("a");
       a.href = pngUrl;
-      a.download = "pack.png";
+      a.download = "treemap.png";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1092,37 +1099,37 @@ function SubtreeView({ subtree, onClose }) {
     }, "image/png");
   }
 
-  /** Build legend entries for the pack taxa */
-  function buildPackLegendEntries() {
-    const leafCircles = packData.circles.filter((c) => c.isLeaf && c.node.isTaxon);
+  /** Build legend entries for the treemap taxa */
+  function buildTreemapLegendEntries() {
+    const leafRects = treemapData.rects.filter((r) => r.isLeaf && r.node.isTaxon);
     const seen = new Set();
     const result = [];
-    for (const c of leafCircles) {
-      if (seen.has(c.node.ott_id)) continue;
-      seen.add(c.node.ott_id);
-      const sp = taxaByOttId.get(c.node.ott_id);
+    for (const r of leafRects) {
+      if (seen.has(r.node.ott_id)) continue;
+      seen.add(r.node.ott_id);
+      const sp = taxaByOttId.get(r.node.ott_id);
       result.push({
-        name: displayName(c.node),
+        name: displayName(r.node),
         imageUrl: sp?.image_url || null,
-        ottId: c.node.ott_id,
+        ottId: r.node.ott_id,
       });
     }
     result.sort((a, b) => a.name.localeCompare(b.name));
     return result;
   }
 
-  // ---- Pack view ----
+  // ---- Treemap view ----
   if (showPack) {
-    const { circles, maxDepth } = packData;
-    const leafCircles = circles.filter((c) => c.isLeaf && c.node.isTaxon);
-    const internalCircles = [...circles].filter((c) => !c.isLeaf).sort((a, b) => a.depth - b.depth);
-    const legendEntries = packShowLegend ? buildPackLegendEntries() : [];
+    const { rects, maxDepth } = treemapData;
+    const leafRects = rects.filter((r) => r.isLeaf && r.node.isTaxon);
+    const internalRects = [...rects].filter((r) => !r.isLeaf).sort((a, b) => a.depth - b.depth);
+    const legendEntries = packShowLegend ? buildTreemapLegendEntries() : [];
 
     return (
       <div className="subtree-overlay">
         <div className="subtree-panel">
           <div className="subtree-header">
-            <h3>Pack</h3>
+            <h3>Treemap</h3>
             <div className="subtree-header-actions">
               <button
                 className="subtree-copy-btn"
@@ -1132,15 +1139,15 @@ function SubtreeView({ subtree, onClose }) {
               </button>
               <button
                 className="subtree-copy-btn"
-                onClick={handleSavePackSvg}
-                title="Save pack as SVG"
+                onClick={handleSaveTreemapSvg}
+                title="Save treemap as SVG"
               >
                 💾 SVG
               </button>
               <button
                 className="subtree-copy-btn"
-                onClick={handleSavePackPng}
-                title="Save pack as high-resolution PNG"
+                onClick={handleSaveTreemapPng}
+                title="Save treemap as high-resolution PNG"
               >
                 💾 PNG
               </button>
@@ -1166,48 +1173,53 @@ function SubtreeView({ subtree, onClose }) {
           <div className="subtree-content">
             <svg
               ref={packSvgRef}
-              className="pack-svg"
-              width={packSize}
-              height={packSize}
-              viewBox={`0 0 ${packSize} ${packSize}`}
+              className="treemap-svg"
+              width={treemapW}
+              height={treemapH}
+              viewBox={`0 0 ${treemapW} ${treemapH}`}
             >
-              {/* Internal circles (parents behind children) */}
-              {internalCircles.map((c, i) => (
-                <circle
+              {/* Internal rects (parents behind children) */}
+              {internalRects.map((r, i) => (
+                <rect
                   key={`i-${i}`}
-                  cx={c.x}
-                  cy={c.y}
-                  r={c.r}
-                  fill={depthColor(c.depth, maxDepth)}
+                  x={r.x0}
+                  y={r.y0}
+                  width={r.x1 - r.x0}
+                  height={r.y1 - r.y0}
+                  fill={depthColor(r.depth, maxDepth)}
                   stroke="#fff"
                   strokeWidth={1}
-                  opacity={0.5}
+                  opacity={0.6}
                 />
               ))}
-              {/* Leaf taxa circles with images */}
-              {leafCircles.map((c) => {
-                const sp = taxaByOttId.get(c.node.ott_id);
-                const imgR = Math.min(c.r * 0.7, 10);
-                const dn = displayName(c.node);
+              {/* Leaf taxa rects with images */}
+              {leafRects.map((r) => {
+                const sp = taxaByOttId.get(r.node.ott_id);
+                const rw = r.x1 - r.x0;
+                const rh = r.y1 - r.y0;
+                const cx = r.x0 + rw / 2;
+                const cy = r.y0 + rh / 2;
+                const imgS = Math.min(rw, rh, 20) * 0.6;
+                const dn = displayName(r.node);
                 return (
-                  <g key={c.node.ott_id ?? `p-${c.x}-${c.y}`}>
+                  <g key={r.node.ott_id ?? `t-${r.x0}-${r.y0}`}>
                     {sp?.image_url ? (
                       <image
                         href={sp.image_url}
-                        x={c.x - imgR}
-                        y={c.y - imgR}
-                        width={imgR * 2}
-                        height={imgR * 2}
-                        clipPath={`inset(0 round ${imgR}px)`}
+                        x={cx - imgS / 2}
+                        y={cy - imgS / 2 - 4}
+                        width={imgS}
+                        height={imgS}
+                        clipPath="inset(0 round 3px)"
                       />
                     ) : (
-                      <circle cx={c.x} cy={c.y} r={imgR} fill="#e07020" />
+                      <circle cx={cx} cy={cy - 4} r={imgS / 2} fill="#e07020" />
                     )}
                     <text
-                      x={c.x}
-                      y={c.y + imgR + 8}
+                      x={cx}
+                      y={cy + imgS / 2 + 4}
                       textAnchor="middle"
-                      className="pack-label"
+                      className="treemap-label"
                       style={showUniqNames ? { textTransform: "none" } : undefined}
                     >
                       {dn}
@@ -1465,9 +1477,9 @@ function SubtreeView({ subtree, onClose }) {
             <button
               className="subtree-copy-btn"
               onClick={() => { setShowPack(true); }}
-              title="Show tree as circle packing"
+              title="Show tree as nested treemap"
             >
-              ⭕ Pack
+              🟩 Treemap
             </button>
             <button
               className="subtree-copy-btn"
