@@ -133,6 +133,28 @@ describe("renderTreeAscii", () => {
     );
   });
 
+  it("renders Ericales subtree (blueberry, cranberry, tea, rhododendron, kiwifruit)", () => {
+    // blueberry=567253, cranberry=295602, tea plant=1058509,
+    // rhododendron=702552, kiwifruit=279986
+    const picked = [567253, 295602, 1058509, 702552, 279986];
+    const sub = extractSubtree(tree, new Set(picked));
+    const ascii = renderTreeAscii(sub);
+    expect(ascii).toBe(
+      [
+        "Mrcaott3582ott9475",
+        "+-- Tea Plant",
+        "+-- Mrcaott9475ott11591",
+        "    +-- Kiwifruit",
+        "    +-- Mrcaott11591ott24765",
+        "        +-- Mrcaott12463ott72910",
+        "        |   +-- Blueberry",
+        "        |   +-- Cranberry",
+        "        +-- Rhododendron",
+        "",
+      ].join("\n"),
+    );
+  });
+
   it("uses only pure ASCII characters (no Unicode box drawing)", () => {
     const picked = [563166, 247341, 563151, 872567, 864596];
     const sub = extractSubtree(tree, new Set(picked));

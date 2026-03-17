@@ -2173,5 +2173,119 @@
     "ott_id": 117276,
     "image_url": "/taxa-images/117276.jpg",
     "uniqname": "Tsuga canadensis"
+  },
+  {
+    "name": "cranberry",
+    "ott_id": 295602,
+    "image_url": "/taxa-images/295602.jpg",
+    "uniqname": "Vaccinium macrocarpon"
+  },
+  {
+    "name": "bilberry",
+    "ott_id": 817730,
+    "image_url": "/taxa-images/817730.jpg",
+    "uniqname": "Vaccinium myrtillus"
+  },
+  {
+    "name": "huckleberry",
+    "ott_id": 170513,
+    "image_url": "/taxa-images/170513.jpg",
+    "uniqname": "Gaylussacia baccata"
+  },
+  {
+    "name": "heather",
+    "ott_id": 1080794,
+    "image_url": "/taxa-images/1080794.jpg",
+    "uniqname": "Calluna vulgaris"
+  },
+  {
+    "name": "rhododendron",
+    "ott_id": 702552,
+    "image_url": "/taxa-images/702552.jpg",
+    "uniqname": "Rhododendron ponticum"
+  },
+  {
+    "name": "azalea",
+    "ott_id": 257180,
+    "image_url": "/taxa-images/257180.jpg",
+    "uniqname": "Rhododendron luteum"
+  },
+  {
+    "name": "tea plant",
+    "ott_id": 1058509,
+    "image_url": "/taxa-images/1058509.jpg",
+    "uniqname": "Camellia sinensis"
+  },
+  {
+    "name": "camellia",
+    "ott_id": 1058514,
+    "image_url": "/taxa-images/1058514.jpg",
+    "uniqname": "Camellia japonica"
+  },
+  {
+    "name": "kiwifruit",
+    "ott_id": 279986,
+    "image_url": "/taxa-images/279986.jpg",
+    "uniqname": "Actinidia deliciosa"
+  },
+  {
+    "name": "persimmon",
+    "ott_id": 352883,
+    "image_url": "/taxa-images/352883.jpg",
+    "uniqname": "Diospyros kaki"
+  },
+  {
+    "name": "primrose",
+    "ott_id": 125543,
+    "image_url": "/taxa-images/125543.jpg",
+    "uniqname": "Primula vulgaris"
+  },
+  {
+    "name": "cyclamen",
+    "ott_id": 477897,
+    "image_url": "/taxa-images/477897.jpg",
+    "uniqname": "Cyclamen persicum"
+  },
+  {
+    "name": "phlox",
+    "ott_id": 486683,
+    "image_url": "/taxa-images/486683.jpg",
+    "uniqname": "Phlox paniculata"
+  },
+  {
+    "name": "busy lizzie",
+    "ott_id": 510792,
+    "image_url": "/taxa-images/510792.jpg",
+    "uniqname": "Impatiens walleriana"
+  },
+  {
+    "name": "brazil nut tree",
+    "ott_id": 429489,
+    "image_url": "/taxa-images/429489.jpg",
+    "uniqname": "Bertholletia excelsa"
+  },
+  {
+    "name": "sapodilla",
+    "ott_id": 208052,
+    "image_url": "/taxa-images/208052.jpg",
+    "uniqname": "Manilkara zapota"
+  },
+  {
+    "name": "shea tree",
+    "ott_id": 194532,
+    "image_url": "/taxa-images/194532.jpg",
+    "uniqname": "Vitellaria paradoxa"
+  },
+  {
+    "name": "american pitcher plant",
+    "ott_id": 137603,
+    "image_url": "/taxa-images/137603.jpg",
+    "uniqname": "Sarracenia purpurea"
+  },
+  {
+    "name": "ocotillo",
+    "ott_id": 445124,
+    "image_url": "/taxa-images/445124.jpg",
+    "uniqname": "Fouquieria splendens"
   }
 ]
