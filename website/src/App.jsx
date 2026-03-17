@@ -1045,7 +1045,7 @@ function SubtreeView({ subtree, onClose }) {
       ctx.fillStyle = "#333";
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
-      ctx.fillText(capName, c.x * scale, (c.y + imgR + 2) * scale);
+      ctx.fillText(capName, c.x * scale, (c.y + imgR + 8) * scale);
     }
 
     // Legend

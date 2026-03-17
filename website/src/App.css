@@ -852,7 +852,7 @@ h2 {
 }
 .pack-label {
   font-size: 7px;
-  fill: #ddd;
+  fill: #333;
   font-family: sans-serif;
   text-transform: capitalize;
 }
