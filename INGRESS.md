@@ -91,7 +91,25 @@ This fetches image URLs for any rows missing one, using a multi-source fallback 
 - `✗ No image found` means all four strategies failed. You will need to find an image URL manually (e.g. from Wikimedia Commons) and paste it into the `image_url` column.
 - `"All rows already have image URLs. Nothing to do."` means every row already has a URL.
 
-## Step 4: Build the Data JSON
+## Step 4: Download Images Locally
+
+Run:
+
+```sh
+node scripts/download-images.mjs
+```
+
+This downloads each taxon's image from its remote source URL (in `taxa.csv`) and saves a local copy at `website/public/taxa-images/{ott_id}.jpg`.  These local images are served as static assets so they work reliably with the canvas-based PNG export (which requires same-origin images).
+
+The script skips images that already exist locally, so it is safe to rerun.
+
+**What to look for:**
+- `FAIL ... HTTP 404` — the source URL is broken.  Find a replacement URL on Wikimedia Commons and update `image_url` in `taxa.csv`, then rerun.
+- `FAIL ... HTTP 429` — rate-limited. Wait a moment and rerun — existing images are skipped, so only the failed ones will be retried.
+
+**The downloaded images should be committed to the repository** alongside the JSON files.
+
+## Step 5: Build the Data JSON
 
 Run:
 
@@ -104,7 +122,7 @@ This fetches the phylogenetic tree from Open Tree of Life and produces two JSON 
 - `website/src/data/tree.json` — the compact tree for MRCA lookups and rendering
 - `website/src/data/taxa.json` — flat array of taxa with metadata
 
-**These JSON files are committed to the repository** so that the website build itself does not need to call external APIs.  After running this script, commit the updated JSON files.
+**These JSON files are committed to the repository** (along with the local images from Step 4) so that the website build itself does not need to call external APIs.  After running this script, commit the updated JSON files.
 
 **What to look for:**
 - `❌ Row with invalid ott_id` — a row has a non-numeric or missing OTT ID. Go back and fix it in `taxa.csv`.
@@ -112,22 +130,22 @@ This fetches the phylogenetic tree from Open Tree of Life and produces two JSON 
 - `❌ The API reported broken (non-monophyletic) taxa` — should not happen if Step 2 passed, but if it does, fix `taxa.csv`.
 - `❌ taxa not found in tree` — a taxon could not be placed in the tree.  Check the OTT ID is correct.
 
-## Step 5: Build and Verify the Website
+## Step 6: Build and Verify the Website
 
 ```sh
 cd website
 npm run build
 ```
 
-This runs only the Vite production build (no API calls — data was built in Step 4).  Preview with `npm run preview` to check the tree looks right.
+This runs only the Vite production build (no API calls — data was built in Step 5).  Preview with `npm run preview` to check the tree looks right.
 
-## Step 6: Fixing Edge Cases by Hand
+## Step 7: Fixing Edge Cases by Hand
 
 Most errors should be fixable by correcting `taxa.csv` and rerunning the scripts. But there are a few known one-off situations that require manual intervention:
 
 - **Hybrid species with pruned OTT IDs**: Some hybrids (e.g. `Fragaria × ananassa`, OTT 3904118) have OTT IDs that are "pruned" from the synthetic tree. The fix is to use the parent genus OTT ID instead (e.g. `208027` for `Fragaria`). You'll know this happened if the build fails with an error like `"'ott<id>' was not found! pruned_ott_id"`.
 - **No image from any automated source**: If `fill-image-urls.mjs` reports `✗ No image found`, find an appropriate image URL on Wikimedia Commons and paste it directly into the `image_url` column.
-- **Wrong image**: The automated lookup sometimes picks a less-than-ideal representative image (especially for higher taxa via recursive descent). Replace the `image_url` with a better one by hand.
+- **Wrong image**: The automated lookup sometimes picks a less-than-ideal representative image (especially for higher taxa via recursive descent). Replace the `image_url` with a better one by hand.  Then delete the old local image at `website/public/taxa-images/{ott_id}.jpg` before rerunning `download-images.mjs` (it skips existing files).
 - **TNRS returns the wrong taxon**: Occasionally the name resolution picks a different organism than intended (e.g. a homonym in a different kingdom). Check the OTT ID at <https://tree.opentreeoflife.org/taxonomy/browse?id=OTTID> and replace it manually if it's wrong.  The log output (showing queried name vs OTT name) and the `uniqname` column can help you spot mismatches.
 
 **Rule of thumb**: If a problem is a weird one-off, fix it by hand in `taxa.csv`. If it's a systematic issue (e.g. a whole class of names failing), fix it in the scripts instead.

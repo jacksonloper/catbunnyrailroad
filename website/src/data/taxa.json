@@ -1625,7 +1625,7 @@
   {
     "name": "diatoms",
     "ott_id": 5342311,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Diatoms.jpg",
+    "image_url": "/taxa-images/5342311.jpg",
     "uniqname": "Bacillariophyta"
   },
   {
@@ -1817,7 +1817,7 @@
   {
     "name": "blackberry",
     "ott_id": 3905629,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Rubus%20vestitus%20-%20Botanischer%20Garten%2C%20Frankfurt%20am%20Main%20-%20DSC02477.JPG",
+    "image_url": "/taxa-images/3905629.jpg",
     "uniqname": "Rubus vestitus"
   },
   {
@@ -2111,67 +2111,67 @@
   {
     "name": "beet and Swiss chard",
     "ott_id": 273185,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/3/515/14002515.jpg",
+    "image_url": "/taxa-images/273185.jpg",
     "uniqname": "Beta vulgaris"
   },
   {
     "name": "quinoa",
     "ott_id": 117198,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/060/26862060.jpg",
+    "image_url": "/taxa-images/117198.jpg",
     "uniqname": "Chenopodium quinoa"
   },
   {
     "name": "amaranth",
     "ott_id": 317808,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/349/24913349.jpg",
+    "image_url": "/taxa-images/317808.jpg",
     "uniqname": "Amaranthus"
   },
   {
     "name": "sorrel",
     "ott_id": 134757,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/179/26791179.jpg",
+    "image_url": "/taxa-images/134757.jpg",
     "uniqname": "Rumex acetosa"
   },
   {
     "name": "buckwheat",
     "ott_id": 904381,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/946/29733946.jpg",
+    "image_url": "/taxa-images/904381.jpg",
     "uniqname": "Fagopyrum esculentum"
   },
   {
     "name": "rhubarb",
     "ott_id": 693832,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/973/34032973.jpg",
+    "image_url": "/taxa-images/693832.jpg",
     "uniqname": "Rheum rhabarbarum"
   },
   {
     "name": "sundew",
     "ott_id": 14968,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/956/30792956.jpg",
+    "image_url": "/taxa-images/14968.jpg",
     "uniqname": "Drosera"
   },
   {
     "name": "Guiana chestnut (money tree)",
     "ott_id": 84784,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/074/25799074.jpg",
+    "image_url": "/taxa-images/84784.jpg",
     "uniqname": "Pachira aquatica"
   },
   {
     "name": "black swallow-wort",
     "ott_id": 7053104,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Cynanchum%20louiseae%20illustration.jpg",
+    "image_url": "/taxa-images/7053104.jpg",
     "uniqname": "Cynanchum louiseae"
   },
   {
     "name": "poison hemlock",
     "ott_id": 1001039,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/308/27776308.jpg",
+    "image_url": "/taxa-images/1001039.jpg",
     "uniqname": "Conium maculatum"
   },
   {
     "name": "Eastern hemlock",
     "ott_id": 117276,
-    "image_url": "https://www.onezoom.org/OZtree/static/FinalOutputs/img/99/307/27730307.jpg",
+    "image_url": "/taxa-images/117276.jpg",
     "uniqname": "Tsuga canadensis"
   }
 ]
