@@ -13,3 +13,8 @@
   from = "/explore/*"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/clades"
+  to = "/index.html"
+  status = 200
