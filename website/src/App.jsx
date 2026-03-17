@@ -1,8 +1,11 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
 import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
+import { buildTrie } from "./trieUtils.js";
+import Autocomplete from "./Autocomplete.jsx";
 import "./App.css";
 
 /** Draw a rounded rect path on a Canvas 2D context (cross-browser, avoids ctx.roundRect) */
@@ -71,104 +74,8 @@ function findMRCAMultiple(treeRoot, ottIds) {
 }
 
 // ---------------------------------------------------------------------------
-// Trie-based autocomplete
-// ---------------------------------------------------------------------------
-
-class TrieNode {
-  constructor() {
-    this.children = {};
-    this.items = [];
-  }
-}
-
-function buildTrie(items) {
-  const root = new TrieNode();
-  for (const item of items) {
-    // Index each word in the name so "swallowtail butterfly" matches "butterfly"
-    const words = item.name.toLowerCase().split(/\s+/);
-    const seenNodes = new Set(); // avoid duplicate insertions for same prefix
-    for (const word of words) {
-      let node = root;
-      for (const ch of word) {
-        if (!node.children[ch]) node.children[ch] = new TrieNode();
-        node = node.children[ch];
-        if (!seenNodes.has(node)) {
-          node.items.push(item);
-          seenNodes.add(node);
-        }
-      }
-    }
-  }
-  return root;
-}
-
-function trieSearch(root, prefix) {
-  let node = root;
-  for (const ch of prefix.toLowerCase()) {
-    if (!node.children[ch]) return [];
-    node = node.children[ch];
-  }
-  return node.items;
-}
-
-// ---------------------------------------------------------------------------
 // Components
 // ---------------------------------------------------------------------------
-
-function Autocomplete({ label, value, onChange, onSelect, trie, selectedItem }) {
-  const [showDropdown, setShowDropdown] = useState(false);
-  const ref = useRef(null);
-
-  const suggestions = useMemo(
-    () => (value.length > 0 ? trieSearch(trie, value) : []),
-    [value, trie]
-  );
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setShowDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  return (
-    <div className="autocomplete" ref={ref}>
-      <label>{label}</label>
-      <input
-        type="text"
-        value={value}
-        placeholder="Type a name..."
-        onChange={(e) => {
-          onChange(e.target.value);
-          setShowDropdown(true);
-        }}
-        onFocus={() => setShowDropdown(true)}
-      />
-      {showDropdown && suggestions.length > 0 && !selectedItem && (
-        <ul className="suggestions">
-          {suggestions.map((sp) => (
-            <li
-              key={sp.ott_id}
-              onClick={() => {
-                onSelect(sp);
-                setShowDropdown(false);
-              }}
-            >
-              {sp.image_url && (
-                <img src={sp.image_url} alt="" className="suggestion-img" />
-              )}
-              <span>{sp.name}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
 
 // Build a lookup map for taxa data by name
 const taxaByName = new Map(taxa.map((t) => [t.name, t]));
@@ -323,6 +230,7 @@ function countTreeNodes(node) {
 }
 
 function SubtreeView({ subtree, onClose }) {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -1232,6 +1140,7 @@ function SubtreeView({ subtree, onClose }) {
               const sp = taxaByOttId.get(l.node.ott_id);
               const dn = displayName(l.node);
               const starX = l.x + labelOffset + (sp?.image_url ? imgSize + 4 : 0) + dn.length * pxPerChar + 4;
+              const exploreX = starX + (sp?.comments ? pxPerChar + 4 : 0);
               return (
                 <g key={l.node.ott_id ?? l.node.name}>
                   {sp?.image_url && (
@@ -1263,6 +1172,18 @@ function SubtreeView({ subtree, onClose }) {
                       style={{ cursor: "pointer" }}
                     >
                       ★
+                    </text>
+                  )}
+                  {l.node.ott_id && (
+                    <text
+                      x={exploreX}
+                      y={l.y}
+                      dominantBaseline="central"
+                      className="subtree-explore-icon"
+                      onClick={() => navigate(`/explore/${l.node.ott_id}`)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      🔍
                     </text>
                   )}
                 </g>
@@ -1363,11 +1284,10 @@ function ErrorConsole() {
 // Main App
 // ---------------------------------------------------------------------------
 
-// Parse URL query string for initial state (clade or taxa list)
-const urlInit = (() => {
-  const params = new URLSearchParams(window.location.search);
-  const cladeParam = params.get("clade");
-  const taxaParam = params.get("taxa");
+/** Parse URL search params to determine initial selection state */
+function parseUrlParams(searchParams) {
+  const cladeParam = searchParams.get("clade");
+  const taxaParam = searchParams.get("taxa");
 
   if (cladeParam) {
     const ottId = parseInt(cladeParam, 10);
@@ -1391,10 +1311,14 @@ const urlInit = (() => {
     if (names.size >= 2) return { organisms: names, showTree: true };
   }
   return { organisms: new Set(), showTree: false };
-})();
+}
 
 function App() {
+  const [searchParams] = useSearchParams();
   const trie = useMemo(() => buildTrie(taxa), []);
+
+  // Parse URL params on mount (supports navigation from ExplorePage with ?clade= or ?taxa=)
+  const urlInit = useMemo(() => parseUrlParams(searchParams), [searchParams]);
 
   // Central list state
   const [listInput, setListInput] = useState("");
@@ -1409,6 +1333,16 @@ function App() {
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState("");
+
+  // When URL params change (e.g. navigating from ExplorePage), sync state
+  const [prevUrlInit, setPrevUrlInit] = useState(urlInit);
+  if (urlInit !== prevUrlInit) {
+    setPrevUrlInit(urlInit);
+    if (urlInit.organisms.size > 0) {
+      setSelectedOrganisms(urlInit.organisms);
+      setShowSubtree(urlInit.showTree);
+    }
+  }
 
   // Compute OTT IDs from the list
   const listOttIds = useMemo(() => {
@@ -1589,6 +1523,8 @@ function App() {
       <h1>🐱🐰🚂 Cat Bunny Railroad</h1>
       <p className="subtitle">
         Build a list of living things and discover what they have in common!
+        {" · "}
+        <Link to={`/explore/${tree.ott_id}`} className="explore-link">🔍 Explore the tree</Link>
       </p>
 
       {/* List management section */}
@@ -1762,6 +1698,15 @@ function App() {
                             aria-label={`Select ${name} clade`}
                           >🌿</button>
                         )}
+                        {data?.ott_id && (
+                          <Link
+                            to={`/explore/${data.ott_id}`}
+                            className="explore-btn"
+                            onClick={(e) => e.stopPropagation()}
+                            title={`Explore ${name}`}
+                            aria-label={`Explore ${name}`}
+                          >🔍</Link>
+                        )}
                       </li>
                     );
                   })}
@@ -1829,6 +1774,15 @@ function App() {
                             title={`Select ${sp.name} and all its descendants`}
                             aria-label={`Select ${sp.name} clade`}
                           >🌿</button>
+                        )}
+                        {sp.ott_id && (
+                          <Link
+                            to={`/explore/${sp.ott_id}`}
+                            className="explore-btn"
+                            onClick={(e) => e.stopPropagation()}
+                            title={`Explore ${sp.name}`}
+                            aria-label={`Explore ${sp.name}`}
+                          >🔍</Link>
                         )}
                       </li>
                     );

@@ -8,3 +8,8 @@
   for = "/taxa-images/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+
+[[redirects]]
+  from = "/explore/*"
+  to = "/index.html"
+  status = 200
