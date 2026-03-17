@@ -4,6 +4,7 @@ import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
 import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
+import { computePackLayout, depthColor } from "./packLayout.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
 import "./App.css";
@@ -248,7 +249,10 @@ function SubtreeView({ subtree, onClose }) {
   const [mazeLoading, setMazeLoading] = useState(false);
   const [mazeWallView, setMazeWallView] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
+  const [showPack, setShowPack] = useState(false);
+  const [packShowLegend, setPackShowLegend] = useState(false);
   const treeSvgRef = useRef(null);
+  const packSvgRef = useRef(null);
   const workerRef = useRef(null);
 
   // Cancel any in-flight worker
@@ -308,6 +312,10 @@ function SubtreeView({ subtree, onClose }) {
   const layout = useMemo(() => layoutTree(subtree), [subtree]);
   const taxaNodes = layout.nodes.filter((n) => n.node.isTaxon);
   const ottIds = useMemo(() => collectSubtreeOtts(subtree), [subtree]);
+
+  // Circle-packing layout (computed eagerly, no worker needed)
+  const packSize = 600;
+  const packData = useMemo(() => computePackLayout(subtree, packSize), [subtree]);
 
   const labelOffset = 8;
   const imgSize = 20;
@@ -864,6 +872,370 @@ function SubtreeView({ subtree, onClose }) {
     }, "image/png");
   }
 
+  // ---- Pack SVG export ----
+  async function handleSavePackSvg() {
+    const { circles, maxDepth } = packData;
+    const leafCircles = circles.filter((c) => c.isLeaf && c.node.isTaxon);
+    const uniqueUrls = new Set();
+    for (const c of leafCircles) {
+      const sp = taxaByOttId.get(c.node.ott_id);
+      if (sp?.image_url) uniqueUrls.add(sp.image_url);
+    }
+    const dataUrls = new Map();
+    await Promise.all([...uniqueUrls].map(async (srcUrl) => {
+      try {
+        const resp = await fetch(srcUrl);
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        const dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        dataUrls.set(srcUrl, dataUrl);
+      } catch (err) { console.warn("Failed to load image:", srcUrl, err); }
+    }));
+
+    const legendEntries = packShowLegend ? buildPackLegendEntries() : [];
+    const legendImgSize = 16;
+    const legendRowH = 22;
+    const legendPadTop = 12;
+    const legendH = legendEntries.length > 0 ? legendPadTop + legendEntries.length * legendRowH + 4 : 0;
+    const totalH = packSize + legendH;
+
+    const lines = [];
+    lines.push(`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${packSize}" height="${totalH}" viewBox="0 0 ${packSize} ${totalH}">`);
+    lines.push(`<rect width="${packSize}" height="${totalH}" fill="white"/>`);
+    // Internal circles (deepest first so parents are behind)
+    const sorted = [...circles].sort((a, b) => a.depth - b.depth);
+    for (const c of sorted) {
+      if (c.isLeaf) continue;
+      const fill = depthColor(c.depth, maxDepth);
+      lines.push(`<circle cx="${c.x}" cy="${c.y}" r="${c.r}" fill="${fill}" stroke="#fff" stroke-width="1" opacity="0.5"/>`);
+    }
+    // Leaf taxa
+    for (const c of leafCircles) {
+      const sp = taxaByOttId.get(c.node.ott_id);
+      const imgUrl = sp?.image_url;
+      const resolvedUrl = dataUrls.get(imgUrl) ?? imgUrl;
+      const imgR = Math.min(c.r * 0.7, 10);
+      if (resolvedUrl) {
+        lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="${c.x - imgR}" y="${c.y - imgR}" width="${imgR * 2}" height="${imgR * 2}" clip-path="inset(0 round ${imgR}px)"/>`);
+      } else {
+        lines.push(`<circle cx="${c.x}" cy="${c.y}" r="${imgR}" fill="#e07020"/>`);
+      }
+      const dn = displayName(c.node);
+      const capName = showUniqNames ? dn : capitalize(dn);
+      lines.push(`<text x="${c.x}" y="${c.y + imgR + 8}" text-anchor="middle" font-size="7" fill="#333" font-family="sans-serif">${capName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
+    }
+    // Legend
+    if (packShowLegend && legendEntries.length > 0) {
+      const ly0 = packSize + legendPadTop;
+      for (let i = 0; i < legendEntries.length; i++) {
+        const e = legendEntries[i];
+        const ry = ly0 + i * legendRowH;
+        const resolvedUrl = e.imageUrl && (dataUrls.get(e.imageUrl) ?? e.imageUrl);
+        if (resolvedUrl) {
+          lines.push(`<image href="${resolvedUrl.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" x="4" y="${ry}" width="${legendImgSize}" height="${legendImgSize}" clip-path="inset(0 round 3px)"/>`);
+        } else {
+          lines.push(`<circle cx="${4 + legendImgSize / 2}" cy="${ry + legendImgSize / 2}" r="5" fill="#e07020"/>`);
+        }
+        const capName = showUniqNames ? e.name : capitalize(e.name);
+        lines.push(`<text x="${4 + legendImgSize + 6}" y="${ry + legendImgSize / 2}" dominant-baseline="central" font-size="11" fill="#333" font-family="sans-serif">${capName.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
+      }
+    }
+    lines.push("</svg>");
+    const svgStr = lines.join("\n");
+    const blob = new Blob([svgStr], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pack.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ---- Pack PNG export ----
+  async function handleSavePackPng() {
+    const { circles, maxDepth } = packData;
+    const leafCircles = circles.filter((c) => c.isLeaf && c.node.isTaxon);
+
+    const legendEntries = packShowLegend ? buildPackLegendEntries() : [];
+    const legendImgSize = 16;
+    const legendRowH = 22;
+    const legendPadTop = 12;
+    const legendH = legendEntries.length > 0 ? legendPadTop + legendEntries.length * legendRowH + 4 : 0;
+    const totalH = packSize + legendH;
+
+    const printPx = 2550;
+    const scale = printPx / Math.max(packSize, totalH);
+    const canvasW = Math.round(packSize * scale);
+    const canvasH = Math.round(totalH * scale);
+
+    // Fetch images
+    const uniqueUrls = new Set();
+    for (const c of leafCircles) {
+      const sp = taxaByOttId.get(c.node.ott_id);
+      if (sp?.image_url) uniqueUrls.add(sp.image_url);
+    }
+    for (const e of legendEntries) {
+      if (e.imageUrl) uniqueUrls.add(e.imageUrl);
+    }
+    const bitmaps = new Map();
+    await Promise.all([...uniqueUrls].map(async (url) => {
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        const bitmap = await createImageBitmap(blob);
+        bitmaps.set(url, bitmap);
+      } catch (err) { console.warn("Failed to load image:", url, err); }
+    }));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    // Internal circles
+    const sorted = [...circles].sort((a, b) => a.depth - b.depth);
+    for (const c of sorted) {
+      if (c.isLeaf) continue;
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = depthColor(c.depth, maxDepth);
+      ctx.beginPath();
+      ctx.arc(c.x * scale, c.y * scale, c.r * scale, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 1 * scale;
+      ctx.stroke();
+    }
+
+    // Leaf taxa
+    for (const c of leafCircles) {
+      const sp = taxaByOttId.get(c.node.ott_id);
+      const imgR = Math.min(c.r * 0.7, 10);
+      const bitmap = sp?.image_url && bitmaps.get(sp.image_url);
+      if (bitmap) {
+        const imgX = (c.x - imgR) * scale;
+        const imgY = (c.y - imgR) * scale;
+        const imgW = imgR * 2 * scale;
+        const imgH = imgR * 2 * scale;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(c.x * scale, c.y * scale, imgR * scale, 0, 2 * Math.PI);
+        ctx.clip();
+        ctx.drawImage(bitmap, imgX, imgY, imgW, imgH);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#e07020";
+        ctx.beginPath();
+        ctx.arc(c.x * scale, c.y * scale, imgR * scale, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+      const dn = displayName(c.node);
+      const capName = showUniqNames ? dn : capitalize(dn);
+      ctx.font = `${7 * scale}px sans-serif`;
+      ctx.fillStyle = "#333";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText(capName, c.x * scale, (c.y + imgR + 2) * scale);
+    }
+
+    // Legend
+    if (packShowLegend && legendEntries.length > 0) {
+      ctx.textAlign = "left";
+      for (let i = 0; i < legendEntries.length; i++) {
+        const e = legendEntries[i];
+        const ry = (packSize + legendPadTop + i * legendRowH) * scale;
+        const bitmap = e.imageUrl && bitmaps.get(e.imageUrl);
+        if (bitmap) {
+          const imgX = 4 * scale;
+          const imgW = legendImgSize * scale;
+          const imgH = legendImgSize * scale;
+          ctx.save();
+          ctx.beginPath();
+          traceRoundedRect(ctx, imgX, ry, imgW, imgH, 3 * scale);
+          ctx.clip();
+          ctx.drawImage(bitmap, imgX, ry, imgW, imgH);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = "#e07020";
+          ctx.beginPath();
+          ctx.arc((4 + legendImgSize / 2) * scale, ry + (legendImgSize / 2) * scale, 5 * scale, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+        const capName = showUniqNames ? e.name : capitalize(e.name);
+        ctx.font = `${11 * scale}px sans-serif`;
+        ctx.fillStyle = "#333";
+        ctx.textBaseline = "middle";
+        ctx.fillText(capName, (4 + legendImgSize + 6) * scale, ry + (legendImgSize / 2) * scale);
+      }
+    }
+
+    canvas.toBlob((pngBlob) => {
+      if (!pngBlob) return;
+      const pngUrl = URL.createObjectURL(pngBlob);
+      const a = document.createElement("a");
+      a.href = pngUrl;
+      a.download = "pack.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(pngUrl);
+    }, "image/png");
+  }
+
+  /** Build legend entries for the pack taxa */
+  function buildPackLegendEntries() {
+    const leafCircles = packData.circles.filter((c) => c.isLeaf && c.node.isTaxon);
+    const seen = new Set();
+    const result = [];
+    for (const c of leafCircles) {
+      if (seen.has(c.node.ott_id)) continue;
+      seen.add(c.node.ott_id);
+      const sp = taxaByOttId.get(c.node.ott_id);
+      result.push({
+        name: displayName(c.node),
+        imageUrl: sp?.image_url || null,
+        ottId: c.node.ott_id,
+      });
+    }
+    result.sort((a, b) => a.name.localeCompare(b.name));
+    return result;
+  }
+
+  // ---- Pack view ----
+  if (showPack) {
+    const { circles, maxDepth } = packData;
+    const leafCircles = circles.filter((c) => c.isLeaf && c.node.isTaxon);
+    const internalCircles = [...circles].filter((c) => !c.isLeaf).sort((a, b) => a.depth - b.depth);
+    const legendEntries = packShowLegend ? buildPackLegendEntries() : [];
+
+    return (
+      <div className="subtree-overlay">
+        <div className="subtree-panel">
+          <div className="subtree-header">
+            <h3>Pack</h3>
+            <div className="subtree-header-actions">
+              <button
+                className="subtree-copy-btn"
+                onClick={() => { setShowPack(false); }}
+              >
+                🌳 Back to tree
+              </button>
+              <button
+                className="subtree-copy-btn"
+                onClick={handleSavePackSvg}
+                title="Save pack as SVG"
+              >
+                💾 SVG
+              </button>
+              <button
+                className="subtree-copy-btn"
+                onClick={handleSavePackPng}
+                title="Save pack as high-resolution PNG"
+              >
+                💾 PNG
+              </button>
+              <label className="maze-size-label">
+                <input
+                  type="checkbox"
+                  checked={packShowLegend}
+                  onChange={(e) => setPackShowLegend(e.target.checked)}
+                />
+                Legend
+              </label>
+              <label className="maze-size-label">
+                <input
+                  type="checkbox"
+                  checked={showUniqNames}
+                  onChange={(e) => setShowUniqNames(e.target.checked)}
+                />
+                Unique names
+              </label>
+              <button className="subtree-close" aria-label="Close" onClick={onClose}>✕</button>
+            </div>
+          </div>
+          <div className="subtree-content">
+            <svg
+              ref={packSvgRef}
+              className="pack-svg"
+              width={packSize}
+              height={packSize}
+              viewBox={`0 0 ${packSize} ${packSize}`}
+            >
+              {/* Internal circles (parents behind children) */}
+              {internalCircles.map((c, i) => (
+                <circle
+                  key={`i-${i}`}
+                  cx={c.x}
+                  cy={c.y}
+                  r={c.r}
+                  fill={depthColor(c.depth, maxDepth)}
+                  stroke="#fff"
+                  strokeWidth={1}
+                  opacity={0.5}
+                />
+              ))}
+              {/* Leaf taxa circles with images */}
+              {leafCircles.map((c) => {
+                const sp = taxaByOttId.get(c.node.ott_id);
+                const imgR = Math.min(c.r * 0.7, 10);
+                const dn = displayName(c.node);
+                return (
+                  <g key={c.node.ott_id ?? `p-${c.x}-${c.y}`}>
+                    {sp?.image_url ? (
+                      <image
+                        href={sp.image_url}
+                        x={c.x - imgR}
+                        y={c.y - imgR}
+                        width={imgR * 2}
+                        height={imgR * 2}
+                        clipPath={`inset(0 round ${imgR}px)`}
+                      />
+                    ) : (
+                      <circle cx={c.x} cy={c.y} r={imgR} fill="#e07020" />
+                    )}
+                    <text
+                      x={c.x}
+                      y={c.y + imgR + 8}
+                      textAnchor="middle"
+                      className="pack-label"
+                      style={showUniqNames ? { textTransform: "none" } : undefined}
+                    >
+                      {dn}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+            {packShowLegend && legendEntries.length > 0 && (
+              <div className="maze-legend">
+                {legendEntries.map((e) => (
+                  <div key={e.ottId} className="maze-legend-item">
+                    {e.imageUrl ? (
+                      <img src={e.imageUrl} alt={e.name} className="maze-legend-img" />
+                    ) : (
+                      <span className="maze-legend-circle" />
+                    )}
+                    <span className="maze-legend-name" style={showUniqNames ? { textTransform: "none" } : undefined}>{e.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ---- Maze view ----
   if (showMaze) {
     const cellSize = 20;
@@ -1089,6 +1461,13 @@ function SubtreeView({ subtree, onClose }) {
               title="Show tree as a grid maze"
             >
               🔲 Maze
+            </button>
+            <button
+              className="subtree-copy-btn"
+              onClick={() => { setShowPack(true); }}
+              title="Show tree as circle packing"
+            >
+              ⭕ Pack
             </button>
             <button
               className="subtree-copy-btn"

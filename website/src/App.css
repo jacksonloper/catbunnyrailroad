@@ -845,6 +845,18 @@ h2 {
   text-transform: capitalize;
 }
 
+/* ------ Pack view ------ */
+
+.pack-svg {
+  display: block;
+}
+.pack-label {
+  font-size: 7px;
+  fill: #ddd;
+  font-family: sans-serif;
+  text-transform: capitalize;
+}
+
 /* ------ Form error ------ */
 
 .form-error {
