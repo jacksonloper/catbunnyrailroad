@@ -9,6 +9,8 @@
  * These local images are served as static assets by Vite, making them
  * same-origin so they can be used reliably in canvas-based PNG export.
  *
+ * Reads image URLs directly from taxa.csv so it can run before build-data.js.
+ *
  * Skips images that already exist. Run again to retry failures.
  *
  * Usage:  node scripts/download-images.mjs
@@ -19,12 +21,50 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TAXA_JSON = path.resolve(__dirname, "..", "website", "src", "data", "taxa.json");
+const CSV_PATH = path.resolve(__dirname, "..", "taxa.csv");
 const OUT_DIR = path.resolve(__dirname, "..", "website", "public", "taxa-images");
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
-const taxa = JSON.parse(fs.readFileSync(TAXA_JSON, "utf-8"));
+// ---------------------------------------------------------------------------
+// Minimal CSV reader – just needs name, ott_id, image_url columns
+// ---------------------------------------------------------------------------
+
+function parseCsvLine(line) {
+  const fields = [];
+  let i = 0;
+  while (i <= line.length) {
+    if (i === line.length) { fields.push(""); break; }
+    if (line[i] === '"') {
+      let val = "";
+      i++;
+      while (i < line.length) {
+        if (line[i] === '"') {
+          if (i + 1 < line.length && line[i + 1] === '"') { val += '"'; i += 2; }
+          else { i++; break; }
+        } else { val += line[i++]; }
+      }
+      fields.push(val);
+      if (i < line.length && line[i] === ",") i++;
+    } else {
+      let val = "";
+      while (i < line.length && line[i] !== ",") { val += line[i++]; }
+      fields.push(val);
+      if (i < line.length) i++;
+    }
+  }
+  return fields;
+}
+
+const csvLines = fs.readFileSync(CSV_PATH, "utf-8").trimEnd().split("\n");
+const header = parseCsvLine(csvLines[0]);
+const taxa = csvLines.slice(1).map((line) => {
+  const vals = parseCsvLine(line);
+  const obj = {};
+  header.forEach((h, i) => { obj[h] = vals[i] || ""; });
+  return obj;
+});
+
 const withImages = taxa.filter((t) => t.image_url && t.ott_id);
 
 console.log(`Found ${withImages.length} taxa with image URLs.`);
@@ -36,7 +76,7 @@ let failed = 0;
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
 for (const t of withImages) {
-  const ext = t.image_url.match(/\.(jpe?g|png|gif|webp|svg)(\?|$)/i)?.[1] || "jpg";
+  const ext = (t.image_url.match(/\.(jpe?g|png|gif|webp|svg)(\?|$)/i)?.[1] || "jpg").toLowerCase();
   const outFile = path.join(OUT_DIR, `${t.ott_id}.${ext}`);
 
   if (fs.existsSync(outFile)) {

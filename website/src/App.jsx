@@ -2,12 +2,8 @@ import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import MazeWorker from "./mazeWorker.js?worker";
+import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
 import "./App.css";
-
-/** Capitalize the first letter of each word (mirrors CSS text-transform:capitalize) */
-function capitalize(str) {
-  return str.replace(/\b\w/g, (ch) => ch.toUpperCase());
-}
 
 /** Draw a rounded rect path on a Canvas 2D context (cross-browser, avoids ctx.roundRect) */
 function traceRoundedRect(ctx, x, y, w, h, r) {
@@ -72,34 +68,6 @@ function findMRCAMultiple(treeRoot, ottIds) {
     else break;
   }
   return mrca;
-}
-
-/**
- * Extract an induced subtree containing only the specified ott_ids.
- * Keeps taxa nodes even if they are internal (have children).
- * Internal nodes with a single child are collapsed (unless they are taxa).
- */
-function extractSubtree(node, ottIdSet) {
-  const isTaxon = ottIdSet.has(node.ott_id);
-
-  if (node.children.length === 0) {
-    // Leaf: keep only if it's a requested taxon
-    if (isTaxon) {
-      return { name: node.name, ott_id: node.ott_id, children: [], isTaxon: true };
-    }
-    return null;
-  }
-  // Recurse into children and keep only non-null results
-  const keptChildren = node.children
-    .map((c) => extractSubtree(c, ottIdSet))
-    .filter(Boolean);
-
-  if (keptChildren.length === 0 && !isTaxon) return null;
-  // Collapse internal nodes with a single child (unless this node is a taxon)
-  if (keptChildren.length === 1 && !isTaxon) return keptChildren[0];
-  const result = { name: node.name, ott_id: node.ott_id, children: keptChildren };
-  if (isTaxon) result.isTaxon = true;
-  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -584,6 +552,25 @@ function SubtreeView({ subtree, onClose }) {
       a.remove();
       URL.revokeObjectURL(url);
     }, "image/png");
+  }
+
+  /** Export the current subtree as an ASCII art text file */
+  function handleSaveTreeAscii() {
+    if (!subtree) return;
+
+    const text = renderTreeAscii(subtree, {
+      taxaByOttId,
+      useUniqNames: showUniqNames,
+    });
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tree.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
@@ -1201,6 +1188,13 @@ function SubtreeView({ subtree, onClose }) {
               title="Save tree as high-resolution PNG"
             >
               💾 PNG
+            </button>
+            <button
+              className="subtree-copy-btn"
+              onClick={handleSaveTreeAscii}
+              title="Save tree as ASCII text"
+            >
+              📄 ASCII
             </button>
             <label className="maze-size-label">
               <input
