@@ -11,7 +11,12 @@
 /* ------ Top navigation ------ */
 
 .explore-nav {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .explore-home-link {
@@ -19,9 +24,20 @@
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 500;
+  padding-top: 0.6rem;
 }
 .explore-home-link:hover {
   text-decoration: underline;
+}
+
+.explore-search {
+  flex-shrink: 0;
+}
+.explore-search .autocomplete {
+  width: 240px;
+}
+.explore-search .autocomplete label {
+  display: none;
 }
 
 /* ------ Breadcrumb ancestry ------ */
@@ -226,6 +242,24 @@
   white-space: nowrap;
 }
 
+/* ------ Compare button (outside species) ------ */
+
+.explore-compare-btn {
+  background: none;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.explore-compare-btn:hover {
+  background: rgba(100, 108, 255, 0.15);
+  border-color: #646cff;
+}
+
 /* ------ Show-more button ------ */
 
 .explore-show-more {
@@ -288,6 +322,13 @@
   }
   .explore-show-more .show-more-btn:hover {
     background: #e8e8e8;
+  }
+  .explore-compare-btn {
+    border-color: #ccc;
+  }
+  .explore-compare-btn:hover {
+    background: rgba(100, 108, 255, 0.08);
+    border-color: #646cff;
   }
 }
 

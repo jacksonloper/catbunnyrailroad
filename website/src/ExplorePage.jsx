@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import { capitalize } from "./treeUtils.js";
+import { buildTrie } from "./trieUtils.js";
+import Autocomplete from "./Autocomplete.jsx";
 import "./ExplorePage.css";
 
 // ---------------------------------------------------------------------------
@@ -47,6 +49,31 @@ function isMeaningfulName(name) {
   return name && !name.startsWith("mrca");
 }
 
+/** Find the MRCA node for two ott_ids */
+function findMRCA(treeRoot, ottId1, ottId2) {
+  const path1 = findPath(treeRoot, ottId1);
+  const path2 = findPath(treeRoot, ottId2);
+  if (!path1 || !path2) return null;
+
+  let mrca = treeRoot;
+  const minLen = Math.min(path1.length, path2.length);
+  for (let i = 0; i < minLen; i++) {
+    if (path1[i] === path2[i]) mrca = path1[i];
+    else break;
+  }
+  return mrca;
+}
+
+/** Collect all curated taxa ott_ids under a tree node */
+function collectDescendantOttIds(node) {
+  let ids = [];
+  if (taxaByOttId.has(node.ott_id)) ids.push(node.ott_id);
+  for (const child of node.children) {
+    ids = ids.concat(collectDescendantOttIds(child));
+  }
+  return ids;
+}
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -64,13 +91,18 @@ export default function ExplorePage() {
 
   const [descendantLimit, setDescendantLimit] = useState(PAGE_SIZE);
   const [outsideLimit, setOutsideLimit] = useState(PAGE_SIZE);
+  const [searchInput, setSearchInput] = useState("");
 
-  // Reset pagination when taxon changes
+  // Trie for autocomplete search
+  const trie = useMemo(() => buildTrie(taxa), []);
+
+  // Reset pagination and search when taxon changes
   const [prevOttId, setPrevOttId] = useState(ottId);
   if (ottId !== prevOttId) {
     setPrevOttId(ottId);
     setDescendantLimit(PAGE_SIZE);
     setOutsideLimit(PAGE_SIZE);
+    setSearchInput("");
   }
 
   // Current node in the tree
@@ -158,6 +190,21 @@ export default function ExplorePage() {
     navigate(`/explore/${newOttId}`);
   }
 
+  /** Compare: find MRCA of central taxon and another, then go to main page with all descendants */
+  function handleCompare(otherOttId) {
+    const mrca = findMRCA(tree, ottId, otherOttId);
+    if (!mrca) return;
+
+    // If the MRCA has an ott_id, use ?clade= (compact & stable)
+    if (mrca.ott_id != null) {
+      navigate(`/?clade=${mrca.ott_id}`);
+    } else {
+      // Fallback: list all descendant taxa OTT IDs
+      const ids = collectDescendantOttIds(mrca);
+      navigate(`/?taxa=${ids.join(",")}`);
+    }
+  }
+
   // Build display name for current node
   const displayName = currentTaxon
     ? currentTaxon.name
@@ -181,11 +228,24 @@ export default function ExplorePage() {
 
   return (
     <div className="explore-page">
-      {/* Top nav */}
+      {/* Top nav + search bar */}
       <nav className="explore-nav">
         <Link to="/" className="explore-home-link">
           ← Cat Bunny Railroad
         </Link>
+        <div className="explore-search">
+          <Autocomplete
+            label="Search organisms"
+            value={searchInput}
+            onChange={setSearchInput}
+            onSelect={(sp) => {
+              setSearchInput("");
+              goTo(sp.ott_id);
+            }}
+            trie={trie}
+            selectedItem={null}
+          />
+        </div>
       </nav>
 
       {/* Breadcrumb ancestry */}
@@ -325,6 +385,17 @@ export default function ExplorePage() {
                 <span className="explore-list-distance">
                   ↑{sp.height} {sp.height === 1 ? "level" : "levels"} up
                 </span>
+                <button
+                  className="explore-compare-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCompare(sp.ott_id);
+                  }}
+                  title={`Compare ${capitalize(displayName)} & ${capitalize(sp.name)} – view their common ancestor group`}
+                  aria-label={`Compare with ${capitalize(sp.name)}`}
+                >
+                  🌳
+                </button>
               </li>
             ))}
           </ul>
