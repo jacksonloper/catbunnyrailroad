@@ -43,21 +43,21 @@ function buildCondensed(node) {
 const condensed = buildCondensed(tree);
 
 /* assign stable numeric ids */
-let _nid = 0;
-function _assignId(n) {
-  n._id = _nid++;
-  n.children.forEach(_assignId);
+let nextNodeId = 0;
+function assignNodeId(n) {
+  n._id = nextNodeId++;
+  n.children.forEach(assignNodeId);
 }
-_assignId(condensed);
+assignNodeId(condensed);
 
 /* lookup maps */
 const nodeById = new Map();
 const parentOf = new Map();
-(function _maps(n) {
+(function buildNodeMaps(n) {
   nodeById.set(n._id, n);
   n.children.forEach((c) => {
     parentOf.set(c._id, n);
-    _maps(c);
+    buildNodeMaps(c);
   });
 })(condensed);
 
@@ -310,18 +310,18 @@ export default function CladeExplorerPage() {
           {/* Clade rows */}
           <div className="clade-rows">
             {clades.map((c) => {
-              const taxa_list = c.node._taxa || leafTaxa(nodeById.get(c.node._id));
+              const taxaList = c.node._taxa || leafTaxa(nodeById.get(c.node._id));
               const seed =
                 ((seeds[c.node._id] || 0) + 1) * 10000 + c.node._id;
-              const shuffled = shuffle(taxa_list, seed);
+              const shuffled = shuffle(taxaList, seed);
               const name = isMeaningful(c.node.name)
                 ? capitalize(c.node.name)
                 : null;
-              const cn = nodeById.get(c.node._id);
+              const cladeNode = nodeById.get(c.node._id);
               const openable =
-                cn &&
-                cn.children.length > 0 &&
-                currentLeafCount - 1 + cn.children.length <= n;
+                cladeNode &&
+                cladeNode.children.length > 0 &&
+                currentLeafCount - 1 + cladeNode.children.length <= n;
               const collapsible =
                 parentOf.has(c.node._id) &&
                 expanded.has(parentOf.get(c.node._id)._id);
@@ -334,7 +334,7 @@ export default function CladeExplorerPage() {
                 >
                   <div className="clade-info">
                     {name && <span className="clade-name">{name}</span>}
-                    <span className="clade-count">({taxa_list.length})</span>
+                    <span className="clade-count">({taxaList.length})</span>
                   </div>
                   <div className="clade-taxa">
                     {shuffled.map((t) => capitalize(t.name)).join(", ")}
