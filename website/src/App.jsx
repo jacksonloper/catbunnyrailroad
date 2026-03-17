@@ -593,13 +593,13 @@ function SubtreeView({ subtree, onClose }) {
     function asciiWalk(node, prefix, isLast) {
       const dn = displayName(node);
       const label = showUniqNames ? dn : capitalize(dn);
-      const connector = prefix.length === 0 ? "" : (isLast ? "└── " : "├── ");
+      const connector = prefix.length === 0 ? "" : (isLast ? "+-- " : "+-- ");
       const lines = [prefix + connector + label];
 
       const taxaChildren = node.children || [];
       taxaChildren.forEach((child, i) => {
         const childIsLast = i === taxaChildren.length - 1;
-        const childPrefix = prefix.length === 0 ? "" : (prefix + (isLast ? "    " : "│   "));
+        const childPrefix = prefix.length === 0 ? "" : (prefix + (isLast ? "    " : "|   "));
         lines.push(...asciiWalk(child, childPrefix, childIsLast));
       });
 
