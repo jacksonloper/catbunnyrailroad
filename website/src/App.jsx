@@ -586,6 +586,38 @@ function SubtreeView({ subtree, onClose }) {
     }, "image/png");
   }
 
+  /** Export the current subtree as an ASCII art text file */
+  function handleSaveTreeAscii() {
+    if (!subtree) return;
+
+    function asciiWalk(node, prefix, isLast) {
+      const dn = displayName(node);
+      const label = showUniqNames ? dn : capitalize(dn);
+      const connector = prefix.length === 0 ? "" : (isLast ? "└── " : "├── ");
+      const lines = [prefix + connector + label];
+
+      const taxaChildren = node.children || [];
+      taxaChildren.forEach((child, i) => {
+        const childIsLast = i === taxaChildren.length - 1;
+        const childPrefix = prefix.length === 0 ? "" : (prefix + (isLast ? "    " : "│   "));
+        lines.push(...asciiWalk(child, childPrefix, childIsLast));
+      });
+
+      return lines;
+    }
+
+    const text = asciiWalk(subtree, "", true).join("\n") + "\n";
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tree.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   const activeCommentData = activeComment != null ? taxaByOttId.get(activeComment) : null;
 
   /** Compute wall segments for the dual "wall view" of the maze */
@@ -1201,6 +1233,13 @@ function SubtreeView({ subtree, onClose }) {
               title="Save tree as high-resolution PNG"
             >
               💾 PNG
+            </button>
+            <button
+              className="subtree-copy-btn"
+              onClick={handleSaveTreeAscii}
+              title="Save tree as ASCII text"
+            >
+              📄 ASCII
             </button>
             <label className="maze-size-label">
               <input
