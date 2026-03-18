@@ -62,11 +62,15 @@ function mrcaDepth(ottId1, ottId2) {
 /* ───── quiz logic ───── */
 
 /**
- * Pick n random taxa from the full taxa list.
+ * Pick n random taxa from the full taxa list using Fisher-Yates shuffle.
  */
 export function pickRandomTaxa(n = 3) {
-  const shuffled = [...taxaList].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, n);
+  const arr = [...taxaList];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, n);
 }
 
 /**
