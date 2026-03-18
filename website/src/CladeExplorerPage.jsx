@@ -122,32 +122,34 @@ function initExpansion(root, n) {
   return exp;
 }
 
-function isMeaningful(name) {
-  return name && !/^mrca/.test(name);
-}
-
-/* ───── layout (matches SubtreeView style) ───── */
+/* ───── layout ───── */
 
 function layoutTree(root, vSp) {
   const hSp = 16;
+  const leftPad = 10;
   const nodes = [];
   const edges = [];
   let li = 0;
+  let maxLeafDepth = 0;
 
   function walk(n, d) {
-    const x = d * hSp;
+    const x = d * hSp + leftPad;
     if (n.children.length === 0) {
+      if (d > maxLeafDepth) maxLeafDepth = d;
       const y = li * vSp + vSp / 2;
       li++;
-      nodes.push({ x, y, node: n, isClade: true });
+      nodes.push({ x, y, node: n, isLeaf: true });
       return y;
     }
     const cys = n.children.map((c) => walk(c, d + 1));
     const y = (Math.min(...cys) + Math.max(...cys)) / 2;
-    nodes.push({ x, y, node: n, isClade: false });
+    const isPenult = n.children.every((c) => c.children.length === 0);
+    nodes.push({ x, y, node: n, isLeaf: false, isPenultimate: isPenult });
     return y;
   }
   walk(root, 0);
+
+  const treeW = maxLeafDepth * hSp + leftPad + 2;
 
   (function be(n) {
     if (n.children.length === 0) return;
@@ -164,13 +166,15 @@ function layoutTree(root, vSp) {
       x2: pi.x,
       y2: Math.max(...ys),
     });
-    cis.forEach((ci) =>
-      edges.push({ x1: pi.x, y1: ci.y, x2: ci.x, y2: ci.y }),
-    );
+    cis.forEach((ci) => {
+      /* extend leaf lines to the right edge of the SVG */
+      const endX = ci.node.children.length === 0 ? treeW : ci.x;
+      edges.push({ x1: pi.x, y1: ci.y, x2: endX, y2: ci.y });
+    });
     n.children.forEach(be);
   })(root);
 
-  return { nodes, edges, leafCount: li, hSp, vSp };
+  return { nodes, edges, leafCount: li, hSp, vSp, treeW };
 }
 
 /* ───── deterministic shuffle ───── */
@@ -193,71 +197,73 @@ function shuffle(arr, seed) {
 
 export default function CladeExplorerPage() {
   const [n, setN] = useState(10);
+  const [viewRootId, setViewRootId] = useState(condensed._id);
   const [expanded, setExpanded] = useState(() => initExpansion(condensed, 10));
-  const [seeds, setSeeds] = useState({});
+  const [globalSeed, setGlobalSeed] = useState(0);
+
+  const viewRoot = nodeById.get(viewRootId);
 
   /* derived */
   const display = useMemo(
-    () => buildDisplay(condensed, expanded),
-    [expanded],
+    () => buildDisplay(viewRoot, expanded),
+    [viewRoot, expanded],
   );
   const vSp = 48;
   const lay = useMemo(() => layoutTree(display, vSp), [display]);
-  const clades = useMemo(
-    () => lay.nodes.filter((nd) => nd.isClade),
+  const leaves = useMemo(
+    () => lay.nodes.filter((nd) => nd.isLeaf),
     [lay],
   );
-  const cladeCount = clades.length;
-  const currentLeafCount = useMemo(
-    () => displayLeaves(condensed, expanded).length,
-    [expanded],
-  );
-
-  const treeDepth = useMemo(() => {
-    const md = (nd) =>
-      nd.children.length === 0
-        ? 0
-        : 1 + Math.max(...nd.children.map(md));
-    return md(display);
-  }, [display]);
-
-  const treeW = (treeDepth + 1) * lay.hSp + 8;
-  const totalH = Math.max(cladeCount, n) * vSp;
+  const leafCount = leaves.length;
+  const treeW = lay.treeW;
+  const totalH = leafCount * vSp;
 
   /* handlers */
   const handleOpen = (id) => {
     const cn = nodeById.get(id);
     if (!cn || cn.children.length === 0) return;
-    if (currentLeafCount - 1 + cn.children.length > n) return;
+    if (leafCount - 1 + cn.children.length > n) return;
     setExpanded((prev) => new Set([...prev, id]));
   };
 
-  const handleCollapse = (id) => {
-    const par = parentOf.get(id);
-    if (!par || !expanded.has(par._id)) return;
+  const handleCollapseNode = (id) => {
+    if (!expanded.has(id)) return;
     setExpanded((prev) => {
       const next = new Set(prev);
-      next.delete(par._id);
-      // Also remove all descendants of parent so they don't "remember" being open
+      next.delete(id);
       const removeDesc = (node) => {
         for (const child of node.children) {
           next.delete(child._id);
           removeDesc(child);
         }
       };
-      removeDesc(par);
+      const nd = nodeById.get(id);
+      if (nd) removeDesc(nd);
       return next;
     });
   };
 
-  const handleCycle = (id) => {
-    setSeeds((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+  const handleDrillDown = (id) => {
+    const node = nodeById.get(id);
+    if (!node) return;
+    setViewRootId(id);
+    setExpanded(initExpansion(node, n));
+  };
+
+  const handleDrillUp = () => {
+    const parent = parentOf.get(viewRootId);
+    if (!parent) return;
+    setViewRootId(parent._id);
+    setExpanded(initExpansion(parent, n));
+  };
+
+  const handleCycleAll = () => {
+    setGlobalSeed((prev) => prev + 1);
   };
 
   const handleChangeN = (newN) => {
     setN(newN);
-    setExpanded(initExpansion(condensed, newN));
-    setSeeds({});
+    setExpanded(initExpansion(viewRoot, newN));
   };
 
   return (
@@ -284,13 +290,14 @@ export default function CladeExplorerPage() {
 
       <div className="clade-body">
         <div className="clade-display">
-          {/* SVG tree topology */}
+          {/* SVG tree with interactive controls */}
           <svg
             className="clade-svg"
             width={treeW}
             height={totalH}
             viewBox={`0 0 ${treeW} ${totalH}`}
           >
+            {/* Tree edges */}
             {lay.edges.map((e, i) => (
               <line
                 key={i}
@@ -302,90 +309,132 @@ export default function CladeExplorerPage() {
                 strokeWidth={1.5}
               />
             ))}
-            {clades.map((c) => (
-              <circle
-                key={c.node._id}
-                cx={c.x}
-                cy={c.y}
-                r={4}
-                fill="#e8a020"
-              />
-            ))}
+
+            {/* Interactive node controls */}
+            {lay.nodes.map((nd) => {
+              const isRoot = nd.node._id === viewRootId;
+
+              /* ── root node ── */
+              if (isRoot) {
+                if (viewRootId !== condensed._id) {
+                  return (
+                    <g
+                      key={`ctrl-${nd.node._id}`}
+                      className="tree-ctrl"
+                      onClick={handleDrillUp}
+                    >
+                      <circle cx={nd.x} cy={nd.y} r={7}
+                        fill="#2a2a2a" stroke="#e8a020" strokeWidth={1.5} />
+                      <text x={nd.x} y={nd.y + 4} textAnchor="middle"
+                        fill="#e8a020" fontSize="11"
+                        style={{ pointerEvents: "none" }}>◂</text>
+                    </g>
+                  );
+                }
+                return (
+                  <circle key={`ctrl-${nd.node._id}`}
+                    cx={nd.x} cy={nd.y} r={3} fill="#888" />
+                );
+              }
+
+              /* ── leaf node ── */
+              if (nd.isLeaf) {
+                const cn = nodeById.get(nd.node._id);
+                const canOpen =
+                  cn &&
+                  cn.children.length > 0 &&
+                  leafCount - 1 + cn.children.length <= n;
+                if (canOpen) {
+                  return (
+                    <g
+                      key={`ctrl-${nd.node._id}`}
+                      className="tree-ctrl"
+                      onClick={() => handleOpen(nd.node._id)}
+                    >
+                      <circle cx={nd.x} cy={nd.y} r={7}
+                        fill="#2a2a2a" stroke="#e8a020" strokeWidth={1.5} />
+                      <text x={nd.x} y={nd.y + 4} textAnchor="middle"
+                        fill="#e8a020" fontSize="14"
+                        style={{ pointerEvents: "none" }}>+</text>
+                    </g>
+                  );
+                }
+                const hasHidden = cn && cn.children.length > 0;
+                return (
+                  <circle key={`ctrl-${nd.node._id}`}
+                    cx={nd.x} cy={nd.y}
+                    r={hasHidden ? 5 : 3}
+                    fill={hasHidden ? "#555" : "#e8a020"}
+                    stroke={hasHidden ? "#888" : "none"}
+                    strokeWidth={1} />
+                );
+              }
+
+              /* ── penultimate node (all children are leaves): − button ── */
+              if (nd.isPenultimate) {
+                return (
+                  <g
+                    key={`ctrl-${nd.node._id}`}
+                    className="tree-ctrl"
+                    onClick={() => handleCollapseNode(nd.node._id)}
+                  >
+                    <circle cx={nd.x} cy={nd.y} r={7}
+                      fill="#2a2a2a" stroke="#e8a020" strokeWidth={1.5} />
+                    <text x={nd.x} y={nd.y + 4} textAnchor="middle"
+                      fill="#e8a020" fontSize="14"
+                      style={{ pointerEvents: "none" }}>−</text>
+                  </g>
+                );
+              }
+
+              /* ── deep internal node: drill-down ▸ ── */
+              return (
+                <g
+                  key={`ctrl-${nd.node._id}`}
+                  className="tree-ctrl"
+                  onClick={() => handleDrillDown(nd.node._id)}
+                >
+                  <circle cx={nd.x} cy={nd.y} r={7}
+                    fill="#2a2a2a" stroke="#e8a020" strokeWidth={1.5} />
+                  <text x={nd.x} y={nd.y + 4} textAnchor="middle"
+                    fill="#e8a020" fontSize="11"
+                    style={{ pointerEvents: "none" }}>▸</text>
+                </g>
+              );
+            })}
           </svg>
 
-          {/* Clade rows */}
+          {/* Taxa rows – just the taxa names, no labels or counts */}
           <div className="clade-rows">
-            {clades.map((c) => {
-              const taxaList = c.node._taxa || leafTaxa(nodeById.get(c.node._id));
-              const seed =
-                ((seeds[c.node._id] || 0) + 1) * 10000 + c.node._id;
+            {leaves.map((lf) => {
+              const taxaList =
+                lf.node._taxa || leafTaxa(nodeById.get(lf.node._id));
+              const seed = (globalSeed + 1) * 10000 + lf.node._id;
               const shuffled = shuffle(taxaList, seed);
-              const name = isMeaningful(c.node.name)
-                ? capitalize(c.node.name)
-                : null;
-              const cladeNode = nodeById.get(c.node._id);
-              const openable =
-                cladeNode &&
-                cladeNode.children.length > 0 &&
-                currentLeafCount - 1 + cladeNode.children.length <= n;
-              const collapsible =
-                parentOf.has(c.node._id) &&
-                expanded.has(parentOf.get(c.node._id)._id);
-
               return (
                 <div
-                  key={c.node._id}
+                  key={lf.node._id}
                   className="clade-row"
                   style={{ height: vSp }}
                 >
                   <div className="clade-taxa">
-                    {name && (
-                      <span className="clade-name">{name}</span>
-                    )}
-                    <span className="clade-count">({taxaList.length})</span>
-                    {" "}
                     {shuffled.map((t) => capitalize(t.name)).join(", ")}
-                  </div>
-                  <div className="clade-btns">
-                    <button
-                      className="clade-btn"
-                      disabled={!openable}
-                      onClick={() => handleOpen(c.node._id)}
-                      title="Split into subclades"
-                    >
-                      +
-                    </button>
-                    <button
-                      className="clade-btn"
-                      disabled={!collapsible}
-                      onClick={() => handleCollapse(c.node._id)}
-                      title="Merge with siblings"
-                    >
-                      −
-                    </button>
-                    <button
-                      className="clade-btn"
-                      onClick={() => handleCycle(c.node._id)}
-                      title="Re-randomize order"
-                    >
-                      🔄
-                    </button>
                   </div>
                 </div>
               );
             })}
-
-            {/* Empty rows */}
-            {Array.from({ length: n - cladeCount }, (_, i) => (
-              <div
-                key={`empty-${i}`}
-                className="clade-row clade-row-empty"
-                style={{ height: vSp }}
-              >
-                <span className="clade-empty-label">(empty)</span>
-              </div>
-            ))}
           </div>
+        </div>
+
+        {/* Single shuffle button at the bottom */}
+        <div className="clade-bottom-bar">
+          <button
+            className="clade-btn"
+            onClick={handleCycleAll}
+            title="Re-randomize order of all rows"
+          >
+            🔄 Shuffle
+          </button>
         </div>
       </div>
     </div>

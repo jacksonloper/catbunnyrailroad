@@ -51,27 +51,9 @@
 .clade-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0 0.5rem;
+  padding: 0 4px;
   border-bottom: 1px solid #2a2a2a;
   box-sizing: border-box;
-}
-
-.clade-row-empty {
-  opacity: 0.3;
-}
-
-.clade-name {
-  font-weight: 600;
-  color: #e8a020;
-  font-size: 0.82rem;
-  white-space: nowrap;
-}
-
-.clade-count {
-  font-size: 0.75rem;
-  color: #888;
-  white-space: nowrap;
 }
 
 .clade-taxa {
@@ -85,10 +67,15 @@
   text-overflow: ellipsis;
 }
 
-.clade-btns {
+/* SVG interactive node controls */
+.tree-ctrl {
+  cursor: pointer;
+}
+
+.clade-bottom-bar {
   display: flex;
-  gap: 4px;
-  flex-shrink: 0;
+  justify-content: center;
+  padding: 0.75rem;
 }
 
 .clade-btn {
@@ -96,28 +83,13 @@
   color: #eee;
   border: 1px solid #555;
   border-radius: 4px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 6px 16px;
   cursor: pointer;
   font-size: 0.85rem;
-  padding: 0;
 }
-.clade-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-.clade-btn:not(:disabled):hover {
+.clade-btn:hover {
   background: #444;
   border-color: #e8a020;
-}
-
-.clade-empty-label {
-  color: #555;
-  font-size: 0.8rem;
-  font-style: italic;
 }
 
 /* ─── light mode ─── */
@@ -139,14 +111,8 @@
     color: #222;
     border-color: #aaa;
   }
-  .clade-btn:not(:disabled):hover {
+  .clade-btn:hover {
     background: #ddd;
-  }
-  .clade-count {
-    color: #666;
-  }
-  .clade-empty-label {
-    color: #aaa;
   }
 }
 
@@ -158,10 +124,5 @@
   }
   .clade-body {
     padding: 0.25rem;
-  }
-  .clade-btn {
-    width: 26px;
-    height: 26px;
-    font-size: 0.75rem;
   }
 }
