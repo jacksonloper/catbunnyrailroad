@@ -137,6 +137,10 @@
   text-overflow: ellipsis;
 }
 
+.clade-hl {
+  color: #e8a020;
+}
+
 /* SVG interactive node controls */
 .tree-ctrl {
   cursor: pointer;
@@ -274,6 +278,9 @@
     background: #fff;
     color: #222;
     border-color: #aaa;
+  }
+  .clade-hl {
+    color: #b37400;
   }
 }
 

@@ -162,7 +162,8 @@ export default function QuizPage() {
                   const outgroup = solved.mrcaTree.children[1].taxa[0];
                   const rootRef = `${closer[0].ott_id}_${outgroup.ott_id}`;
                   const pairRef = `${closer[0].ott_id}_${closer[1].ott_id}`;
-                  return `/clades?r=${rootRef}&e=${rootRef},${pairRef}`;
+                  const hlIds = taxa.map((t) => t.ott_id).join(",");
+                  return `/clades?r=${rootRef}&e=${rootRef},${pairRef}&h=${hlIds}`;
                 })()}
               >
                 🌿 Explore in Clades

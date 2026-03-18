@@ -287,6 +287,18 @@ export default function CladeExplorerPage() {
     }
     return rootOnlyExpansion(condensed);
   });
+  const [highlighted] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const h = params.get("h");
+    if (h) {
+      const ids = h
+        .split(",")
+        .map(Number)
+        .filter((id) => !Number.isNaN(id) && allOttIds.has(id));
+      if (ids.length > 0) return new Set(ids);
+    }
+    return new Set();
+  });
   const [globalSeed, setGlobalSeed] = useState(0);
   const [menuNodeId, setMenuNodeId] = useState(null);
   const [showAsciiPicker, setShowAsciiPicker] = useState(false);
@@ -377,6 +389,7 @@ export default function CladeExplorerPage() {
       .map((n) => encodeNodeRef(n))
       .filter(Boolean);
     if (refs.length) params.set("e", refs.join(","));
+    if (highlighted.size > 0) params.set("h", [...highlighted].join(","));
     const url = `${window.location.origin}/clades?${params}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -600,6 +613,14 @@ export default function CladeExplorerPage() {
                 lf.node._taxa || leafTaxa(nodeById.get(lf.node._id));
               const seed = (globalSeed + 1) * 10000 + lf.node._id;
               const shuffled = shuffle(taxaList, seed);
+              /* Move highlighted taxa to front */
+              const hasHL = highlighted.size > 0;
+              const ordered = hasHL
+                ? [
+                    ...shuffled.filter((t) => highlighted.has(t.ott_id)),
+                    ...shuffled.filter((t) => !highlighted.has(t.ott_id)),
+                  ]
+                : shuffled;
               return (
                 <div
                   key={lf.node._id}
@@ -607,7 +628,20 @@ export default function CladeExplorerPage() {
                   style={{ height: vSp }}
                 >
                   <div className="clade-taxa">
-                    {shuffled.map((t) => capitalize(t.name)).join(", ")}
+                    {hasHL
+                      ? ordered.map((t, i) => (
+                          <span key={t.ott_id}>
+                            {i > 0 && ", "}
+                            {highlighted.has(t.ott_id) ? (
+                              <strong className="clade-hl">
+                                {capitalize(t.name)}
+                              </strong>
+                            ) : (
+                              capitalize(t.name)
+                            )}
+                          </span>
+                        ))
+                      : ordered.map((t) => capitalize(t.name)).join(", ")}
                   </div>
                 </div>
               );
