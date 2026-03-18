@@ -173,8 +173,24 @@ function shuffle(arr, seed) {
 /* ───── component ───── */
 
 export default function CladeExplorerPage() {
-  const [viewRootId, setViewRootId] = useState(condensed._id);
-  const [expanded, setExpanded] = useState(() => rootOnlyExpansion(condensed));
+  const [viewRootId, setViewRootId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("r");
+    if (r !== null) {
+      const id = parseInt(r, 10);
+      if (nodeById.has(id)) return id;
+    }
+    return condensed._id;
+  });
+  const [expanded, setExpanded] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const e = params.get("e");
+    if (e) {
+      const ids = e.split(",").map((s) => parseInt(s, 10)).filter((id) => !isNaN(id));
+      if (ids.length > 0) return new Set(ids);
+    }
+    return rootOnlyExpansion(condensed);
+  });
   const [globalSeed, setGlobalSeed] = useState(0);
   const [menuNodeId, setMenuNodeId] = useState(null);
   const [showAsciiPicker, setShowAsciiPicker] = useState(false);
@@ -255,31 +271,19 @@ export default function CladeExplorerPage() {
     setExpanded(rootOnlyExpansion(target));
   };
 
-  /* ── serialise display tree to plain JSON (strip _taxa to ott_ids) ── */
-  function toExportTree(dn) {
-    const out = { name: dn.name, ott_id: dn.ott_id };
-    if (dn.children && dn.children.length > 0) {
-      out.children = dn.children.map(toExportTree);
-    } else {
-      out.taxa = (dn._taxa || []).map((t) => ({
-        name: t.name,
-        ott_id: t.ott_id,
-        uniqname: t.uniqname || null,
-      }));
-    }
-    return out;
-  }
-
-  const handleCopyJson = async () => {
-    const obj = toExportTree(display);
+  const handleShareLink = async () => {
+    const params = new URLSearchParams();
+    params.set("r", viewRootId);
+    const ids = [...expanded].join(",");
+    if (ids) params.set("e", ids);
+    const url = `${window.location.origin}/clades?${params}`;
     try {
-      await navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
-      setCopyMsg("JSON copied!");
-      setTimeout(() => setCopyMsg(null), 1500);
+      await navigator.clipboard.writeText(url);
+      setCopyMsg("Link copied!");
     } catch {
       setCopyMsg("Copy failed");
-      setTimeout(() => setCopyMsg(null), 1500);
     }
+    setTimeout(() => setCopyMsg(null), 1500);
   };
 
   const handleCopyAscii = async (useUniq) => {
@@ -291,59 +295,6 @@ export default function CladeExplorerPage() {
       setCopyMsg("Copy failed");
     }
     setShowAsciiPicker(false);
-    setTimeout(() => setCopyMsg(null), 1500);
-  };
-
-  /* ── restore state from pasted JSON ── */
-  const handlePasteJson = async () => {
-    let text;
-    try {
-      text = await navigator.clipboard.readText();
-    } catch {
-      setCopyMsg("Paste failed – allow clipboard access");
-      setTimeout(() => setCopyMsg(null), 2000);
-      return;
-    }
-    let obj;
-    try {
-      obj = JSON.parse(text);
-    } catch {
-      setCopyMsg("Invalid JSON");
-      setTimeout(() => setCopyMsg(null), 2000);
-      return;
-    }
-    /* obj must have a name and an ott_id that exists in our condensed tree */
-    if (!obj || typeof obj.ott_id !== "number") {
-      setCopyMsg("JSON missing ott_id");
-      setTimeout(() => setCopyMsg(null), 2000);
-      return;
-    }
-    /* find the node with matching ott_id and set it as root */
-    let target = null;
-    nodeById.forEach((nd) => {
-      if (nd.ott_id === obj.ott_id) target = nd;
-    });
-    if (!target) {
-      setCopyMsg("ott_id not found in tree");
-      setTimeout(() => setCopyMsg(null), 2000);
-      return;
-    }
-    /* Reconstruct expansion from the JSON children structure */
-    const newExp = new Set();
-    function restoreExp(jsonNode, condensedNode) {
-      if (!jsonNode.children || jsonNode.children.length === 0) return;
-      newExp.add(condensedNode._id);
-      for (const jc of jsonNode.children) {
-        const match = condensedNode.children.find(
-          (c) => c.ott_id === jc.ott_id,
-        );
-        if (match) restoreExp(jc, match);
-      }
-    }
-    restoreExp(obj, target);
-    setViewRootId(target._id);
-    setExpanded(newExp);
-    setCopyMsg("Loaded from JSON!");
     setTimeout(() => setCopyMsg(null), 1500);
   };
 
@@ -533,10 +484,10 @@ export default function CladeExplorerPage() {
           </button>
           <button
             className="clade-btn"
-            onClick={handleCopyJson}
-            title="Copy current tree state as JSON"
+            onClick={handleShareLink}
+            title="Copy a shareable link to this view"
           >
-            📋 Copy JSON
+            🔗 Share Link
           </button>
           <button
             className="clade-btn"
@@ -544,13 +495,6 @@ export default function CladeExplorerPage() {
             title="Copy as ASCII tree text"
           >
             📝 Copy ASCII
-          </button>
-          <button
-            className="clade-btn"
-            onClick={handlePasteJson}
-            title="Paste a previously-copied JSON tree"
-          >
-            📥 Paste JSON
           </button>
           {copyMsg && <span className="clade-copy-msg">{copyMsg}</span>}
         </div>
