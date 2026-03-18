@@ -271,7 +271,19 @@ export default function CladeExplorerPage() {
     const e = params.get("e");
     if (e) {
       const nodes = e.split(",").map(decodeNodeRef).filter(Boolean);
-      if (nodes.length > 0) return new Set(nodes.map((n) => n._id));
+      if (nodes.length > 0) {
+        const ids = new Set(nodes.map((n) => n._id));
+        /* Ensure all ancestors of each expanded node are also expanded,
+           so that buildDisplay can reach every requested node. */
+        for (const n of nodes) {
+          let cur = parentOf.get(n._id);
+          while (cur && !ids.has(cur._id)) {
+            ids.add(cur._id);
+            cur = parentOf.get(cur._id);
+          }
+        }
+        return ids;
+      }
     }
     return rootOnlyExpansion(condensed);
   });
