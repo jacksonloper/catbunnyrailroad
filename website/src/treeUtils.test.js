@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
+import { capitalize, extractSubtree, renderTreeAscii, renderCladeAscii } from "./treeUtils.js";
 import tree from "./data/tree.json";
 import taxa from "./data/taxa.json";
 
@@ -162,6 +162,114 @@ describe("renderTreeAscii", () => {
     // Must not contain any Unicode box-drawing characters
     expect(ascii).not.toMatch(/[─│┌┐└┘├┤┬┴┼╭╮╯╰]/);
     // Should only contain printable ASCII
+    expect(ascii).toMatch(/^[\x20-\x7E\n]+$/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// renderCladeAscii – clade display trees with taxa lists at leaves
+// ---------------------------------------------------------------------------
+
+describe("renderCladeAscii", () => {
+  it("renders a single-leaf tree with _taxa list", () => {
+    const node = {
+      name: "felidae",
+      children: [],
+      _taxa: [
+        { name: "cat", uniqname: "Felis catus" },
+        { name: "lion", uniqname: "Panthera leo" },
+      ],
+    };
+    const ascii = renderCladeAscii(node);
+    expect(ascii).toBe("Cat, Lion\n");
+  });
+
+  it("renders a tree with internal nodes and leaf taxa lists", () => {
+    const node = {
+      name: "mammalia",
+      children: [
+        {
+          name: "felidae",
+          children: [],
+          _taxa: [
+            { name: "cat", uniqname: "Felis catus" },
+            { name: "lion", uniqname: "Panthera leo" },
+          ],
+        },
+        {
+          name: "canidae",
+          children: [],
+          _taxa: [{ name: "wolf and dog", uniqname: "Canis lupus" }],
+        },
+      ],
+    };
+    const ascii = renderCladeAscii(node);
+    expect(ascii).toBe(
+      [
+        "Mammalia",
+        "+-- Cat, Lion",
+        "+-- Wolf And Dog",
+        "",
+      ].join("\n"),
+    );
+  });
+
+  it("uses uniqnames when useUniqNames is true", () => {
+    const node = {
+      name: "felidae",
+      children: [],
+      _taxa: [
+        { name: "cat", uniqname: "Felis catus" },
+        { name: "lion", uniqname: "Panthera leo" },
+      ],
+    };
+    const ascii = renderCladeAscii(node, { useUniqNames: true });
+    expect(ascii).toBe("Felis catus, Panthera leo\n");
+  });
+
+  it("falls back to capitalized name when _taxa is empty", () => {
+    const node = { name: "unknown clade", children: [] };
+    const ascii = renderCladeAscii(node);
+    expect(ascii).toBe("Unknown Clade\n");
+  });
+
+  it("renders deeper nesting correctly", () => {
+    const node = {
+      name: "root",
+      children: [
+        {
+          name: "branch a",
+          children: [
+            { name: "leaf1", children: [], _taxa: [{ name: "alpha" }] },
+            { name: "leaf2", children: [], _taxa: [{ name: "beta" }, { name: "gamma" }] },
+          ],
+        },
+        { name: "leaf3", children: [], _taxa: [{ name: "delta" }] },
+      ],
+    };
+    const ascii = renderCladeAscii(node);
+    expect(ascii).toBe(
+      [
+        "Root",
+        "+-- Branch A",
+        "|   +-- Alpha",
+        "|   +-- Beta, Gamma",
+        "+-- Delta",
+        "",
+      ].join("\n"),
+    );
+  });
+
+  it("uses only pure ASCII characters", () => {
+    const node = {
+      name: "root",
+      children: [
+        { name: "a", children: [], _taxa: [{ name: "x" }, { name: "y" }] },
+        { name: "b", children: [], _taxa: [{ name: "z" }] },
+      ],
+    };
+    const ascii = renderCladeAscii(node);
+    expect(ascii).not.toMatch(/[─│┌┐└┘├┤┬┴┼╭╮╯╰]/);
     expect(ascii).toMatch(/^[\x20-\x7E\n]+$/);
   });
 });

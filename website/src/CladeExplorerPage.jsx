@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
-import { capitalize } from "./treeUtils.js";
+import { capitalize, renderCladeAscii } from "./treeUtils.js";
 import Navbar from "./Navbar.jsx";
 import "./CladeExplorerPage.css";
 
@@ -195,6 +195,8 @@ export default function CladeExplorerPage() {
   const [expanded, setExpanded] = useState(() => initExpansion(condensed, 10));
   const [globalSeed, setGlobalSeed] = useState(0);
   const [menuNodeId, setMenuNodeId] = useState(null);
+  const [showAsciiPicker, setShowAsciiPicker] = useState(false);
+  const [copyMsg, setCopyMsg] = useState(null);
 
   const viewRoot = nodeById.get(viewRootId);
 
@@ -264,6 +266,98 @@ export default function CladeExplorerPage() {
     setMenuNodeId(null);
   };
 
+  /* ── serialise display tree to plain JSON (strip _taxa to ott_ids) ── */
+  function toExportTree(dn) {
+    const out = { name: dn.name, ott_id: dn.ott_id };
+    if (dn.children && dn.children.length > 0) {
+      out.children = dn.children.map(toExportTree);
+    } else {
+      out.taxa = (dn._taxa || []).map((t) => ({
+        name: t.name,
+        ott_id: t.ott_id,
+        uniqname: t.uniqname || null,
+      }));
+    }
+    return out;
+  }
+
+  const handleCopyJson = async () => {
+    const obj = toExportTree(display);
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
+      setCopyMsg("JSON copied!");
+      setTimeout(() => setCopyMsg(null), 1500);
+    } catch {
+      setCopyMsg("Copy failed");
+      setTimeout(() => setCopyMsg(null), 1500);
+    }
+  };
+
+  const handleCopyAscii = async (useUniq) => {
+    const ascii = renderCladeAscii(display, { useUniqNames: useUniq });
+    try {
+      await navigator.clipboard.writeText(ascii);
+      setCopyMsg("ASCII copied!");
+    } catch {
+      setCopyMsg("Copy failed");
+    }
+    setShowAsciiPicker(false);
+    setTimeout(() => setCopyMsg(null), 1500);
+  };
+
+  /* ── restore state from pasted JSON ── */
+  const handlePasteJson = async () => {
+    let text;
+    try {
+      text = await navigator.clipboard.readText();
+    } catch {
+      setCopyMsg("Paste failed – allow clipboard access");
+      setTimeout(() => setCopyMsg(null), 2000);
+      return;
+    }
+    let obj;
+    try {
+      obj = JSON.parse(text);
+    } catch {
+      setCopyMsg("Invalid JSON");
+      setTimeout(() => setCopyMsg(null), 2000);
+      return;
+    }
+    /* obj must have a name and an ott_id that exists in our condensed tree */
+    if (!obj || typeof obj.ott_id !== "number") {
+      setCopyMsg("JSON missing ott_id");
+      setTimeout(() => setCopyMsg(null), 2000);
+      return;
+    }
+    /* find the node with matching ott_id and set it as root */
+    let target = null;
+    nodeById.forEach((nd) => {
+      if (nd.ott_id === obj.ott_id) target = nd;
+    });
+    if (!target) {
+      setCopyMsg("ott_id not found in tree");
+      setTimeout(() => setCopyMsg(null), 2000);
+      return;
+    }
+    /* Reconstruct expansion from the JSON children structure */
+    const newExp = new Set();
+    function restoreExp(jsonNode, condensedNode) {
+      if (!jsonNode.children || jsonNode.children.length === 0) return;
+      newExp.add(condensedNode._id);
+      for (const jc of jsonNode.children) {
+        const match = condensedNode.children.find(
+          (c) => c.ott_id === jc.ott_id,
+        );
+        if (match) restoreExp(jc, match);
+      }
+    }
+    restoreExp(obj, target);
+    setViewRootId(target._id);
+    setExpanded(newExp);
+    setCopyMsg("Loaded from JSON!");
+    setTimeout(() => setCopyMsg(null), 1500);
+  };
+
   return (
     <div className="clade-page">
       <Navbar />
@@ -276,7 +370,7 @@ export default function CladeExplorerPage() {
               value={n}
               onChange={(e) => handleChangeN(Number(e.target.value))}
             >
-              {[5, 8, 10, 12, 15, 20, 30, 40, 50].map((v) => (
+              {[5, 8, 10, 12, 15, 20, 30, 40, 50, 75, 100].map((v) => (
                 <option key={v} value={v}>
                   {v}
                 </option>
@@ -448,7 +542,7 @@ export default function CladeExplorerPage() {
           </div>
         </div>
 
-        {/* Single shuffle button at the bottom */}
+        {/* Bottom toolbar */}
         <div className="clade-bottom-bar">
           <button
             className="clade-btn"
@@ -457,8 +551,65 @@ export default function CladeExplorerPage() {
           >
             🔄 Shuffle
           </button>
+          <button
+            className="clade-btn"
+            onClick={handleCopyJson}
+            title="Copy current tree state as JSON"
+          >
+            📋 Copy JSON
+          </button>
+          <button
+            className="clade-btn"
+            onClick={() => setShowAsciiPicker(true)}
+            title="Copy as ASCII tree text"
+          >
+            📝 Copy ASCII
+          </button>
+          <button
+            className="clade-btn"
+            onClick={handlePasteJson}
+            title="Paste a previously-copied JSON tree"
+          >
+            📥 Paste JSON
+          </button>
+          {copyMsg && <span className="clade-copy-msg">{copyMsg}</span>}
         </div>
       </div>
+
+      {/* ASCII name-choice modal */}
+      {showAsciiPicker && (
+        <div
+          className="clade-modal-overlay"
+          onClick={() => setShowAsciiPicker(false)}
+        >
+          <div
+            className="clade-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="clade-modal-title">Copy ASCII tree using:</p>
+            <div className="clade-modal-btns">
+              <button
+                className="clade-btn"
+                onClick={() => handleCopyAscii(false)}
+              >
+                Common names
+              </button>
+              <button
+                className="clade-btn"
+                onClick={() => handleCopyAscii(true)}
+              >
+                Scientific names
+              </button>
+            </div>
+            <button
+              className="clade-modal-close"
+              onClick={() => setShowAsciiPicker(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

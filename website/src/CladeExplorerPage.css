@@ -106,7 +106,16 @@
 .clade-bottom-bar {
   display: flex;
   justify-content: center;
+  gap: 0.5rem;
   padding: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.clade-copy-msg {
+  font-size: 0.8rem;
+  color: #e8a020;
+  padding: 4px 8px;
 }
 
 .clade-btn {
@@ -121,6 +130,49 @@
 .clade-btn:hover {
   background: #444;
   border-color: #e8a020;
+}
+
+/* ─── ASCII name-choice modal ─── */
+.clade-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.clade-modal {
+  background: #2a2a2a;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  min-width: 220px;
+}
+
+.clade-modal-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+.clade-modal-btns {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.clade-modal-close {
+  background: transparent;
+  color: #999;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.clade-modal-close:hover {
+  color: #eee;
 }
 
 /* ─── light mode ─── */
