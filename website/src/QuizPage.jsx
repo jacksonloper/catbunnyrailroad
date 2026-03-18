@@ -43,7 +43,16 @@ function MiniTree({ node }) {
 /* ───── main component ───── */
 
 export default function QuizPage() {
-  const [quizTypeIdx, setQuizTypeIdx] = useState(0);
+  const [quizTypeIdx, setQuizTypeIdx] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("type");
+    if (t !== null) {
+      const ottId = t === "" ? null : Number(t);
+      const idx = QUIZ_TYPES.findIndex((qt) => qt.rootOttId === ottId);
+      if (idx >= 0) return idx;
+    }
+    return 0;
+  });
   const rootOttId = QUIZ_TYPES[quizTypeIdx].rootOttId;
   const [round, setRound] = useState(() => newRound(rootOttId));
 
@@ -65,6 +74,16 @@ export default function QuizPage() {
     const idx = Number(e.target.value);
     setQuizTypeIdx(idx);
     setRound(newRound(QUIZ_TYPES[idx].rootOttId));
+    const ottId = QUIZ_TYPES[idx].rootOttId;
+    const params = new URLSearchParams(window.location.search);
+    if (ottId === null) {
+      params.delete("type");
+    } else {
+      params.set("type", String(ottId));
+    }
+    const qs = params.toString();
+    const url = `${window.location.pathname}${qs ? `?${qs}` : ""}`;
+    window.history.replaceState(null, "", url);
   }, []);
 
   const { taxa, chosen, solved } = round;
