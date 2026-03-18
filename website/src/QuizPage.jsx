@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { pickRandomTaxa, solveQuiz } from "./quizUtils.js";
 import { capitalize } from "./treeUtils.js";
 import Navbar from "./Navbar.jsx";
@@ -129,6 +130,21 @@ export default function QuizPage() {
               <h3>Relationship Tree</h3>
               <MiniTree node={solved.mrcaTree} />
             </div>
+
+            {!isStar && (
+              <Link
+                className="quiz-clades-link"
+                to={(() => {
+                  const closer = solved.mrcaTree.children[0].taxa;
+                  const outgroup = solved.mrcaTree.children[1].taxa[0];
+                  const rootRef = `${closer[0].ott_id}_${outgroup.ott_id}`;
+                  const pairRef = `${closer[0].ott_id}_${closer[1].ott_id}`;
+                  return `/clades?r=${rootRef}&e=${rootRef},${pairRef}`;
+                })()}
+              >
+                🌿 Explore in Clades
+              </Link>
+            )}
 
             <button className="quiz-next-btn" onClick={handleNext}>
               Next Question →

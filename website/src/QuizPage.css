@@ -155,6 +155,28 @@
 
 /* ─── next button ─── */
 
+.quiz-clades-link {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid #388e3c;
+  border-radius: 8px;
+  background: transparent;
+  color: #66bb6a;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  box-sizing: border-box;
+}
+
+.quiz-clades-link:hover {
+  background: #1b3a1b;
+}
+
 .quiz-next-btn {
   display: block;
   width: 100%;
@@ -242,6 +264,15 @@
 
   .mini-tree-leaf {
     background: #e8e8e8;
+  }
+
+  .quiz-clades-link {
+    color: #2e7d32;
+    border-color: #4caf50;
+  }
+
+  .quiz-clades-link:hover {
+    background: #e8f5e9;
   }
 }
 
