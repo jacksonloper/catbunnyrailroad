@@ -62,6 +62,89 @@ const nodeByOttId = new Map();
 /* trie for taxa search */
 const cladeTrie = buildTrie(taxa);
 
+/* ───── stable node identification helpers ───── */
+
+/** Get ott_id of the first (leftmost) leaf descendant */
+function firstLeafOttId(node) {
+  if (node.children.length === 0) return node.ott_id;
+  return firstLeafOttId(node.children[0]);
+}
+
+/** Find the LCA of two nodes identified by ott_id */
+function findLCA(ottId1, ottId2) {
+  const n1 = nodeByOttId.get(ottId1);
+  const n2 = nodeByOttId.get(ottId2);
+  if (!n1 || !n2) return null;
+  const ancestors = new Set();
+  let cur = n1;
+  while (cur) {
+    ancestors.add(cur._id);
+    cur = parentOf.get(cur._id);
+  }
+  cur = n2;
+  while (cur) {
+    if (ancestors.has(cur._id)) return cur;
+    cur = parentOf.get(cur._id);
+  }
+  return null;
+}
+
+/**
+ * Encode a condensed-tree node as a stable string reference.
+ * Nodes with ott_id → plain number.
+ * MRCA nodes (no ott_id) → "leafOtt1_leafOtt2" (LCA of two descendant leaves).
+ */
+function encodeNodeRef(node) {
+  if (node.ott_id) return String(node.ott_id);
+  const l1 = firstLeafOttId(node.children[0]);
+  const l2 = firstLeafOttId(node.children[1]);
+  return `${l1}_${l2}`;
+}
+
+/**
+ * Decode a node reference string back to a condensed-tree node.
+ * Plain number → lookup by ott_id.
+ * "a_b" → find the LCA of ott_ids a and b.
+ */
+function decodeNodeRef(str) {
+  if (str.includes("_")) {
+    const [a, b] = str.split("_").map(Number);
+    if (isNaN(a) || isNaN(b)) return null;
+    return findLCA(a, b);
+  }
+  const ottId = parseInt(str, 10);
+  if (isNaN(ottId)) return null;
+  return nodeByOttId.get(ottId) || null;
+}
+
+/* ───── presets ───── */
+
+const PRESETS = [
+  {
+    label: "Plant example",
+    rootOttId: 10218,
+    expandedOttIds: [10218, 5298374],
+    expandedLeafPairs: [
+      [411489, 483272], [411489, 989042], [989042, 125543], [989042, 515700],
+      [989042, 1071040], [515700, 1001039], [515700, 957388], [515700, 25036],
+      [125543, 510792], [125543, 429489], [125543, 208052], [208052, 1058514],
+      [1058514, 279986], [279986, 137603], [279986, 170513], [170513, 257180],
+      [207474, 664533], [207474, 247717], [207474, 406191], [406191, 878707],
+      [406191, 626975], [626975, 465347], [626975, 62303], [626975, 497827],
+    ],
+  },
+  {
+    label: "Bat example",
+    rootOttId: 574724,
+    expandedOttIds: [574724, 238434],
+    expandedLeafPairs: [
+      [533619, 6788], [533619, 1018309], [533619, 238416], [6788, 581454],
+      [6788, 1039976], [1039976, 759857], [1039976, 267980], [581454, 1018272],
+      [574742, 316928], [316928, 267987],
+    ],
+  },
+];
+
 /* ───── helpers ───── */
 
 /** Collect curated-taxa records under a condensed-tree node */
@@ -177,8 +260,8 @@ export default function CladeExplorerPage() {
     const params = new URLSearchParams(window.location.search);
     const r = params.get("r");
     if (r !== null) {
-      const id = parseInt(r, 10);
-      if (nodeById.has(id)) return id;
+      const node = decodeNodeRef(r);
+      if (node) return node._id;
     }
     return condensed._id;
   });
@@ -186,8 +269,8 @@ export default function CladeExplorerPage() {
     const params = new URLSearchParams(window.location.search);
     const e = params.get("e");
     if (e) {
-      const ids = e.split(",").map((s) => parseInt(s, 10)).filter((id) => !isNaN(id));
-      if (ids.length > 0) return new Set(ids);
+      const nodes = e.split(",").map(decodeNodeRef).filter(Boolean);
+      if (nodes.length > 0) return new Set(nodes.map((n) => n._id));
     }
     return rootOnlyExpansion(condensed);
   });
@@ -273,9 +356,13 @@ export default function CladeExplorerPage() {
 
   const handleShareLink = async () => {
     const params = new URLSearchParams();
-    params.set("r", viewRootId);
-    const ids = [...expanded].join(",");
-    if (ids) params.set("e", ids);
+    const root = nodeById.get(viewRootId);
+    params.set("r", encodeNodeRef(root));
+    const refs = [...expanded]
+      .map((id) => nodeById.get(id))
+      .filter(Boolean)
+      .map((n) => encodeNodeRef(n));
+    if (refs.length) params.set("e", refs.join(","));
     const url = `${window.location.origin}/clades?${params}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -298,6 +385,36 @@ export default function CladeExplorerPage() {
     setTimeout(() => setCopyMsg(null), 1500);
   };
 
+  const handlePresetSelect = (e) => {
+    const idx = parseInt(e.target.value, 10);
+    if (isNaN(idx) || idx < 0 || idx >= PRESETS.length) return;
+    const preset = PRESETS[idx];
+    const root = nodeByOttId.get(preset.rootOttId);
+    if (!root) return;
+
+    const exp = new Set();
+    /* expand ancestors from condensed root to preset root */
+    let cur = root;
+    while (cur) {
+      if (cur.children.length > 0) exp.add(cur._id);
+      cur = parentOf.get(cur._id);
+    }
+    /* expand nodes identified by ott_id */
+    for (const ottId of preset.expandedOttIds) {
+      const node = nodeByOttId.get(ottId);
+      if (node) exp.add(node._id);
+    }
+    /* expand MRCA nodes identified by leaf pairs */
+    for (const [l1, l2] of preset.expandedLeafPairs) {
+      const lca = findLCA(l1, l2);
+      if (lca) exp.add(lca._id);
+    }
+
+    setViewRootId(root._id);
+    setExpanded(exp);
+    e.target.value = "";
+  };
+
   return (
     <div className="clade-page">
       <Navbar />
@@ -313,6 +430,17 @@ export default function CladeExplorerPage() {
             selectedItem={null}
           />
         </div>
+        <select
+          className="clade-preset-select"
+          onChange={handlePresetSelect}
+          value=""
+          aria-label="Load a preset"
+        >
+          <option value="" disabled>Presets…</option>
+          {PRESETS.map((p, i) => (
+            <option key={i} value={i}>{p.label}</option>
+          ))}
+        </select>
       </div>
 
       <div className="clade-body">

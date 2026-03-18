@@ -83,6 +83,19 @@
   object-fit: cover;
 }
 
+.clade-preset-select {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.clade-preset-select:hover {
+  border-color: #e8a020;
+}
+
 .clade-body {
   padding: 0.5rem;
   overflow-x: auto;
@@ -256,6 +269,11 @@
   }
   .clade-btn:hover {
     background: #ddd;
+  }
+  .clade-preset-select {
+    background: #fff;
+    color: #222;
+    border-color: #aaa;
   }
 }
 
