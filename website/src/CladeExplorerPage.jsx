@@ -202,7 +202,7 @@ export default function CladeExplorerPage() {
     () => buildDisplay(viewRoot, expanded),
     [viewRoot, expanded],
   );
-  const vSp = 48;
+  const vSp = 28;
   const lay = useMemo(() => layoutTree(display, vSp), [display]);
   const leaves = useMemo(
     () => lay.nodes.filter((nd) => nd.isLeaf),
@@ -272,7 +272,7 @@ export default function CladeExplorerPage() {
               value={n}
               onChange={(e) => handleChangeN(Number(e.target.value))}
             >
-              {[5, 8, 10, 12, 15, 20].map((v) => (
+              {[5, 8, 10, 12, 15, 20, 30, 40, 50].map((v) => (
                 <option key={v} value={v}>
                   {v}
                 </option>
