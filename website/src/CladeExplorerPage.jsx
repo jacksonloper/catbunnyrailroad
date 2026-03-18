@@ -194,6 +194,7 @@ export default function CladeExplorerPage() {
   const [viewRootId, setViewRootId] = useState(condensed._id);
   const [expanded, setExpanded] = useState(() => initExpansion(condensed, 10));
   const [globalSeed, setGlobalSeed] = useState(0);
+  const [menuNodeId, setMenuNodeId] = useState(null);
 
   const viewRoot = nodeById.get(viewRootId);
 
@@ -218,6 +219,7 @@ export default function CladeExplorerPage() {
     if (!cn || cn.children.length === 0) return;
     if (leafCount - 1 + cn.children.length > n) return;
     setExpanded((prev) => new Set([...prev, id]));
+    setMenuNodeId(null);
   };
 
   const handleCollapseNode = (id) => {
@@ -249,6 +251,7 @@ export default function CladeExplorerPage() {
     if (!parent) return;
     setViewRootId(parent._id);
     setExpanded(initExpansion(parent, n));
+    setMenuNodeId(null);
   };
 
   const handleCycleAll = () => {
@@ -258,6 +261,7 @@ export default function CladeExplorerPage() {
   const handleChangeN = (newN) => {
     setN(newN);
     setExpanded(initExpansion(viewRoot, newN));
+    setMenuNodeId(null);
   };
 
   return (
@@ -319,10 +323,10 @@ export default function CladeExplorerPage() {
                       aria-label="Navigate to parent clade"
                       onClick={handleDrillUp}
                     >
-                      <circle cx={nd.x} cy={nd.y} r={7}
-                        fill="#2a2a2a" stroke="#e8a020" strokeWidth={1.5} />
-                      <text x={nd.x} y={nd.y + 4} textAnchor="middle"
-                        fill="#e8a020" fontSize="11"
+                      <circle cx={nd.x} cy={nd.y} r={9}
+                        fill="#2a2a2a" stroke="#e8a020" strokeWidth={2} />
+                      <text x={nd.x} y={nd.y + 5} textAnchor="middle"
+                        fill="#e8a020" fontSize="14"
                         style={{ pointerEvents: "none" }}>◂</text>
                     </g>
                   );
@@ -368,43 +372,59 @@ export default function CladeExplorerPage() {
                 );
               }
 
-              /* ── penultimate node (all children are leaves): − button ── */
-              if (nd.isPenultimate) {
-                return (
-                  <g
-                    key={`ctrl-${nd.node._id}`}
-                    className="tree-ctrl"
-                    role="button"
-                    aria-label="Collapse clade"
-                    onClick={() => handleCollapseNode(nd.node._id)}
-                  >
-                    <circle cx={nd.x} cy={nd.y} r={7}
-                      fill="#2a2a2a" stroke="#e8a020" strokeWidth={1.5} />
-                    <text x={nd.x} y={nd.y + 4} textAnchor="middle"
-                      fill="#e8a020" fontSize="14"
-                      style={{ pointerEvents: "none" }}>−</text>
-                  </g>
-                );
-              }
-
-              /* ── deep internal node: drill-down ▸ ── */
+              /* ── expanded internal node: unified ● menu button ── */
               return (
                 <g
                   key={`ctrl-${nd.node._id}`}
                   className="tree-ctrl"
                   role="button"
-                  aria-label="Focus on this clade"
-                  onClick={() => handleDrillDown(nd.node._id)}
+                  aria-label="Node options"
+                  onClick={() => setMenuNodeId(
+                    menuNodeId === nd.node._id ? null : nd.node._id,
+                  )}
                 >
                   <circle cx={nd.x} cy={nd.y} r={7}
-                    fill="#2a2a2a" stroke="#e8a020" strokeWidth={1.5} />
+                    fill={menuNodeId === nd.node._id ? "#e8a020" : "#2a2a2a"}
+                    stroke="#e8a020" strokeWidth={1.5} />
                   <text x={nd.x} y={nd.y + 4} textAnchor="middle"
-                    fill="#e8a020" fontSize="11"
-                    style={{ pointerEvents: "none" }}>▸</text>
+                    fill={menuNodeId === nd.node._id ? "#2a2a2a" : "#e8a020"}
+                    fontSize="11"
+                    style={{ pointerEvents: "none" }}>●</text>
                 </g>
               );
             })}
           </svg>
+
+          {/* Node action menu popup */}
+          {menuNodeId !== null && (() => {
+            const menuNd = lay.nodes.find((x) => x.node._id === menuNodeId);
+            if (!menuNd) return null;
+            return (
+              <div
+                className="node-menu"
+                style={{ left: menuNd.x + 12, top: menuNd.y - 8 }}
+              >
+                <button
+                  className="node-menu-btn"
+                  onClick={() => {
+                    handleDrillDown(menuNodeId);
+                    setMenuNodeId(null);
+                  }}
+                >
+                  Set as root
+                </button>
+                <button
+                  className="node-menu-btn"
+                  onClick={() => {
+                    handleCollapseNode(menuNodeId);
+                    setMenuNodeId(null);
+                  }}
+                >
+                  Collapse
+                </button>
+              </div>
+            );
+          })()}
 
           {/* Taxa rows – just the taxa names, no labels or counts */}
           <div className="clade-rows">
