@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import { capitalize, renderCladeAscii } from "./treeUtils.js";
+import { buildTrie } from "./trieUtils.js";
+import Autocomplete from "./Autocomplete.jsx";
 import Navbar from "./Navbar.jsx";
 import "./CladeExplorerPage.css";
 
@@ -47,13 +49,18 @@ assignNodeId(condensed);
 /* lookup maps */
 const nodeById = new Map();
 const parentOf = new Map();
+const nodeByOttId = new Map();
 (function buildNodeMaps(n) {
   nodeById.set(n._id, n);
+  nodeByOttId.set(n.ott_id, n);
   n.children.forEach((c) => {
     parentOf.set(c._id, n);
     buildNodeMaps(c);
   });
 })(condensed);
+
+/* trie for taxa search */
+const cladeTrie = buildTrie(taxa);
 
 /* ───── helpers ───── */
 
@@ -64,12 +71,6 @@ function leafTaxa(node) {
     return t ? [t] : [];
   }
   return node.children.flatMap(leafTaxa);
-}
-
-/** List the visible clade-leaves given an expanded set */
-function displayLeaves(node, exp) {
-  if (!exp.has(node._id) || node.children.length === 0) return [node];
-  return node.children.flatMap((c) => displayLeaves(c, exp));
 }
 
 /** Build the display tree (leaves carry _taxa arrays) */
@@ -91,28 +92,10 @@ function buildDisplay(node, exp) {
   };
 }
 
-/** Greedily expand clades until we reach n visible rows */
-function initExpansion(root, n) {
+/** Return expansion set that only opens the root (showing its direct children) */
+function rootOnlyExpansion(root) {
   const exp = new Set();
-  if (root.children.length === 0) return exp;
-  exp.add(root._id);
-  for (;;) {
-    const lvs = displayLeaves(root, exp);
-    if (lvs.length >= n) break;
-    let best = null;
-    let bestN = 0;
-    for (const lv of lvs) {
-      if (lv.children.length === 0) continue;
-      if (lvs.length - 1 + lv.children.length > n) continue;
-      const cnt = leafTaxa(lv).length;
-      if (cnt > bestN) {
-        best = lv;
-        bestN = cnt;
-      }
-    }
-    if (!best) break;
-    exp.add(best._id);
-  }
+  if (root.children.length > 0) exp.add(root._id);
   return exp;
 }
 
@@ -190,13 +173,13 @@ function shuffle(arr, seed) {
 /* ───── component ───── */
 
 export default function CladeExplorerPage() {
-  const [n, setN] = useState(10);
   const [viewRootId, setViewRootId] = useState(condensed._id);
-  const [expanded, setExpanded] = useState(() => initExpansion(condensed, 10));
+  const [expanded, setExpanded] = useState(() => rootOnlyExpansion(condensed));
   const [globalSeed, setGlobalSeed] = useState(0);
   const [menuNodeId, setMenuNodeId] = useState(null);
   const [showAsciiPicker, setShowAsciiPicker] = useState(false);
   const [copyMsg, setCopyMsg] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
 
   const viewRoot = nodeById.get(viewRootId);
 
@@ -219,7 +202,6 @@ export default function CladeExplorerPage() {
   const handleOpen = (id) => {
     const cn = nodeById.get(id);
     if (!cn || cn.children.length === 0) return;
-    if (leafCount - 1 + cn.children.length > n) return;
     setExpanded((prev) => new Set([...prev, id]));
     setMenuNodeId(null);
   };
@@ -245,14 +227,14 @@ export default function CladeExplorerPage() {
     const node = nodeById.get(id);
     if (!node) return;
     setViewRootId(id);
-    setExpanded(initExpansion(node, n));
+    setExpanded(rootOnlyExpansion(node));
   };
 
   const handleDrillUp = () => {
     const parent = parentOf.get(viewRootId);
     if (!parent) return;
     setViewRootId(parent._id);
-    setExpanded(initExpansion(parent, n));
+    setExpanded(rootOnlyExpansion(parent));
     setMenuNodeId(null);
   };
 
@@ -260,10 +242,16 @@ export default function CladeExplorerPage() {
     setGlobalSeed((prev) => prev + 1);
   };
 
-  const handleChangeN = (newN) => {
-    setN(newN);
-    setExpanded(initExpansion(viewRoot, newN));
-    setMenuNodeId(null);
+  const handleSearchSelect = (sp) => {
+    setSearchInput("");
+    /* Find the condensed-tree leaf for this taxon */
+    const leaf = nodeByOttId.get(sp.ott_id);
+    if (!leaf) return;
+    /* Use its immediate parent in the condensed tree as the new root */
+    const parent = parentOf.get(leaf._id);
+    const target = parent || leaf;
+    setViewRootId(target._id);
+    setExpanded(rootOnlyExpansion(target));
   };
 
   /* ── serialise display tree to plain JSON (strip _taxa to ott_ids) ── */
@@ -363,20 +351,15 @@ export default function CladeExplorerPage() {
       <Navbar />
       <div className="clade-toolbar">
         <h1 className="clade-title">Clade Explorer</h1>
-        <div className="clade-n-ctrl">
-          <label>
-            Rows:{" "}
-            <select
-              value={n}
-              onChange={(e) => handleChangeN(Number(e.target.value))}
-            >
-              {[5, 8, 10, 12, 15, 20, 30, 40, 50, 75, 100].map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="clade-search">
+          <Autocomplete
+            label="Search"
+            value={searchInput}
+            onChange={setSearchInput}
+            onSelect={handleSearchSelect}
+            trie={cladeTrie}
+            selectedItem={null}
+          />
         </div>
       </div>
 
@@ -434,10 +417,7 @@ export default function CladeExplorerPage() {
               /* ── leaf node ── */
               if (nd.isLeaf) {
                 const cn = nodeById.get(nd.node._id);
-                const canOpen =
-                  cn &&
-                  cn.children.length > 0 &&
-                  leafCount - 1 + cn.children.length <= n;
+                const canOpen = cn && cn.children.length > 0;
                 if (canOpen) {
                   return (
                     <g
@@ -455,13 +435,12 @@ export default function CladeExplorerPage() {
                     </g>
                   );
                 }
-                const hasHidden = cn && cn.children.length > 0;
                 return (
                   <circle key={`ctrl-${nd.node._id}`}
                     cx={nd.x} cy={nd.y}
-                    r={hasHidden ? 5 : 3}
-                    fill={hasHidden ? "#555" : "#e8a020"}
-                    stroke={hasHidden ? "#888" : "none"}
+                    r={3}
+                    fill="#e8a020"
+                    stroke="none"
                     strokeWidth={1} />
                 );
               }
