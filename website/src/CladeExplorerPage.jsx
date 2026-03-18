@@ -96,6 +96,7 @@ function findLCA(ottId1, ottId2) {
  */
 function encodeNodeRef(node) {
   if (node.ott_id) return String(node.ott_id);
+  if (node.children.length < 2) return null;
   const l1 = firstLeafOttId(node.children[0]);
   const l2 = firstLeafOttId(node.children[1]);
   return `${l1}_${l2}`;
@@ -361,7 +362,8 @@ export default function CladeExplorerPage() {
     const refs = [...expanded]
       .map((id) => nodeById.get(id))
       .filter(Boolean)
-      .map((n) => encodeNodeRef(n));
+      .map((n) => encodeNodeRef(n))
+      .filter(Boolean);
     if (refs.length) params.set("e", refs.join(","));
     const url = `${window.location.origin}/clades?${params}`;
     try {
