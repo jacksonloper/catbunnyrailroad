@@ -90,3 +90,57 @@ export function renderTreeAscii(node, opts = {}) {
 
   return lines.join("\n") + "\n";
 }
+
+/**
+ * Render a clade display tree as ASCII where leaves show comma-separated taxa.
+ *
+ * @param {object}   node               Tree node with {name, children, _taxa?}
+ * @param {object}   [opts]             Options
+ * @param {boolean}  [opts.useUniqNames] When true, show uniqname for each taxon
+ * @returns {string} The full ASCII tree as a single string (with trailing newline)
+ */
+export function renderCladeAscii(node, opts = {}) {
+  const { useUniqNames } = opts;
+
+  function taxonLabel(t) {
+    if (useUniqNames && t.uniqname) return t.uniqname;
+    return capitalize(t.name);
+  }
+
+  function leafLabel(n) {
+    const taxa = n._taxa || [];
+    if (taxa.length === 0) return capitalize(n.name);
+    return taxa.map(taxonLabel).join(", ");
+  }
+
+  function nodeLabel(n) {
+    return capitalize(n.name);
+  }
+
+  function walk(n, prefix, isLast) {
+    const connector = "+-- ";
+    const isLeaf = !n.children || n.children.length === 0;
+    const label = isLeaf ? leafLabel(n) : nodeLabel(n);
+    const lines = [prefix + connector + label];
+
+    if (!isLeaf) {
+      n.children.forEach((child, i) => {
+        const childIsLast = i === n.children.length - 1;
+        const childPrefix = prefix + (isLast ? "    " : "|   ");
+        lines.push(...walk(child, childPrefix, childIsLast));
+      });
+    }
+    return lines;
+  }
+
+  const isLeaf = !node.children || node.children.length === 0;
+  const rootLabel = isLeaf ? leafLabel(node) : nodeLabel(node);
+  const lines = [rootLabel];
+  const kids = node.children || [];
+  kids.forEach((child, i) => {
+    const childIsLast = i === kids.length - 1;
+    lines.push(...walk(child, "", childIsLast));
+  });
+
+  return lines.join("\n") + "\n";
+}

@@ -5,38 +5,20 @@
 .explore-page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
+  padding: 0 1rem 3rem;
 }
 
-/* ------ Top navigation ------ */
+/* ------ Search bar (below shared Navbar) ------ */
 
-.explore-nav {
+.explore-search-bar {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding: 0.75rem 0;
 }
-
-.explore-home-link {
-  color: #646cff;
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding-top: 0.6rem;
-}
-.explore-home-link:hover {
-  text-decoration: underline;
-}
-
-.explore-search {
-  flex-shrink: 0;
-}
-.explore-search .autocomplete {
+.explore-search-bar .autocomplete {
   width: 240px;
 }
-.explore-search .autocomplete label {
+.explore-search-bar .autocomplete label {
   display: none;
 }
 
