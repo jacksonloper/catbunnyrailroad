@@ -227,14 +227,15 @@ export default function CladeExplorerPage() {
     const node = nodeById.get(id);
     if (!node) return;
     setViewRootId(id);
-    setExpanded(rootOnlyExpansion(node));
+    /* keep existing expansion state — descendants of the new root stay open */
   };
 
   const handleDrillUp = () => {
     const parent = parentOf.get(viewRootId);
     if (!parent) return;
     setViewRootId(parent._id);
-    setExpanded(rootOnlyExpansion(parent));
+    /* keep existing expansion state and ensure parent is expanded */
+    setExpanded((prev) => new Set([...prev, parent._id]));
     setMenuNodeId(null);
   };
 
