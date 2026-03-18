@@ -5,6 +5,8 @@ import {
   mrcaDepth,
   solveQuiz,
   pickRandomTaxa,
+  getDescendantTaxa,
+  QUIZ_TYPES,
 } from "./quizUtils.js";
 import tree from "./data/tree.json";
 
@@ -138,5 +140,74 @@ describe("solveQuiz", () => {
     const result = solveQuiz([563166, 247341, 605194]);
     const outgroupNode = result.mrcaTree.children[1];
     expect(outgroupNode.taxa).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getDescendantTaxa
+// ---------------------------------------------------------------------------
+
+describe("getDescendantTaxa", () => {
+  it("returns taxa for Mammalia (244265)", () => {
+    const taxa = getDescendantTaxa(244265);
+    expect(taxa.length).toBeGreaterThanOrEqual(3);
+    // cat (563166) should be a mammal descendant
+    expect(taxa.some((t) => t.ott_id === 563166)).toBe(true);
+  });
+
+  it("returns taxa for Mesangiospermae (5298374)", () => {
+    const taxa = getDescendantTaxa(5298374);
+    expect(taxa.length).toBeGreaterThanOrEqual(3);
+    // corn (605194) should be a Mesangiospermae descendant
+    expect(taxa.some((t) => t.ott_id === 605194)).toBe(true);
+  });
+
+  it("does not include non-descendants", () => {
+    const mammals = getDescendantTaxa(244265);
+    // corn (605194) is a plant, not a mammal
+    expect(mammals.some((t) => t.ott_id === 605194)).toBe(false);
+  });
+
+  it("returns empty array for unknown ott_id", () => {
+    expect(getDescendantTaxa(-999)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// pickRandomTaxa with rootOttId
+// ---------------------------------------------------------------------------
+
+describe("pickRandomTaxa with rootOttId", () => {
+  it("picks from Mammalia when rootOttId=244265", () => {
+    const mammals = getDescendantTaxa(244265);
+    const mammalOttIds = new Set(mammals.map((t) => t.ott_id));
+    const result = pickRandomTaxa(3, 244265);
+    expect(result).toHaveLength(3);
+    result.forEach((t) => {
+      expect(mammalOttIds.has(t.ott_id)).toBe(true);
+    });
+  });
+
+  it("falls back to all taxa for unknown rootOttId", () => {
+    const result = pickRandomTaxa(3, -999);
+    expect(result).toHaveLength(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// QUIZ_TYPES
+// ---------------------------------------------------------------------------
+
+describe("QUIZ_TYPES", () => {
+  it("has at least two entries with rootOttId", () => {
+    const withRoot = QUIZ_TYPES.filter((qt) => qt.rootOttId !== null);
+    expect(withRoot.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("each entry has a label", () => {
+    QUIZ_TYPES.forEach((qt) => {
+      expect(typeof qt.label).toBe("string");
+      expect(qt.label.length).toBeGreaterThan(0);
+    });
   });
 });

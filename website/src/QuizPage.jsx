@@ -1,14 +1,14 @@
 import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { pickRandomTaxa, solveQuiz } from "./quizUtils.js";
+import { pickRandomTaxa, solveQuiz, QUIZ_TYPES } from "./quizUtils.js";
 import { capitalize } from "./treeUtils.js";
 import Navbar from "./Navbar.jsx";
 import "./QuizPage.css";
 
 /* ───── helpers ───── */
 
-function newRound() {
-  const three = pickRandomTaxa(3);
+function newRound(rootOttId = null) {
+  const three = pickRandomTaxa(3, rootOttId);
   return { taxa: three, chosen: null, solved: null };
 }
 
@@ -43,7 +43,9 @@ function MiniTree({ node }) {
 /* ───── main component ───── */
 
 export default function QuizPage() {
-  const [round, setRound] = useState(newRound);
+  const [quizTypeIdx, setQuizTypeIdx] = useState(0);
+  const rootOttId = QUIZ_TYPES[quizTypeIdx].rootOttId;
+  const [round, setRound] = useState(() => newRound(rootOttId));
 
   const handlePick = useCallback(
     (index) => {
@@ -56,7 +58,13 @@ export default function QuizPage() {
   );
 
   const handleNext = useCallback(() => {
-    setRound(newRound());
+    setRound(newRound(rootOttId));
+  }, [rootOttId]);
+
+  const handleTypeChange = useCallback((e) => {
+    const idx = Number(e.target.value);
+    setQuizTypeIdx(idx);
+    setRound(newRound(QUIZ_TYPES[idx].rootOttId));
   }, []);
 
   const { taxa, chosen, solved } = round;
@@ -72,6 +80,21 @@ export default function QuizPage() {
         <p className="quiz-subtitle">
           Pick the taxon that is the odd one out.
         </p>
+
+        <div className="quiz-type-selector">
+          <label htmlFor="quiz-type">Category: </label>
+          <select
+            id="quiz-type"
+            value={quizTypeIdx}
+            onChange={handleTypeChange}
+          >
+            {QUIZ_TYPES.map((qt, i) => (
+              <option key={i} value={i}>
+                {qt.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="quiz-choices">
           {taxa.map((t, i) => {

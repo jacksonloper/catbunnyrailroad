@@ -59,13 +59,53 @@ function mrcaDepth(ottId1, ottId2) {
   return depth;
 }
 
+/* ───── subtree helpers ───── */
+
+/**
+ * Find a node in the full tree by ott_id.
+ */
+function findNodeByOttId(node, ottId) {
+  if (node.ott_id === ottId) return node;
+  if (!node.children) return null;
+  for (const child of node.children) {
+    const result = findNodeByOttId(child, ottId);
+    if (result) return result;
+  }
+  return null;
+}
+
+/**
+ * Collect all curated (non-internal) leaf taxa under a subtree root.
+ * A taxon is "non-internal" if it appears in the curated taxa list.
+ * Returns an array of taxa objects.
+ */
+export function getDescendantTaxa(rootOttId) {
+  const subtree = findNodeByOttId(tree, rootOttId);
+  if (!subtree) return [];
+  const results = [];
+  function walk(node) {
+    if (taxaByOttId.has(node.ott_id)) {
+      results.push(taxaByOttId.get(node.ott_id));
+    }
+    if (node.children) {
+      node.children.forEach(walk);
+    }
+  }
+  walk(subtree);
+  return results;
+}
+
 /* ───── quiz logic ───── */
 
 /**
- * Pick n random taxa from the full taxa list using Fisher-Yates shuffle.
+ * Pick n random taxa.
+ * If rootOttId is provided, only pick from curated descendants of that subtree.
+ * Falls back to all taxa if rootOttId is not found or has too few descendants.
  */
-export function pickRandomTaxa(n = 3) {
-  const arr = [...taxaList];
+export function pickRandomTaxa(n = 3, rootOttId = null) {
+  const pool = rootOttId ? getDescendantTaxa(rootOttId) : taxaList;
+  const source = pool.length >= n ? pool : taxaList;
+  const arr = [...source];
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -150,6 +190,19 @@ export function solveQuiz(ottIds) {
 
   return { outgroupIndex, mrcaTree };
 }
+
+/* ───── quiz types ───── */
+
+/**
+ * Available quiz type presets.
+ * Each entry has a label (for the drop-down) and an optional rootOttId.
+ * When rootOttId is null, all taxa are used.
+ */
+export const QUIZ_TYPES = [
+  { label: "All taxa", rootOttId: null },
+  { label: "Mesangiospermae", rootOttId: 5298374 },
+  { label: "Mammalia", rootOttId: 244265 },
+];
 
 /** Export for testing */
 export { findPath, findMRCA, mrcaDepth, taxaList, taxaByOttId };

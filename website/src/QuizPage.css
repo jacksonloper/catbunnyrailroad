@@ -19,6 +19,25 @@
   font-size: 0.95rem;
 }
 
+/* ─── quiz type selector ─── */
+
+.quiz-type-selector {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.quiz-type-selector select {
+  font-size: 0.95rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  color: #eee;
+  cursor: pointer;
+}
+
 /* ─── choices ─── */
 
 .quiz-choices {
@@ -201,6 +220,16 @@
 @media (prefers-color-scheme: light) {
   .quiz-subtitle {
     color: #777;
+  }
+
+  .quiz-type-selector {
+    color: #555;
+  }
+
+  .quiz-type-selector select {
+    background: #f5f5f5;
+    border-color: #ccc;
+    color: #222;
   }
 
   .quiz-choice {
