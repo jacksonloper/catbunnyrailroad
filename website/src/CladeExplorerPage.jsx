@@ -12,9 +12,9 @@ const allOttIds = new Set(taxa.map((t) => t.ott_id));
 
 /**
  * Build a condensed tree containing only curated taxa as leaves.
- * Internal-taxon nodes (nodes that are both curated taxa AND have
- * descendants that are also curated taxa) get an extra leaf-child
- * so that every curated taxon is a leaf in the result.
+ * Internal taxa (nodes that are curated taxa but also have descendant
+ * curated taxa) are kept as internal nodes only — they do NOT get
+ * duplicated as extra leaf-children.
  * Single-child chains are collapsed.
  */
 function buildCondensed(node) {
@@ -24,17 +24,11 @@ function buildCondensed(node) {
       ? { name: node.name, ott_id: node.ott_id, children: [] }
       : null;
   }
-  let kids = node.children.map(buildCondensed).filter(Boolean);
+  const kids = node.children.map(buildCondensed).filter(Boolean);
   if (kids.length === 0) {
     return isTaxon
       ? { name: node.name, ott_id: node.ott_id, children: [] }
       : null;
-  }
-  if (isTaxon) {
-    kids = [
-      { name: node.name, ott_id: node.ott_id, children: [] },
-      ...kids,
-    ];
   }
   if (kids.length === 1) return kids[0];
   return { name: node.name, ott_id: node.ott_id, children: kids };
