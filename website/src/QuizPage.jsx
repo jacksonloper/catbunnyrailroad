@@ -1,0 +1,141 @@
+import { useState, useCallback } from "react";
+import { pickRandomTaxa, solveQuiz } from "./quizUtils.js";
+import { capitalize } from "./treeUtils.js";
+import Navbar from "./Navbar.jsx";
+import "./QuizPage.css";
+
+/* ───── helpers ───── */
+
+function newRound() {
+  const three = pickRandomTaxa(3);
+  return { taxa: three, chosen: null, solved: null };
+}
+
+/** Render a small relationship tree as nested HTML. */
+function MiniTree({ node }) {
+  if (!node) return null;
+  const taxaNames = (node.taxa || [])
+    .filter(Boolean)
+    .map((t) => capitalize(t.name))
+    .join(", ");
+
+  if (!node.children || node.children.length === 0) {
+    return (
+      <div className="mini-tree-leaf">
+        <span className="mini-tree-label">{taxaNames}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mini-tree-node">
+      <div className="mini-tree-branch-label">{node.name}</div>
+      <div className="mini-tree-branches">
+        {node.children.map((child, i) => (
+          <MiniTree key={i} node={child} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ───── main component ───── */
+
+export default function QuizPage() {
+  const [round, setRound] = useState(newRound);
+
+  const handlePick = useCallback(
+    (index) => {
+      if (round.solved) return; // already answered
+      const ottIds = round.taxa.map((t) => t.ott_id);
+      const result = solveQuiz(ottIds);
+      setRound((r) => ({ ...r, chosen: index, solved: result }));
+    },
+    [round.taxa, round.solved],
+  );
+
+  const handleNext = useCallback(() => {
+    setRound(newRound());
+  }, []);
+
+  const { taxa, chosen, solved } = round;
+  const isCorrect =
+    solved && chosen !== null && chosen === solved.outgroupIndex;
+  const isStar = solved && solved.outgroupIndex === null;
+
+  return (
+    <>
+      <Navbar />
+      <div className="quiz-page">
+        <h2 className="quiz-title">🧬 Which is Most Distantly Related?</h2>
+        <p className="quiz-subtitle">
+          Pick the taxon that is the odd one out.
+        </p>
+
+        <div className="quiz-choices">
+          {taxa.map((t, i) => {
+            let cls = "quiz-choice";
+            if (solved) {
+              if (isStar) {
+                cls += " quiz-star";
+              } else if (i === solved.outgroupIndex) {
+                cls += " quiz-correct";
+              }
+              if (i === chosen && !isCorrect && !isStar) {
+                cls += " quiz-wrong";
+              }
+            }
+            return (
+              <button
+                key={t.ott_id}
+                className={cls}
+                onClick={() => handlePick(i)}
+                disabled={!!solved}
+              >
+                {t.image_url && (
+                  <img
+                    className="quiz-choice-img"
+                    src={t.image_url}
+                    alt={t.name}
+                  />
+                )}
+                <span className="quiz-choice-name">{capitalize(t.name)}</span>
+                <span className="quiz-choice-sci">{t.uniqname}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {solved && (
+          <div className="quiz-result">
+            {isStar ? (
+              <p className="quiz-result-text quiz-star-text">
+                ⭐ All three are equally related — it&apos;s a three-way tie!
+              </p>
+            ) : isCorrect ? (
+              <p className="quiz-result-text quiz-correct-text">
+                ✅ Correct!{" "}
+                <strong>{capitalize(taxa[solved.outgroupIndex].name)}</strong> is
+                the most distantly related.
+              </p>
+            ) : (
+              <p className="quiz-result-text quiz-wrong-text">
+                ❌ Not quite. The answer is{" "}
+                <strong>{capitalize(taxa[solved.outgroupIndex].name)}</strong>.
+              </p>
+            )}
+
+            <div className="quiz-tree-section">
+              <h3>Relationship Tree</h3>
+              <MiniTree node={solved.mrcaTree} />
+            </div>
+
+            <button className="quiz-next-btn" onClick={handleNext}>
+              Next Question →
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
