@@ -321,6 +321,8 @@ export default function CladeExplorerPage() {
                     <g
                       key={`ctrl-${nd.node._id}`}
                       className="tree-ctrl"
+                      role="button"
+                      aria-label="Navigate to parent clade"
                       onClick={handleDrillUp}
                     >
                       <circle cx={nd.x} cy={nd.y} r={7}
@@ -349,6 +351,8 @@ export default function CladeExplorerPage() {
                     <g
                       key={`ctrl-${nd.node._id}`}
                       className="tree-ctrl"
+                      role="button"
+                      aria-label="Expand clade"
                       onClick={() => handleOpen(nd.node._id)}
                     >
                       <circle cx={nd.x} cy={nd.y} r={7}
@@ -376,6 +380,8 @@ export default function CladeExplorerPage() {
                   <g
                     key={`ctrl-${nd.node._id}`}
                     className="tree-ctrl"
+                    role="button"
+                    aria-label="Collapse clade"
                     onClick={() => handleCollapseNode(nd.node._id)}
                   >
                     <circle cx={nd.x} cy={nd.y} r={7}
@@ -392,6 +398,8 @@ export default function CladeExplorerPage() {
                 <g
                   key={`ctrl-${nd.node._id}`}
                   className="tree-ctrl"
+                  role="button"
+                  aria-label="Focus on this clade"
                   onClick={() => handleDrillDown(nd.node._id)}
                 >
                   <circle cx={nd.x} cy={nd.y} r={7}
