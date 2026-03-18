@@ -6,6 +6,7 @@ import MazeWorker from "./mazeWorker.js?worker";
 import { capitalize, extractSubtree, renderTreeAscii } from "./treeUtils.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
+import Navbar from "./Navbar.jsx";
 import "./App.css";
 
 /** Draw a rounded rect path on a Canvas 2D context (cross-browser, avoids ctx.roundRect) */
@@ -1520,11 +1521,10 @@ function App() {
 
   return (
     <div className="app">
+      <Navbar />
       <h1>🐱🐰🚂 Cat Bunny Railroad</h1>
       <p className="subtitle">
         Build a list of living things and discover what they have in common!
-        {" · "}
-        <Link to={`/explore/${tree.ott_id}`} className="explore-link">🔍 Explore the tree</Link>
       </p>
 
       {/* List management section */}

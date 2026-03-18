@@ -1,0 +1,47 @@
+/* ─── shared top navigation bar ─── */
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #333;
+  background: #1e1e1e;
+}
+
+.site-nav-link {
+  color: #bbb;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.site-nav-link:hover {
+  background: #333;
+  color: #eee;
+}
+.site-nav-link.active {
+  color: #e8a020;
+  background: #2a2518;
+}
+
+/* ─── light mode ─── */
+@media (prefers-color-scheme: light) {
+  .site-nav {
+    background: #f0f0f0;
+    border-color: #ccc;
+  }
+  .site-nav-link {
+    color: #555;
+  }
+  .site-nav-link:hover {
+    background: #ddd;
+    color: #222;
+  }
+  .site-nav-link.active {
+    color: #b07000;
+    background: #f5eacc;
+  }
+}

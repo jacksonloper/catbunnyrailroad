@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import { capitalize } from "./treeUtils.js";
+import Navbar from "./Navbar.jsx";
 import "./CladeExplorerPage.css";
 
 /* ───── module-level data ───── */
@@ -129,7 +129,7 @@ function isMeaningful(name) {
 /* ───── layout (matches SubtreeView style) ───── */
 
 function layoutTree(root, vSp) {
-  const hSp = 28;
+  const hSp = 16;
   const nodes = [];
   const edges = [];
   let li = 0;
@@ -238,6 +238,14 @@ export default function CladeExplorerPage() {
     setExpanded((prev) => {
       const next = new Set(prev);
       next.delete(par._id);
+      // Also remove all descendants of parent so they don't "remember" being open
+      const removeDesc = (node) => {
+        for (const child of node.children) {
+          next.delete(child._id);
+          removeDesc(child);
+        }
+      };
+      removeDesc(par);
       return next;
     });
   };
@@ -254,10 +262,8 @@ export default function CladeExplorerPage() {
 
   return (
     <div className="clade-page">
-      <nav className="clade-nav">
-        <Link to="/" className="clade-home">
-          ← Home
-        </Link>
+      <Navbar />
+      <div className="clade-toolbar">
         <h1 className="clade-title">Clade Explorer</h1>
         <div className="clade-n-ctrl">
           <label>
@@ -274,7 +280,7 @@ export default function CladeExplorerPage() {
             </select>
           </label>
         </div>
-      </nav>
+      </div>
 
       <div className="clade-body">
         <div className="clade-display">
@@ -332,11 +338,12 @@ export default function CladeExplorerPage() {
                   className="clade-row"
                   style={{ height: vSp }}
                 >
-                  <div className="clade-info">
-                    {name && <span className="clade-name">{name}</span>}
-                    <span className="clade-count">({taxaList.length})</span>
-                  </div>
                   <div className="clade-taxa">
+                    {name && (
+                      <span className="clade-name">{name}</span>
+                    )}
+                    <span className="clade-count">({taxaList.length})</span>
+                    {" "}
                     {shuffled.map((t) => capitalize(t.name)).join(", ")}
                   </div>
                   <div className="clade-btns">

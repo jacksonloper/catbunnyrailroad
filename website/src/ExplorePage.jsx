@@ -5,6 +5,7 @@ import tree from "./data/tree.json";
 import { capitalize } from "./treeUtils.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
+import Navbar from "./Navbar.jsx";
 import "./ExplorePage.css";
 
 // ---------------------------------------------------------------------------
@@ -228,25 +229,21 @@ export default function ExplorePage() {
 
   return (
     <div className="explore-page">
-      {/* Top nav + search bar */}
-      <nav className="explore-nav">
-        <Link to="/" className="explore-home-link">
-          ← Cat Bunny Railroad
-        </Link>
-        <div className="explore-search">
-          <Autocomplete
-            label="Search organisms"
-            value={searchInput}
-            onChange={setSearchInput}
-            onSelect={(sp) => {
-              setSearchInput("");
-              goTo(sp.ott_id);
-            }}
-            trie={trie}
-            selectedItem={null}
-          />
-        </div>
-      </nav>
+      <Navbar />
+      {/* Search bar */}
+      <div className="explore-search-bar">
+        <Autocomplete
+          label="Search organisms"
+          value={searchInput}
+          onChange={setSearchInput}
+          onSelect={(sp) => {
+            setSearchInput("");
+            goTo(sp.ott_id);
+          }}
+          trie={trie}
+          selectedItem={null}
+        />
+      </div>
 
       {/* Breadcrumb ancestry */}
       {namedAncestors.length > 0 && (
