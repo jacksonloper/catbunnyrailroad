@@ -268,14 +268,14 @@ function labelInternalNodes(tree, labels) {
   const ottToNode = new Map();
   function indexNodes(node) {
     if (node.ott_id) ottToNode.set(node.ott_id, node);
-    for (const c of node.children) indexNodes(c);
+    for (const c of node.children || []) indexNodes(c);
   }
   indexNodes(tree);
 
   // Find path from root to a node with the given ott_id
   function findPath(node, ottId) {
     if (node.ott_id === ottId) return [node];
-    for (const c of node.children) {
+    for (const c of node.children || []) {
       const p = findPath(c, ottId);
       if (p) return [node, ...p];
     }
