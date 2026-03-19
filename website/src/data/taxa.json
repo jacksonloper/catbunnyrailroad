@@ -2371,5 +2371,53 @@
     "ott_id": 842200,
     "image_url": "/taxa-images/842200.jpg",
     "uniqname": "Dianthus caryophyllus"
+  },
+  {
+    "name": "ginger",
+    "ott_id": 1063866,
+    "image_url": "/taxa-images/1063866.jpg",
+    "uniqname": "Zingiber officinale"
+  },
+  {
+    "name": "honeysuckle",
+    "ott_id": 649885,
+    "image_url": "/taxa-images/649885.jpg",
+    "uniqname": "Lonicera"
+  },
+  {
+    "name": "holly",
+    "ott_id": 727571,
+    "image_url": "/taxa-images/727571.jpg",
+    "uniqname": "Ilex"
+  },
+  {
+    "name": "hydrangea",
+    "ott_id": 162001,
+    "image_url": "/taxa-images/162001.jpg",
+    "uniqname": "Hydrangea macrophylla"
+  },
+  {
+    "name": "snapdragon",
+    "ott_id": 596457,
+    "image_url": "/taxa-images/596457.jpg",
+    "uniqname": "Antirrhinum majus"
+  },
+  {
+    "name": "lilac",
+    "ott_id": 733236,
+    "image_url": "/taxa-images/733236.jpg",
+    "uniqname": "Syringa vulgaris"
+  },
+  {
+    "name": "periwinkle",
+    "ott_id": 142099,
+    "image_url": "/taxa-images/142099.jpg",
+    "uniqname": "Vinca"
+  },
+  {
+    "name": "ash",
+    "ott_id": 671810,
+    "image_url": "/taxa-images/671810.jpg",
+    "uniqname": "Fraxinus"
   }
 ]
