@@ -237,6 +237,88 @@ function treeToCompact(node, taxaByTreeId) {
 }
 
 // ---------------------------------------------------------------------------
+// Internal node labels – well-known clades that are "broken" (non-monophyletic)
+// in the Open Tree synthetic tree.  Because they are broken, they cannot be
+// sent as node_ids to the induced_subtree API; the API would either remap them
+// to a different (usually ancestral) node or reject them.
+//
+// Instead we label them *after* the tree is built by finding the MRCA of two
+// known descendant taxa.  Each entry specifies:
+//   name      – the display name for the clade
+//   ott_id    – the OTT taxonomy ID (still valid as a taxon concept)
+//   pair      – [ottA, ottB] two descendant taxa whose MRCA is this clade
+// ---------------------------------------------------------------------------
+
+const INTERNAL_NODE_LABELS = [
+  { name: "monocot",        ott_id: 1058517, pair: [247717, 605194] },  // Swiss cheese plant, corn
+  { name: "eudicot",        ott_id: 431495,  pair: [515712, 867221] },  // sunflower, poppy
+  { name: "rosid",          ott_id: 1008296, pair: [259066, 756728] },  // rose, grape
+  { name: "asterid",        ott_id: 1008294, pair: [515712, 567253] },  // sunflower, blueberry
+  { name: "Asparagales",    ott_id: 557124,  pair: [406191, 781600] },  // orchid, onion
+  { name: "Ericales",       ott_id: 648892,  pair: [567253, 510792] },  // blueberry, busy lizzie
+  { name: "grassy monocot", ott_id: 921871,  pair: [605194, 627039] },  // corn, pineapple
+];
+
+// ---------------------------------------------------------------------------
+// Label internal nodes – find MRCA of each pair and assign name + ott_id.
+// ---------------------------------------------------------------------------
+
+function labelInternalNodes(tree, labels) {
+  // Build a map: ott_id → node reference
+  const ottToNode = new Map();
+  function indexNodes(node) {
+    if (node.ott_id) ottToNode.set(node.ott_id, node);
+    for (const c of node.children) indexNodes(c);
+  }
+  indexNodes(tree);
+
+  // Find path from root to a node with the given ott_id
+  function findPath(node, ottId) {
+    if (node.ott_id === ottId) return [node];
+    for (const c of node.children) {
+      const p = findPath(c, ottId);
+      if (p) return [node, ...p];
+    }
+    return null;
+  }
+
+  // Find MRCA by comparing paths
+  function findMRCA(ottA, ottB) {
+    const pathA = findPath(tree, ottA);
+    const pathB = findPath(tree, ottB);
+    if (!pathA || !pathB) return null;
+    let mrca = null;
+    for (let i = 0; i < Math.min(pathA.length, pathB.length); i++) {
+      if (pathA[i] !== pathB[i]) break;
+      mrca = pathA[i];
+    }
+    return mrca;
+  }
+
+  for (const entry of labels) {
+    const [ottA, ottB] = entry.pair;
+    const mrca = findMRCA(ottA, ottB);
+    if (!mrca) {
+      console.warn(
+        `⚠ Could not find MRCA for ${entry.name} ` +
+        `(ott${ottA}, ott${ottB}) – skipping`
+      );
+      continue;
+    }
+    // Only label if the node doesn't already have a meaningful name
+    if (!mrca.name || mrca.name.startsWith("mrca")) {
+      mrca.name = entry.name;
+      mrca.ott_id = entry.ott_id;
+      console.log(`  Labeled "${entry.name}" (ott${entry.ott_id})`);
+    } else {
+      console.log(
+        `  Node for ${entry.name} already named "${mrca.name}" – skipping`
+      );
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Fetch phylogenetic tree from Open Tree of Life
 // Uses the node_ids API parameter with "ottNNN" strings.
 // ---------------------------------------------------------------------------
@@ -358,9 +440,11 @@ async function main() {
     process.exit(1);
   }
 
-  // Internal node names are not displayed in the tree (topology-only rendering),
-  // so skip the MRCA API calls that would resolve them.
-  console.log("Skipping internal node name resolution (topology-only tree).");
+  // Label well-known internal clades that are "broken" in the OTT synthetic
+  // tree.  We identify each clade by finding the MRCA of two known descendant
+  // taxa and assigning the clade name + ott_id.
+  console.log("Labeling internal nodes…");
+  labelInternalNodes(compactTree, INTERNAL_NODE_LABELS);
 
   fs.writeFileSync(
     path.join(OUT_DIR, "tree.json"),

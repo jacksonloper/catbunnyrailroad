@@ -195,6 +195,66 @@ describe("pickRandomTaxa with rootOttId", () => {
 });
 
 // ---------------------------------------------------------------------------
+// internal node labels
+// ---------------------------------------------------------------------------
+
+describe("internal node labels", () => {
+  const CLADES = [
+    { name: "monocot",        ottId: 1058517 },
+    { name: "eudicot",        ottId: 431495  },
+    { name: "rosid",          ottId: 1008296 },
+    { name: "asterid",        ottId: 1008294 },
+    { name: "Asparagales",    ottId: 557124  },
+    { name: "Ericales",       ottId: 648892  },
+    { name: "grassy monocot", ottId: 921871  },
+  ];
+
+  it.each(CLADES)(
+    "findPath locates $name (ott $ottId)",
+    ({ ottId }) => {
+      const path = findPath(tree, ottId);
+      expect(path).not.toBeNull();
+      expect(path.length).toBeGreaterThanOrEqual(2);
+    }
+  );
+
+  it("getDescendantTaxa for monocot includes corn (605194)", () => {
+    const taxa = getDescendantTaxa(1058517);
+    expect(taxa.some((t) => t.ott_id === 605194)).toBe(true);
+  });
+
+  it("getDescendantTaxa for monocot does NOT include sunflower (515712)", () => {
+    const taxa = getDescendantTaxa(1058517);
+    expect(taxa.some((t) => t.ott_id === 515712)).toBe(false);
+  });
+
+  it("getDescendantTaxa for rosid includes rose (259066)", () => {
+    const taxa = getDescendantTaxa(1008296);
+    expect(taxa.some((t) => t.ott_id === 259066)).toBe(true);
+  });
+
+  it("getDescendantTaxa for asterid includes sunflower (515712)", () => {
+    const taxa = getDescendantTaxa(1008294);
+    expect(taxa.some((t) => t.ott_id === 515712)).toBe(true);
+  });
+
+  it("getDescendantTaxa for Ericales includes blueberry (567253)", () => {
+    const taxa = getDescendantTaxa(648892);
+    expect(taxa.some((t) => t.ott_id === 567253)).toBe(true);
+  });
+
+  it("getDescendantTaxa for Asparagales includes orchid (406191)", () => {
+    const taxa = getDescendantTaxa(557124);
+    expect(taxa.some((t) => t.ott_id === 406191)).toBe(true);
+  });
+
+  it("getDescendantTaxa for grassy monocot includes pineapple (627039)", () => {
+    const taxa = getDescendantTaxa(921871);
+    expect(taxa.some((t) => t.ott_id === 627039)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // QUIZ_TYPES
 // ---------------------------------------------------------------------------
 

@@ -133,7 +133,30 @@ have `isTaxon: true`.
 
 Taxon names come from `taxa.csv` (the common name).
 
-## 7. Post-build verification
+## 7. Label internal nodes (`labelInternalNodes`)
+
+Several well-known plant clades (monocot, eudicot, rosid, asterid,
+Asparagales, Ericales, grassy monocot) are "broken" (non-monophyletic)
+in the Open Tree synthetic tree.  Their OTT IDs cannot be sent as
+`node_ids` to the induced subtree API — the API would either remap
+them to a distant ancestor or reject them.
+
+Instead, `build-data.js` labels these nodes **after** the tree is
+built by finding the MRCA of two known descendant taxa.  The
+`INTERNAL_NODE_LABELS` array at the top of the script defines each
+clade with:
+
+| Field | Description |
+|-------|-------------|
+| `name` | Display name for the clade |
+| `ott_id` | The OTT taxonomy ID (valid as a taxon concept) |
+| `pair` | `[ottA, ottB]` — two descendant taxa whose MRCA is this clade |
+
+The MRCA approach is robust: if the taxa list changes, the labels
+still land on the correct node as long as the pair taxa remain in
+the tree.
+
+## 8. Post-build verification
 
 After building the compact tree, the build verifies:
 
@@ -141,7 +164,7 @@ After building the compact tree, the build verifies:
 2. **Every CSV row is accounted for** — no taxa are missing from the
    tree.  If any check fails, the build errors out.
 
-## 8. Output files
+## 9. Output files
 
 ### `website/src/data/tree.json`
 
