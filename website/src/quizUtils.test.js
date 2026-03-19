@@ -317,7 +317,7 @@ describe("getCladeExplanation", () => {
     expect(explanation).toBeNull();
   });
 
-  it("returns null when no nice name exists along the path", () => {
+  it("returns explanation when named clade exists on path (Laurasiatheria)", () => {
     // cat=563166, wolf-and-dog=247341, rabbit=864596 — all mammals
     // Between the closer pair MRCA and the overall MRCA we find "Laurasiatheria"
     const ottIds = [563166, 247341, 864596];
