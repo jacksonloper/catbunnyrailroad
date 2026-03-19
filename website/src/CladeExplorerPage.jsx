@@ -32,7 +32,7 @@ function buildCondensed(node) {
       ? { name: node.name, ott_id: node.ott_id, children: [] }
       : null;
   }
-  if (kids.length === 1) return kids[0];
+  if (kids.length === 1 && !isTaxon) return kids[0];
   return { name: node.name, ott_id: node.ott_id, children: kids };
 }
 
@@ -154,7 +154,9 @@ function leafTaxa(node) {
     const t = taxaByOttId.get(node.ott_id);
     return t ? [t] : [];
   }
-  return node.children.flatMap(leafTaxa);
+  const childTaxa = node.children.flatMap(leafTaxa);
+  const ownTaxon = taxaByOttId.get(node.ott_id);
+  return ownTaxon ? [ownTaxon, ...childTaxa] : childTaxa;
 }
 
 /** Build the display tree (leaves carry _taxa arrays) */
