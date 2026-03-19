@@ -1,6 +1,6 @@
 /**
- * Build-data script: reads taxa.csv and fetches the phylogenetic tree
- * from Open Tree of Life's induced_subtree API.
+ * Build-data script: reads taxa.csv and internal_nodes.csv, then fetches
+ * the phylogenetic tree from Open Tree of Life's induced_subtree API.
  *
  * Outputs:
  *   - website/src/data/taxa.json   (taxa list with image URLs and comments)
@@ -19,6 +19,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const CSV_PATH = path.resolve(ROOT, "taxa.csv");
+const INTERNAL_NODES_CSV_PATH = path.resolve(ROOT, "internal_nodes.csv");
 const OUT_DIR = path.resolve(ROOT, "website", "src", "data");
 
 // ---------------------------------------------------------------------------
@@ -243,21 +244,23 @@ function treeToCompact(node, taxaByTreeId) {
 // to a different (usually ancestral) node or reject them.
 //
 // Instead we label them *after* the tree is built by finding the MRCA of two
-// known descendant taxa.  Each entry specifies:
-//   name      – the display name for the clade
-//   ott_id    – the OTT taxonomy ID (still valid as a taxon concept)
-//   pair      – [ottA, ottB] two descendant taxa whose MRCA is this clade
+// known descendant taxa.  The data lives in internal_nodes.csv at the repo
+// root (next to taxa.csv).  Each row specifies:
+//   name          – the display name for the clade
+//   ott_id        – the OTT taxonomy ID (still valid as a taxon concept)
+//   descendant_a  – ott_id of one descendant taxon (must be in taxa.csv)
+//   descendant_b  – ott_id of another descendant taxon (must be in taxa.csv)
 // ---------------------------------------------------------------------------
 
-const INTERNAL_NODE_LABELS = [
-  { name: "monocot",        ott_id: 1058517, pair: [247717, 605194] },  // Swiss cheese plant, corn
-  { name: "eudicot",        ott_id: 431495,  pair: [515712, 867221] },  // sunflower, poppy
-  { name: "rosid",          ott_id: 1008296, pair: [259066, 756728] },  // rose, grape
-  { name: "asterid",        ott_id: 1008294, pair: [515712, 567253] },  // sunflower, blueberry
-  { name: "Asparagales",    ott_id: 557124,  pair: [406191, 781600] },  // orchid, onion
-  { name: "Ericales",       ott_id: 648892,  pair: [567253, 510792] },  // blueberry, busy lizzie
-  { name: "grassy monocot", ott_id: 921871,  pair: [605194, 627039] },  // corn, pineapple
-];
+function loadInternalNodeLabels() {
+  const csv = fs.readFileSync(INTERNAL_NODES_CSV_PATH, "utf-8");
+  const rows = parseCsv(csv);
+  return rows.map((row) => ({
+    name: row.name,
+    ott_id: Number(row.ott_id),
+    pair: [Number(row.descendant_a), Number(row.descendant_b)],
+  }));
+}
 
 // ---------------------------------------------------------------------------
 // Label internal nodes – find MRCA of each pair and assign name + ott_id.
@@ -444,7 +447,9 @@ async function main() {
   // tree.  We identify each clade by finding the MRCA of two known descendant
   // taxa and assigning the clade name + ott_id.
   console.log("Labeling internal nodes…");
-  labelInternalNodes(compactTree, INTERNAL_NODE_LABELS);
+  const internalNodeLabels = loadInternalNodeLabels();
+  console.log(`Read ${internalNodeLabels.length} rows from internal_nodes.csv`);
+  labelInternalNodes(compactTree, internalNodeLabels);
 
   fs.writeFileSync(
     path.join(OUT_DIR, "tree.json"),
