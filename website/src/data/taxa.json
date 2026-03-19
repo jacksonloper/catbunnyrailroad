@@ -2287,5 +2287,89 @@
     "ott_id": 445124,
     "image_url": "/taxa-images/445124.jpg",
     "uniqname": "Fouquieria splendens"
+  },
+  {
+    "name": "coffee",
+    "ott_id": 227658,
+    "image_url": "/taxa-images/227658.jpg",
+    "uniqname": "Coffea"
+  },
+  {
+    "name": "chocolate",
+    "ott_id": 388185,
+    "image_url": "/taxa-images/388185.jpg",
+    "uniqname": "Theobroma cacao"
+  },
+  {
+    "name": "Virginia creeper and Boston ivy",
+    "ott_id": 329909,
+    "image_url": "/taxa-images/329909.jpg",
+    "uniqname": "Parthenocissus"
+  },
+  {
+    "name": "calla lily",
+    "ott_id": 549269,
+    "image_url": "/taxa-images/549269.jpg",
+    "uniqname": "Zantedeschia aethiopica"
+  },
+  {
+    "name": "peace lily",
+    "ott_id": 676045,
+    "image_url": "/taxa-images/676045.jpg",
+    "uniqname": "Spathiphyllum wallisii"
+  },
+  {
+    "name": "pothos",
+    "ott_id": 679344,
+    "image_url": "/taxa-images/679344.jpg",
+    "uniqname": "Epipremnum aureum"
+  },
+  {
+    "name": "skunk cabbage",
+    "ott_id": 781333,
+    "image_url": "/taxa-images/781333.jpg",
+    "uniqname": "Symplocarpus foetidus"
+  },
+  {
+    "name": "taro",
+    "ott_id": 1008203,
+    "image_url": "/taxa-images/1008203.jpg",
+    "uniqname": "Colocasia esculenta"
+  },
+  {
+    "name": "duckweed",
+    "ott_id": 431388,
+    "image_url": "/taxa-images/431388.jpg",
+    "uniqname": "Lemna minor"
+  },
+  {
+    "name": "cinnamon",
+    "ott_id": 481247,
+    "image_url": "/taxa-images/481247.jpg",
+    "uniqname": "Cinnamomum verum"
+  },
+  {
+    "name": "black pepper",
+    "ott_id": 472526,
+    "image_url": "/taxa-images/472526.jpg",
+    "uniqname": "Piper nigrum"
+  },
+  {
+    "name": "mint",
+    "ott_id": 27827,
+    "image_url": "/taxa-images/27827.jpg",
+    "uniqname": "Mentha spicata"
+  },
+  {
+    "name": "currant",
+    "ott_id": 560321,
+    "image_url": "/taxa-images/560321.jpg",
+    "uniqname": "Ribes"
+  },
+  {
+    "name": "carnation",
+    "ott_id": 842200,
+    "image_url": "/taxa-images/842200.jpg",
+    "uniqname": "Dianthus caryophyllus"
   }
 ]
