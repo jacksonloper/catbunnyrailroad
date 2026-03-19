@@ -13,6 +13,9 @@ export default function Navbar() {
       <NavLink to={"/explore/304358"} className="site-nav-link">
         🔍 Explore
       </NavLink>
+      <NavLink to="/quiz" className="site-nav-link">
+        🧬 Quiz
+      </NavLink>
     </nav>
   );
 }

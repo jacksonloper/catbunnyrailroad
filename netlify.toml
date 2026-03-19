@@ -18,3 +18,8 @@
   from = "/clades"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/quiz"
+  to = "/index.html"
+  status = 200
