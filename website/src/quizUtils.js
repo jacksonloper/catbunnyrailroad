@@ -1,5 +1,6 @@
 import tree from "./data/tree.json";
 import taxa from "./data/taxa.json";
+import { capitalize } from "./treeUtils.js";
 
 /* ───── module-level data ───── */
 
@@ -189,6 +190,67 @@ export function solveQuiz(ottIds) {
   };
 
   return { outgroupIndex, mrcaTree };
+}
+
+/**
+ * Generate a clade-based explanation for why the closer pair is grouped.
+ *
+ * Traces the path from the MRCA of the closer pair up to the MRCA of all
+ * three, looking for an internal node with a "nice name" (not an
+ * auto-generated mrca* name).  Returns the deepest (most specific) match.
+ *
+ * Example: "Blueberry and Rose are eudicots but Corn is not!"
+ * Returns null when no nice name is found along the path.
+ */
+export function getCladeExplanation(ottIds, outgroupIndex) {
+  if (outgroupIndex === null) return null;
+
+  const closerIndices = [0, 1, 2].filter((i) => i !== outgroupIndex);
+  const closerA = ottIds[closerIndices[0]];
+  const closerB = ottIds[closerIndices[1]];
+  const outgroupOtt = ottIds[outgroupIndex];
+
+  const pathA = findPath(tree, closerA);
+  const pathB = findPath(tree, closerB);
+  const pathC = findPath(tree, outgroupOtt);
+  if (!pathA || !pathB || !pathC) return null;
+
+  // Depth of MRCA of the closer pair
+  let depthPair = 0;
+  for (let i = 0; i < Math.min(pathA.length, pathB.length); i++) {
+    if (pathA[i] === pathB[i]) depthPair = i;
+    else break;
+  }
+
+  // Depth of MRCA of all three (= MRCA of one closer taxon + outgroup)
+  let depthAll = 0;
+  for (let i = 0; i < Math.min(pathA.length, pathC.length); i++) {
+    if (pathA[i] === pathC[i]) depthAll = i;
+    else break;
+  }
+
+  // Walk from just below MRCA(all) to MRCA(pair), keep deepest nice name
+  let bestNode = null;
+  for (let i = depthAll + 1; i <= depthPair; i++) {
+    const node = pathA[i];
+    if (node.name && !node.name.startsWith("mrca")) {
+      bestNode = node;
+    }
+  }
+
+  if (!bestNode) return null;
+
+  const nameA = capitalize(taxaByOttId.get(closerA)?.name || "?");
+  const nameB = capitalize(taxaByOttId.get(closerB)?.name || "?");
+  const nameOut = capitalize(taxaByOttId.get(outgroupOtt)?.name || "?");
+
+  const clade = bestNode.name;
+  const plural =
+    clade.endsWith("s") || clade.endsWith("ae") || clade.endsWith("a")
+      ? clade
+      : clade + "s";
+
+  return `${nameA} and ${nameB} are ${plural} but ${nameOut} is not!`;
 }
 
 /* ───── quiz types ───── */

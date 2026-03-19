@@ -6,6 +6,7 @@ import {
   solveQuiz,
   pickRandomTaxa,
   getDescendantTaxa,
+  getCladeExplanation,
   QUIZ_TYPES,
 } from "./quizUtils.js";
 import tree from "./data/tree.json";
@@ -251,6 +252,60 @@ describe("internal node labels", () => {
   it("getDescendantTaxa for grassy monocot includes pineapple (627039)", () => {
     const taxa = getDescendantTaxa(921871);
     expect(taxa.some((t) => t.ott_id === 627039)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getCladeExplanation
+// ---------------------------------------------------------------------------
+
+describe("getCladeExplanation", () => {
+  it("returns explanation with eudicot for two eudicots and a monocot", () => {
+    // blueberry=567253 (eudicot/asterid), rose=259066 (eudicot/rosid), corn=605194 (monocot)
+    const ottIds = [567253, 259066, 605194];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/eudicots/);
+    expect(explanation).toMatch(/Corn/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("returns explanation with monocot for two monocots and a eudicot", () => {
+    // corn=605194, pineapple=627039 (both monocots), rose=259066 (eudicot)
+    const ottIds = [605194, 627039, 259066];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/monocots/i);
+    expect(explanation).toMatch(/Rose/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("picks deepest (most specific) clade name", () => {
+    // sunflower=515712, blueberry=567253 (both asterids within eudicots), corn=605194 (monocot)
+    const ottIds = [515712, 567253, 605194];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    // asterid is deeper than eudicot, so asterid should be preferred
+    expect(explanation).toMatch(/asterids/);
+  });
+
+  it("returns null for star topology", () => {
+    const explanation = getCladeExplanation([1, 2, 3], null);
+    expect(explanation).toBeNull();
+  });
+
+  it("returns null when no nice name exists along the path", () => {
+    // cat=563166, wolf-and-dog=247341, rabbit=864596 — all mammals
+    // Between the closer pair MRCA and the overall MRCA we find "Laurasiatheria"
+    const ottIds = [563166, 247341, 864596];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    // Laurasiatheria is a named clade on the path, so we expect an explanation
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/Laurasiatheria/);
   });
 });
 
