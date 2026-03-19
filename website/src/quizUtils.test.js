@@ -208,6 +208,8 @@ describe("internal node labels", () => {
     { name: "Asparagales",    ottId: 557124  },
     { name: "Ericales",       ottId: 648892  },
     { name: "grassy monocot", ottId: 921871  },
+    { name: "Lamiales",       ottId: 23736   },
+    { name: "campanulid",     ottId: 596121  },
   ];
 
   it.each(CLADES)(
@@ -252,6 +254,24 @@ describe("internal node labels", () => {
   it("getDescendantTaxa for grassy monocot includes pineapple (627039)", () => {
     const taxa = getDescendantTaxa(921871);
     expect(taxa.some((t) => t.ott_id === 627039)).toBe(true);
+  });
+
+  it("euasterid node is named in the tree (no ott_id)", () => {
+    // The euasterid node has no ott_id, but should be found by name on paths
+    // sausage tree=482933 is under euasterid
+    const path = findPath(tree, 482933);
+    const euasteridNode = path.find((n) => n.name === "euasterid");
+    expect(euasteridNode).toBeDefined();
+  });
+
+  it("getDescendantTaxa for Lamiales includes sausage tree (482933)", () => {
+    const taxa = getDescendantTaxa(23736);
+    expect(taxa.some((t) => t.ott_id === 482933)).toBe(true);
+  });
+
+  it("getDescendantTaxa for campanulid includes sunflower (515712)", () => {
+    const taxa = getDescendantTaxa(596121);
+    expect(taxa.some((t) => t.ott_id === 515712)).toBe(true);
   });
 });
 
@@ -306,6 +326,40 @@ describe("getCladeExplanation", () => {
     // Laurasiatheria is a named clade on the path, so we expect an explanation
     expect(explanation).not.toBeNull();
     expect(explanation).toMatch(/Laurasiatheria/);
+  });
+
+  it("returns Lamiales explanation for two Lamiales and an Ericales", () => {
+    // sausage tree=482933, anise hyssop=1062003 (both Lamiales), shea tree=194532 (Ericales)
+    const ottIds = [482933, 1062003, 194532];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/Lamiales/);
+    expect(explanation).toMatch(/Shea Tree/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("returns euasterid explanation for lamiid + campanulid vs Ericales", () => {
+    // sausage tree=482933 (lamiid/Lamiales), sunflower=515712 (campanulid/Asterales),
+    // shea tree=194532 (Ericales)
+    const ottIds = [482933, 515712, 194532];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/euasterids/);
+    expect(explanation).toMatch(/Shea Tree/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("returns campanulid explanation for two campanulids vs lamiid", () => {
+    // sunflower=515712, carrot=372836 (both campanulids), sausage tree=482933 (lamiid)
+    const ottIds = [515712, 372836, 482933];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/campanulids/);
+    expect(explanation).toMatch(/Sausage Tree/);
+    expect(explanation).toMatch(/not/);
   });
 });
 
