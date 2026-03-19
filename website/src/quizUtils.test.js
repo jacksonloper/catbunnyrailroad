@@ -6,6 +6,7 @@ import {
   solveQuiz,
   pickRandomTaxa,
   getDescendantTaxa,
+  getCladeExplanation,
   QUIZ_TYPES,
 } from "./quizUtils.js";
 import tree from "./data/tree.json";
@@ -191,6 +192,174 @@ describe("pickRandomTaxa with rootOttId", () => {
   it("falls back to all taxa for unknown rootOttId", () => {
     const result = pickRandomTaxa(3, -999);
     expect(result).toHaveLength(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// internal node labels
+// ---------------------------------------------------------------------------
+
+describe("internal node labels", () => {
+  const CLADES = [
+    { name: "monocot",        ottId: 1058517 },
+    { name: "eudicot",        ottId: 431495  },
+    { name: "rosid",          ottId: 1008296 },
+    { name: "asterid",        ottId: 1008294 },
+    { name: "Asparagales",    ottId: 557124  },
+    { name: "Ericales",       ottId: 648892  },
+    { name: "grassy monocot", ottId: 921871  },
+    { name: "Lamiales",       ottId: 23736   },
+    { name: "campanulid",     ottId: 596121  },
+  ];
+
+  it.each(CLADES)(
+    "findPath locates $name (ott $ottId)",
+    ({ ottId }) => {
+      const path = findPath(tree, ottId);
+      expect(path).not.toBeNull();
+      expect(path.length).toBeGreaterThanOrEqual(2);
+    }
+  );
+
+  it("getDescendantTaxa for monocot includes corn (605194)", () => {
+    const taxa = getDescendantTaxa(1058517);
+    expect(taxa.some((t) => t.ott_id === 605194)).toBe(true);
+  });
+
+  it("getDescendantTaxa for monocot does NOT include sunflower (515712)", () => {
+    const taxa = getDescendantTaxa(1058517);
+    expect(taxa.some((t) => t.ott_id === 515712)).toBe(false);
+  });
+
+  it("getDescendantTaxa for rosid includes rose (259066)", () => {
+    const taxa = getDescendantTaxa(1008296);
+    expect(taxa.some((t) => t.ott_id === 259066)).toBe(true);
+  });
+
+  it("getDescendantTaxa for asterid includes sunflower (515712)", () => {
+    const taxa = getDescendantTaxa(1008294);
+    expect(taxa.some((t) => t.ott_id === 515712)).toBe(true);
+  });
+
+  it("getDescendantTaxa for Ericales includes blueberry (567253)", () => {
+    const taxa = getDescendantTaxa(648892);
+    expect(taxa.some((t) => t.ott_id === 567253)).toBe(true);
+  });
+
+  it("getDescendantTaxa for Asparagales includes orchid (406191)", () => {
+    const taxa = getDescendantTaxa(557124);
+    expect(taxa.some((t) => t.ott_id === 406191)).toBe(true);
+  });
+
+  it("getDescendantTaxa for grassy monocot includes pineapple (627039)", () => {
+    const taxa = getDescendantTaxa(921871);
+    expect(taxa.some((t) => t.ott_id === 627039)).toBe(true);
+  });
+
+  it("euasterid node is named in the tree (no ott_id)", () => {
+    // The euasterid node has no ott_id, but should be found by name on paths
+    // sausage tree=482933 is under euasterid
+    const path = findPath(tree, 482933);
+    const euasteridNode = path.find((n) => n.name === "euasterid");
+    expect(euasteridNode).toBeDefined();
+  });
+
+  it("getDescendantTaxa for Lamiales includes sausage tree (482933)", () => {
+    const taxa = getDescendantTaxa(23736);
+    expect(taxa.some((t) => t.ott_id === 482933)).toBe(true);
+  });
+
+  it("getDescendantTaxa for campanulid includes sunflower (515712)", () => {
+    const taxa = getDescendantTaxa(596121);
+    expect(taxa.some((t) => t.ott_id === 515712)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getCladeExplanation
+// ---------------------------------------------------------------------------
+
+describe("getCladeExplanation", () => {
+  it("returns explanation with eudicot for two eudicots and a monocot", () => {
+    // blueberry=567253 (eudicot/asterid), rose=259066 (eudicot/rosid), corn=605194 (monocot)
+    const ottIds = [567253, 259066, 605194];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/eudicots/);
+    expect(explanation).toMatch(/Corn/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("returns explanation with monocot for two monocots and a eudicot", () => {
+    // corn=605194, pineapple=627039 (both monocots), rose=259066 (eudicot)
+    const ottIds = [605194, 627039, 259066];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/monocots/i);
+    expect(explanation).toMatch(/Rose/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("picks deepest (most specific) clade name", () => {
+    // sunflower=515712, blueberry=567253 (both asterids within eudicots), corn=605194 (monocot)
+    const ottIds = [515712, 567253, 605194];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    // asterid is deeper than eudicot, so asterid should be preferred
+    expect(explanation).toMatch(/asterids/);
+  });
+
+  it("returns null for star topology", () => {
+    const explanation = getCladeExplanation([1, 2, 3], null);
+    expect(explanation).toBeNull();
+  });
+
+  it("returns explanation when named clade exists on path (Laurasiatheria)", () => {
+    // cat=563166, wolf-and-dog=247341, rabbit=864596 — all mammals
+    // Between the closer pair MRCA and the overall MRCA we find "Laurasiatheria"
+    const ottIds = [563166, 247341, 864596];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    // Laurasiatheria is a named clade on the path, so we expect an explanation
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/Laurasiatheria/);
+  });
+
+  it("returns Lamiales explanation for two Lamiales and an Ericales", () => {
+    // sausage tree=482933, anise hyssop=1062003 (both Lamiales), shea tree=194532 (Ericales)
+    const ottIds = [482933, 1062003, 194532];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/Lamiales/);
+    expect(explanation).toMatch(/Shea Tree/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("returns euasterid explanation for lamiid + campanulid vs Ericales", () => {
+    // sausage tree=482933 (lamiid/Lamiales), sunflower=515712 (campanulid/Asterales),
+    // shea tree=194532 (Ericales)
+    const ottIds = [482933, 515712, 194532];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/euasterids/);
+    expect(explanation).toMatch(/Shea Tree/);
+    expect(explanation).toMatch(/not/);
+  });
+
+  it("returns campanulid explanation for two campanulids vs lamiid", () => {
+    // sunflower=515712, carrot=372836 (both campanulids), sausage tree=482933 (lamiid)
+    const ottIds = [515712, 372836, 482933];
+    const result = solveQuiz(ottIds);
+    const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+    expect(explanation).not.toBeNull();
+    expect(explanation).toMatch(/campanulids/);
+    expect(explanation).toMatch(/Sausage Tree/);
+    expect(explanation).toMatch(/not/);
   });
 });
 

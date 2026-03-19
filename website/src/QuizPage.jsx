@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { pickRandomTaxa, solveQuiz, QUIZ_TYPES } from "./quizUtils.js";
+import { pickRandomTaxa, solveQuiz, getCladeExplanation, QUIZ_TYPES } from "./quizUtils.js";
 import { capitalize } from "./treeUtils.js";
 import Navbar from "./Navbar.jsx";
 import "./QuizPage.css";
@@ -61,7 +61,8 @@ export default function QuizPage() {
       if (round.solved) return; // already answered
       const ottIds = round.taxa.map((t) => t.ott_id);
       const result = solveQuiz(ottIds);
-      setRound((r) => ({ ...r, chosen: index, solved: result }));
+      const explanation = getCladeExplanation(ottIds, result.outgroupIndex);
+      setRound((r) => ({ ...r, chosen: index, solved: { ...result, explanation } }));
     },
     [round.taxa, round.solved],
   );
@@ -166,6 +167,10 @@ export default function QuizPage() {
                 ❌ Not quite. The answer is{" "}
                 <strong>{capitalize(taxa[solved.outgroupIndex].name)}</strong>.
               </p>
+            )}
+
+            {solved.explanation && (
+              <p className="quiz-explanation">{solved.explanation}</p>
             )}
 
             <div className="quiz-tree-section">

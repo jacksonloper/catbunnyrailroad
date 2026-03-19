@@ -1,8 +1,8 @@
 # How the JSON Tree Is Produced
 
 This document explains how `scripts/build-data.js` turns
-`taxa.csv` into the two JSON files the website uses at runtime:
-`taxa.json` and `tree.json`.
+`taxa.csv` and `internal_nodes.csv` into the two JSON files the
+website uses at runtime: `taxa.json` and `tree.json`.
 
 Run the pipeline with:
 
@@ -133,7 +133,30 @@ have `isTaxon: true`.
 
 Taxon names come from `taxa.csv` (the common name).
 
-## 7. Post-build verification
+## 7. Label internal nodes (`labelInternalNodes`)
+
+Several well-known plant clades (monocot, eudicot, rosid, asterid,
+Asparagales, Ericales, grassy monocot) are "broken" (non-monophyletic)
+in the Open Tree synthetic tree.  Their OTT IDs cannot be sent as
+`node_ids` to the induced subtree API — the API would either remap
+them to a distant ancestor or reject them.
+
+Instead, `build-data.js` labels these nodes **after** the tree is
+built by finding the MRCA of two known descendant taxa.  The data
+lives in `internal_nodes.csv` at the repo root (next to `taxa.csv`).
+
+| Column | Example | Description |
+|--------|---------|-------------|
+| `name` | `monocot` | Display name for the clade |
+| `ott_id` | `1058517` | The OTT taxonomy ID (valid as a taxon concept) |
+| `descendant_a` | `247717` | ott_id of one descendant taxon (must be in taxa.csv) |
+| `descendant_b` | `605194` | ott_id of another descendant taxon (must be in taxa.csv) |
+
+The MRCA approach is robust: if the taxa list changes, the labels
+still land on the correct node as long as the pair taxa remain in
+the tree.
+
+## 8. Post-build verification
 
 After building the compact tree, the build verifies:
 
@@ -141,7 +164,7 @@ After building the compact tree, the build verifies:
 2. **Every CSV row is accounted for** — no taxa are missing from the
    tree.  If any check fails, the build errors out.
 
-## 8. Output files
+## 9. Output files
 
 ### `website/src/data/tree.json`
 
@@ -162,7 +185,8 @@ A flat array of taxon objects:
 ```
 
 Both files are **committed to the repository**.  They are regenerated
-by running `node scripts/build-data.js` whenever `taxa.csv` changes.
+by running `node scripts/build-data.js` whenever `taxa.csv` or
+`internal_nodes.csv` changes.
 
 ---
 
@@ -201,6 +225,7 @@ website.  Clicking it reveals the explanatory text.
 
 ```
 taxa.csv
+internal_nodes.csv
     │
     ▼
 ┌────────────────────────────────┐
@@ -215,7 +240,9 @@ taxa.csv
 │  6. simplifyTree               │
 │  7. treeToCompact              │
 │  8. verify all taxa present    │
-│  9. write JSON                 │
+│  9. label internal nodes       │
+│     (from internal_nodes.csv)  │
+│ 10. write JSON                 │
 └────────────┬───────────────────┘
              │
              ▼

@@ -134,6 +134,13 @@
   color: #ffc107;
 }
 
+.quiz-explanation {
+  font-size: 0.95rem;
+  color: #bbb;
+  margin: 0 0 1rem;
+  font-style: italic;
+}
+
 /* ─── mini tree ─── */
 
 .quiz-tree-section h3 {
@@ -277,6 +284,10 @@
 
   .quiz-star-text {
     color: #f57f17;
+  }
+
+  .quiz-explanation {
+    color: #666;
   }
 
   .quiz-tree-section h3 {
