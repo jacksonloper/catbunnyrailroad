@@ -146,6 +146,22 @@ const PRESETS = [
   },
 ];
 
+/* ───── preset lists (highlight-only) ───── */
+
+const PRESET_LISTS = [
+  {
+    label: "Herbs & Spices",
+    ottIds: [
+      305911, 305918, 61897, 907458, 778824, 820645, 382249, 382237, 378039,
+      498475, 2476, 2485, 105027, 1070795, 571537, 27827, 355945, 880695,
+      830200, 130944, 321836, 501622, 626975, 748370, 781600, 1063866, 168258,
+      1063872, 792711, 472526, 97780, 311088, 473836, 473831, 216347, 833635,
+      309279, 359058, 961856, 498463, 671429, 2472, 1007994, 142360, 542824,
+      713007, 481247, 130603, 200286, 1011084,
+    ],
+  },
+];
+
 /* ───── helpers ───── */
 
 /** Collect curated-taxa records under a condensed-tree node */
@@ -289,7 +305,7 @@ export default function CladeExplorerPage() {
     }
     return rootOnlyExpansion(condensed);
   });
-  const [highlighted] = useState(() => {
+  const [highlighted, setHighlighted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const h = params.get("h");
     if (h) {
@@ -415,7 +431,21 @@ export default function CladeExplorerPage() {
   };
 
   const handlePresetSelect = (e) => {
-    const idx = parseInt(e.target.value, 10);
+    const val = e.target.value;
+    e.target.value = "";
+
+    /* handle list-type presets (highlight a set of taxa) */
+    if (val.startsWith("list:")) {
+      const idx = parseInt(val.slice(5), 10);
+      if (isNaN(idx) || idx < 0 || idx >= PRESET_LISTS.length) return;
+      const list = PRESET_LISTS[idx];
+      const ids = list.ottIds.filter((id) => allOttIds.has(id));
+      setHighlighted(new Set(ids));
+      return;
+    }
+
+    /* handle view-state presets (tree expansion) */
+    const idx = parseInt(val, 10);
     if (isNaN(idx) || idx < 0 || idx >= PRESETS.length) return;
     const preset = PRESETS[idx];
     const root = nodeByOttId.get(preset.rootOttId);
@@ -441,7 +471,6 @@ export default function CladeExplorerPage() {
 
     setViewRootId(root._id);
     setExpanded(exp);
-    e.target.value = "";
   };
 
   return (
@@ -466,9 +495,16 @@ export default function CladeExplorerPage() {
           aria-label="Load a preset"
         >
           <option value="" disabled>Presets…</option>
-          {PRESETS.map((p, i) => (
-            <option key={i} value={i}>{p.label}</option>
-          ))}
+          <optgroup label="View presets">
+            {PRESETS.map((p, i) => (
+              <option key={i} value={i}>{p.label}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Highlight lists">
+            {PRESET_LISTS.map((p, i) => (
+              <option key={`list:${i}`} value={`list:${i}`}>{p.label}</option>
+            ))}
+          </optgroup>
         </select>
       </div>
 
