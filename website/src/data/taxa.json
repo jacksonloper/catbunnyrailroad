@@ -2659,5 +2659,35 @@
     "ott_id": 1011084,
     "image_url": "/taxa-images/1011084.jpg",
     "uniqname": "Pimenta dioica"
+  },
+  {
+    "name": "paramecium",
+    "ott_id": 568126,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Paramecium.jpg",
+    "uniqname": "Paramecium (genus in subkingdom SAR)"
+  },
+  {
+    "name": "comb jelly",
+    "ott_id": 641212,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Comb_jelly.jpg",
+    "uniqname": "Ctenophora (phylum ncbi:10197)"
+  },
+  {
+    "name": "flatworm",
+    "ott_id": 555379,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Platyhelminthes_diversity.jpg",
+    "uniqname": "Platyhelminthes"
+  },
+  {
+    "name": "lancelet",
+    "ott_id": 176550,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Branchiostoma_lanceolatum.jpg",
+    "uniqname": "Branchiostoma"
+  },
+  {
+    "name": "lamprey",
+    "ott_id": 1067466,
+    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Boca_de_lamprea.1_-_Aquarium_Finisterrae.JPG",
+    "uniqname": "Petromyzontiformes"
   }
 ]
