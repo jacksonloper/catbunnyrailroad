@@ -2419,5 +2419,245 @@
     "ott_id": 671810,
     "image_url": "/taxa-images/671810.jpg",
     "uniqname": "Fraxinus"
+  },
+  {
+    "name": "basil",
+    "ott_id": 305911,
+    "image_url": "/taxa-images/305911.jpg",
+    "uniqname": "Ocimum basilicum"
+  },
+  {
+    "name": "oregano",
+    "ott_id": 305918,
+    "image_url": "/taxa-images/305918.jpg",
+    "uniqname": "Origanum vulgare"
+  },
+  {
+    "name": "sweet marjoram",
+    "ott_id": 61897,
+    "image_url": "/taxa-images/61897.jpg",
+    "uniqname": "Origanum majorana"
+  },
+  {
+    "name": "thyme",
+    "ott_id": 907458,
+    "image_url": "/taxa-images/907458.jpg",
+    "uniqname": "Thymus vulgaris"
+  },
+  {
+    "name": "rosemary",
+    "ott_id": 778824,
+    "image_url": "/taxa-images/778824.jpg",
+    "uniqname": "Salvia rosmarinus"
+  },
+  {
+    "name": "summer savory",
+    "ott_id": 382249,
+    "image_url": "/taxa-images/382249.jpg",
+    "uniqname": "Satureja hortensis"
+  },
+  {
+    "name": "winter savory",
+    "ott_id": 382237,
+    "image_url": "/taxa-images/382237.jpg",
+    "uniqname": "Satureja montana"
+  },
+  {
+    "name": "dill",
+    "ott_id": 378039,
+    "image_url": "/taxa-images/378039.jpg",
+    "uniqname": "Anethum graveolens"
+  },
+  {
+    "name": "fennel",
+    "ott_id": 498475,
+    "image_url": "/taxa-images/498475.jpg",
+    "uniqname": "Foeniculum vulgare"
+  },
+  {
+    "name": "coriander",
+    "ott_id": 2476,
+    "image_url": "/taxa-images/2476.jpg",
+    "uniqname": "Coriandrum sativum"
+  },
+  {
+    "name": "parsley",
+    "ott_id": 2485,
+    "image_url": "/taxa-images/2485.jpg",
+    "uniqname": "Petroselinum crispum"
+  },
+  {
+    "name": "chervil",
+    "ott_id": 105027,
+    "image_url": "/taxa-images/105027.jpg",
+    "uniqname": "Anthriscus cerefolium"
+  },
+  {
+    "name": "tarragon",
+    "ott_id": 1070795,
+    "image_url": "/taxa-images/1070795.jpg",
+    "uniqname": "Artemisia dracunculus"
+  },
+  {
+    "name": "bay laurel",
+    "ott_id": 571537,
+    "image_url": "/taxa-images/571537.jpg",
+    "uniqname": "Laurus nobilis"
+  },
+  {
+    "name": "lemon balm",
+    "ott_id": 355945,
+    "image_url": "/taxa-images/355945.jpg",
+    "uniqname": "Melissa officinalis"
+  },
+  {
+    "name": "hyssop",
+    "ott_id": 880695,
+    "image_url": "/taxa-images/880695.jpg",
+    "uniqname": "Hyssopus officinalis"
+  },
+  {
+    "name": "catnip",
+    "ott_id": 830200,
+    "image_url": "/taxa-images/830200.jpg",
+    "uniqname": "Nepeta cataria"
+  },
+  {
+    "name": "lovage",
+    "ott_id": 130944,
+    "image_url": "/taxa-images/130944.jpg",
+    "uniqname": "Levisticum officinale"
+  },
+  {
+    "name": "curry leaf",
+    "ott_id": 321836,
+    "image_url": "/taxa-images/321836.jpg",
+    "uniqname": "Bergera koenigii"
+  },
+  {
+    "name": "pandan",
+    "ott_id": 501622,
+    "image_url": "/taxa-images/501622.jpg",
+    "uniqname": "Pandanus amaryllifolius"
+  },
+  {
+    "name": "turmeric",
+    "ott_id": 168258,
+    "image_url": "/taxa-images/168258.jpg",
+    "uniqname": "Curcuma longa"
+  },
+  {
+    "name": "greater galangal",
+    "ott_id": 1063872,
+    "image_url": "/taxa-images/1063872.jpg",
+    "uniqname": "Alpinia galanga"
+  },
+  {
+    "name": "green cardamom",
+    "ott_id": 792711,
+    "image_url": "/taxa-images/792711.jpg",
+    "uniqname": "Elettaria cardamomum"
+  },
+  {
+    "name": "long pepper",
+    "ott_id": 97780,
+    "image_url": "/taxa-images/97780.jpg",
+    "uniqname": "Piper longum"
+  },
+  {
+    "name": "cubeb",
+    "ott_id": 311088,
+    "image_url": "/taxa-images/311088.jpg",
+    "uniqname": "Piper cubeba"
+  },
+  {
+    "name": "bird's-eye chili",
+    "ott_id": 473831,
+    "image_url": "/taxa-images/473831.jpg",
+    "uniqname": "Capsicum frutescens"
+  },
+  {
+    "name": "habanero pepper",
+    "ott_id": 216347,
+    "image_url": "/taxa-images/216347.jpg",
+    "uniqname": "Capsicum chinense"
+  },
+  {
+    "name": "black mustard",
+    "ott_id": 833635,
+    "image_url": "/taxa-images/833635.jpg",
+    "uniqname": "Brassica nigra"
+  },
+  {
+    "name": "brown mustard",
+    "ott_id": 309279,
+    "image_url": "/taxa-images/309279.jpg",
+    "uniqname": "Brassica juncea"
+  },
+  {
+    "name": "white mustard",
+    "ott_id": 359058,
+    "image_url": "/taxa-images/359058.jpg",
+    "uniqname": "Sinapis alba"
+  },
+  {
+    "name": "cumin",
+    "ott_id": 961856,
+    "image_url": "/taxa-images/961856.jpg",
+    "uniqname": "Cuminum cyminum"
+  },
+  {
+    "name": "caraway",
+    "ott_id": 498463,
+    "image_url": "/taxa-images/498463.jpg",
+    "uniqname": "Carum carvi"
+  },
+  {
+    "name": "ajwain",
+    "ott_id": 671429,
+    "image_url": "/taxa-images/671429.jpg",
+    "uniqname": "Trachyspermum ammi"
+  },
+  {
+    "name": "fenugreek",
+    "ott_id": 1007994,
+    "image_url": "/taxa-images/1007994.jpg",
+    "uniqname": "Trigonella foenum-graecum"
+  },
+  {
+    "name": "nigella",
+    "ott_id": 142360,
+    "image_url": "/taxa-images/142360.jpg",
+    "uniqname": "Nigella sativa"
+  },
+  {
+    "name": "saffron crocus",
+    "ott_id": 542824,
+    "image_url": "/taxa-images/542824.jpg",
+    "uniqname": "Crocus sativus"
+  },
+  {
+    "name": "vanilla",
+    "ott_id": 713007,
+    "image_url": "/taxa-images/713007.jpg",
+    "uniqname": "Vanilla planifolia"
+  },
+  {
+    "name": "Indonesian cassia",
+    "ott_id": 130603,
+    "image_url": "/taxa-images/130603.jpg",
+    "uniqname": "Cinnamomum burmannii"
+  },
+  {
+    "name": "clove",
+    "ott_id": 200286,
+    "image_url": "/taxa-images/200286.jpg",
+    "uniqname": "Syzygium aromaticum"
+  },
+  {
+    "name": "allspice",
+    "ott_id": 1011084,
+    "image_url": "/taxa-images/1011084.jpg",
+    "uniqname": "Pimenta dioica"
   }
 ]

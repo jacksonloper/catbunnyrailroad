@@ -16,6 +16,9 @@ export default function Navbar() {
       <NavLink to="/quiz" className="site-nav-link">
         🧬 Quiz
       </NavLink>
+      <NavLink to="/lists" className="site-nav-link">
+        📋 Lists
+      </NavLink>
     </nav>
   );
 }
