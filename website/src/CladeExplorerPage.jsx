@@ -146,6 +146,24 @@ const PRESETS = [
   },
 ];
 
+const PRESET_LISTS = [
+  {
+    label: "Reptile Surprise",
+    ottIds: [
+      991547, 689975, 984726, 1041796, 207423, 243396, 737820, 953907, 824527,
+      608972, 1091028, 35890, 35864, 335590, 153563, 647692, 494370, 1012350,
+      770315,
+    ],
+  },
+  {
+    label: "Pachyderm Problems",
+    ottIds: [
+      561107, 226189, 541924, 1068218, 1034223, 1034218, 730013, 460505,
+      490099, 768674, 510762, 698406, 124215, 851318,
+    ],
+  },
+];
+
 /* ───── helpers ───── */
 
 /** Collect curated-taxa records under a condensed-tree node */
@@ -289,7 +307,7 @@ export default function CladeExplorerPage() {
     }
     return rootOnlyExpansion(condensed);
   });
-  const [highlighted] = useState(() => {
+  const [highlighted, setHighlighted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const h = params.get("h");
     if (h) {
@@ -415,7 +433,20 @@ export default function CladeExplorerPage() {
   };
 
   const handlePresetSelect = (e) => {
-    const idx = parseInt(e.target.value, 10);
+    const val = e.target.value;
+
+    /* ── list preset (highlight taxa) ── */
+    if (val.startsWith("list:")) {
+      const idx = parseInt(val.slice(5), 10);
+      if (isNaN(idx) || idx < 0 || idx >= PRESET_LISTS.length) return;
+      const ids = PRESET_LISTS[idx].ottIds.filter((id) => allOttIds.has(id));
+      setHighlighted(new Set(ids));
+      e.target.value = "";
+      return;
+    }
+
+    /* ── view preset (expand tree) ── */
+    const idx = parseInt(val, 10);
     if (isNaN(idx) || idx < 0 || idx >= PRESETS.length) return;
     const preset = PRESETS[idx];
     const root = nodeByOttId.get(preset.rootOttId);
@@ -466,9 +497,16 @@ export default function CladeExplorerPage() {
           aria-label="Load a preset"
         >
           <option value="" disabled>Presets…</option>
-          {PRESETS.map((p, i) => (
-            <option key={i} value={i}>{p.label}</option>
-          ))}
+          <optgroup label="View presets">
+            {PRESETS.map((p, i) => (
+              <option key={i} value={i}>{p.label}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Highlight lists">
+            {PRESET_LISTS.map((p, i) => (
+              <option key={`list-${i}`} value={`list:${i}`}>{p.label}</option>
+            ))}
+          </optgroup>
         </select>
       </div>
 
