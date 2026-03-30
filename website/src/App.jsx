@@ -82,6 +82,52 @@ function findMRCAMultiple(treeRoot, ottIds) {
 const taxaByName = new Map(taxa.map((t) => [t.name, t]));
 const taxaByOttId = new Map(taxa.map((t) => [t.ott_id, t]));
 
+/* ───── preset lists ───── */
+
+const PRESET_LISTS = [
+  {
+    label: "Herbs & Spices",
+    ottIds: [
+      305911, 305918, 61897, 907458, 778824, 820645, 382249, 382237, 378039,
+      498475, 2476, 2485, 105027, 1070795, 571537, 27827, 355945, 880695,
+      830200, 130944, 321836, 501622, 626975, 748370, 781600, 1063866, 168258,
+      1063872, 792711, 472526, 97780, 311088, 473836, 473831, 216347, 833635,
+      309279, 359058, 961856, 498463, 671429, 2472, 1007994, 142360, 542824,
+      713007, 481247, 130603, 200286, 1011084,
+    ],
+  },
+  {
+    label: "Underwater Creatures",
+    ottIds: [
+      951293, 753585, 5342311, 568126, 373931, 983579, 641212, 555379, 80121,
+      478542, 451009, 169168, 511973, 176550, 1067466, 78477, 833188, 199334,
+      698406, 243396,
+    ],
+  },
+  {
+    label: "Reptile Surprise",
+    ottIds: [
+      991547, 689975, 984726, 1041796, 207423, 243396, 737820, 953907, 824527,
+      608972, 1091028, 35890, 35864, 335590, 153563, 647692, 494370, 1012350,
+      770315,
+    ],
+  },
+  {
+    label: "Pachyderm Problems",
+    ottIds: [
+      561107, 226189, 541924, 1068218, 1034223, 1034218, 730013, 460505,
+      490099, 768674, 510762, 698406, 124215, 851318,
+    ],
+  },
+  {
+    label: "Algae Alterations",
+    ottIds: [
+      878953, 979501, 239659, 48614, 5342311, 775725, 746947, 568126, 695761,
+      607132, 491172, 505748, 1073327, 494245,
+    ],
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Clade helpers – find a tree node by ott_id, collect descendant taxa names,
 // and precompute descendant-taxa counts so we know which taxa have ≥2
@@ -1483,6 +1529,26 @@ function App() {
     window.history.replaceState({}, "", url);
   }
 
+  function handlePresetSelect(e) {
+    const idx = parseInt(e.target.value, 10);
+    e.target.value = "";
+    if (isNaN(idx) || idx < 0 || idx >= PRESET_LISTS.length) return;
+    const preset = PRESET_LISTS[idx];
+    const names = new Set();
+    for (const id of preset.ottIds) {
+      const sp = taxaByOttId.get(id);
+      if (sp) names.add(sp.name);
+    }
+    if (names.size < 2) return;
+    setSelectedOrganisms(names);
+    setShowSubtree(true);
+    const validIds = [...names].map((n) => taxaByName.get(n)?.ott_id).filter(Boolean);
+    const url = new URL(window.location);
+    url.search = "";
+    url.searchParams.set("taxa", validIds.join(","));
+    window.history.replaceState({}, "", url);
+  }
+
   /** Update URL and show tree for the current selection */
   function handleShowSubtree() {
     setShowSubtree(true);
@@ -1532,6 +1598,17 @@ function App() {
         <div className="list-header">
           <h2>{selectedOrganisms.size === 0 ? "Start your list" : `Your list (${selectedOrganisms.size})`}</h2>
           <div className="list-header-actions">
+            <select
+              className="preset-select"
+              onChange={handlePresetSelect}
+              value=""
+              aria-label="Load a preset list"
+            >
+              <option value="" disabled>Presets…</option>
+              {PRESET_LISTS.map((p, i) => (
+                <option key={i} value={i}>{p.label}</option>
+              ))}
+            </select>
             <button
               className="import-btn"
               onClick={() => setShowImport(true)}

@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <nav className="site-nav">
       <NavLink to="/" end className="site-nav-link">
-        🐱🐰🚂 Home
+        🐱🐰🚂 Lists
       </NavLink>
       <NavLink to="/clades" className="site-nav-link">
         🌿 Clades
