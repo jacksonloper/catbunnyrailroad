@@ -148,6 +148,37 @@ const PRESETS = [
 
 /* ───── helpers ───── */
 
+/** Precompute curated-taxa counts for every condensed-tree node */
+const taxaCountByNodeId = new Map();
+(function computeTaxaCounts(node) {
+  if (node.children.length === 0) {
+    const c = taxaByOttId.has(node.ott_id) ? 1 : 0;
+    taxaCountByNodeId.set(node._id, c);
+    return c;
+  }
+  let count = node.children.reduce((s, ch) => s + computeTaxaCounts(ch), 0);
+  if (taxaByOttId.has(node.ott_id)) count += 1;
+  taxaCountByNodeId.set(node._id, count);
+  return count;
+})(condensed);
+
+/**
+ * Compute the expansion set so every leaf in the display has at most maxTaxa taxa.
+ * Starts from the given root and recursively expands nodes with too many taxa.
+ */
+function expandToMaxTaxa(root, maxTaxa) {
+  const exp = new Set();
+  function visit(node) {
+    if (node.children.length === 0) return;
+    if (taxaCountByNodeId.get(node._id) > maxTaxa) {
+      exp.add(node._id);
+      node.children.forEach(visit);
+    }
+  }
+  visit(root);
+  return exp;
+}
+
 /** Collect curated-taxa records under a condensed-tree node */
 function leafTaxa(node) {
   if (node.children.length === 0) {
@@ -306,6 +337,7 @@ export default function CladeExplorerPage() {
   const [showAsciiPicker, setShowAsciiPicker] = useState(false);
   const [copyMsg, setCopyMsg] = useState(null);
   const [searchInput, setSearchInput] = useState("");
+  const [expandMax, setExpandMax] = useState(5);
 
   const viewRoot = nodeById.get(viewRootId);
 
@@ -379,6 +411,10 @@ export default function CladeExplorerPage() {
     const target = parent || leaf;
     setViewRootId(target._id);
     setExpanded(rootOnlyExpansion(target));
+  };
+
+  const handleExpand = () => {
+    setExpanded(expandToMaxTaxa(viewRoot, expandMax));
   };
 
   const handleShareLink = async () => {
@@ -653,6 +689,27 @@ export default function CladeExplorerPage() {
 
         {/* Bottom toolbar */}
         <div className="clade-bottom-bar">
+          <span className="clade-expand-group">
+            <button
+              className="clade-btn"
+              onClick={handleExpand}
+              title="Expand tree until every leaf has at most N taxa"
+            >
+              🌳 Expand
+            </button>
+            <select
+              className="clade-expand-select"
+              value={expandMax}
+              onChange={(e) => setExpandMax(Number(e.target.value))}
+              aria-label="Max taxa per leaf"
+              title="Max taxa per leaf"
+            >
+              <option value={1}>≤ 1</option>
+              <option value={2}>≤ 2</option>
+              <option value={5}>≤ 5</option>
+              <option value={10}>≤ 10</option>
+            </select>
+          </span>
           <button
             className="clade-btn"
             onClick={handleCycleAll}
