@@ -148,15 +148,19 @@ const PRESETS = [
 
 /* ───── helpers ───── */
 
-/** Count curated taxa under a condensed-tree node */
-function leafTaxaCount(node) {
+/** Precompute curated-taxa counts for every condensed-tree node */
+const taxaCountByNodeId = new Map();
+(function computeTaxaCounts(node) {
   if (node.children.length === 0) {
-    return taxaByOttId.has(node.ott_id) ? 1 : 0;
+    const c = taxaByOttId.has(node.ott_id) ? 1 : 0;
+    taxaCountByNodeId.set(node._id, c);
+    return c;
   }
-  let count = node.children.reduce((s, c) => s + leafTaxaCount(c), 0);
+  let count = node.children.reduce((s, ch) => s + computeTaxaCounts(ch), 0);
   if (taxaByOttId.has(node.ott_id)) count += 1;
+  taxaCountByNodeId.set(node._id, count);
   return count;
-}
+})(condensed);
 
 /**
  * Compute the expansion set so every leaf in the display has at most maxTaxa taxa.
@@ -166,7 +170,7 @@ function expandToMaxTaxa(root, maxTaxa) {
   const exp = new Set();
   function visit(node) {
     if (node.children.length === 0) return;
-    if (leafTaxaCount(node) > maxTaxa) {
+    if (taxaCountByNodeId.get(node._id) > maxTaxa) {
       exp.add(node._id);
       node.children.forEach(visit);
     }
