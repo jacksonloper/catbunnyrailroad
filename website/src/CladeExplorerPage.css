@@ -205,6 +205,32 @@
   border-color: #e8a020;
 }
 
+.clade-expand-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.clade-expand-group .clade-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+
+.clade-expand-select {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  padding: 6px 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.clade-expand-select:hover {
+  border-color: #e8a020;
+}
+
 /* ─── ASCII name-choice modal ─── */
 .clade-modal-overlay {
   position: fixed;
@@ -275,6 +301,11 @@
     background: #ddd;
   }
   .clade-preset-select {
+    background: #fff;
+    color: #222;
+    border-color: #aaa;
+  }
+  .clade-expand-select {
     background: #fff;
     color: #222;
     border-color: #aaa;
