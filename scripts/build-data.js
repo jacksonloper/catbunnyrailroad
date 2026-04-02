@@ -15,6 +15,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { canonicalizeTree } from "../website/src/treeUtils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -319,22 +320,6 @@ function labelInternalNodes(tree, labels) {
       );
     }
   }
-}
-
-// ---------------------------------------------------------------------------
-// Canonicalize tree – sort children at each internal node by the
-// alphabetically smallest leaf name in each child's subtree.
-// ---------------------------------------------------------------------------
-
-function canonicalizeTree(node) {
-  if (!node.children || node.children.length === 0) return node.name;
-  const childKeys = node.children.map((child) => ({
-    child,
-    key: canonicalizeTree(child),
-  }));
-  childKeys.sort((a, b) => a.key.localeCompare(b.key));
-  node.children = childKeys.map((k) => k.child);
-  return childKeys[0].key;
 }
 
 // ---------------------------------------------------------------------------
