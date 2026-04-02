@@ -11,6 +11,31 @@ export function capitalize(str) {
 }
 
 /**
+ * Canonicalize a tree by sorting children at each internal node so that the
+ * child whose subtree contains the alphabetically smallest leaf name comes
+ * first.  This produces a unique, deterministic ordering for any given set
+ * of leaves.
+ *
+ * Modifies the tree **in place** and returns the smallest leaf name found
+ * in the subtree (used internally for the recursive sort key).
+ */
+export function canonicalizeTree(node) {
+  if (!node.children || node.children.length === 0) return node.name;
+
+  // Recursively canonicalize children and collect their sort keys
+  const childKeys = node.children.map((child) => ({
+    child,
+    key: canonicalizeTree(child),
+  }));
+
+  // Sort children by their smallest leaf name
+  childKeys.sort((a, b) => a.key.localeCompare(b.key));
+  node.children = childKeys.map((k) => k.child);
+
+  return childKeys[0].key;
+}
+
+/**
  * Extract an induced subtree containing only the specified ott_ids.
  * Keeps taxa nodes even if they are internal (have children).
  * Internal nodes with a single child are collapsed (unless they are taxa).
@@ -33,6 +58,8 @@ export function extractSubtree(node, ottIdSet) {
   if (keptChildren.length === 0 && !isTaxon) return null;
   // Collapse internal nodes with a single child (unless this node is a taxon)
   if (keptChildren.length === 1 && !isTaxon) return keptChildren[0];
+  // Sort children canonically by smallest leaf name in each subtree
+  canonicalizeTree({ children: keptChildren });
   const result = { name: node.name, ott_id: node.ott_id, children: keptChildren };
   if (isTaxon) result.isTaxon = true;
   return result;

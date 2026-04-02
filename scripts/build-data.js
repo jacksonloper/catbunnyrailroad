@@ -322,6 +322,22 @@ function labelInternalNodes(tree, labels) {
 }
 
 // ---------------------------------------------------------------------------
+// Canonicalize tree – sort children at each internal node by the
+// alphabetically smallest leaf name in each child's subtree.
+// ---------------------------------------------------------------------------
+
+function canonicalizeTree(node) {
+  if (!node.children || node.children.length === 0) return node.name;
+  const childKeys = node.children.map((child) => ({
+    child,
+    key: canonicalizeTree(child),
+  }));
+  childKeys.sort((a, b) => a.key.localeCompare(b.key));
+  node.children = childKeys.map((k) => k.child);
+  return childKeys[0].key;
+}
+
+// ---------------------------------------------------------------------------
 // Fetch phylogenetic tree from Open Tree of Life
 // Uses the node_ids API parameter with "ottNNN" strings.
 // ---------------------------------------------------------------------------
@@ -450,6 +466,9 @@ async function main() {
   const internalNodeLabels = loadInternalNodeLabels();
   console.log(`Read ${internalNodeLabels.length} rows from internal_nodes.csv`);
   labelInternalNodes(compactTree, internalNodeLabels);
+
+  // Canonicalize: sort children at each internal node by smallest leaf name
+  canonicalizeTree(compactTree);
 
   fs.writeFileSync(
     path.join(OUT_DIR, "tree.json"),

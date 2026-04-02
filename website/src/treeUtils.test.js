@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { capitalize, extractSubtree, renderTreeAscii, renderCladeAscii } from "./treeUtils.js";
+import { capitalize, canonicalizeTree, extractSubtree, renderTreeAscii, renderCladeAscii } from "./treeUtils.js";
 import tree from "./data/tree.json";
 import taxa from "./data/taxa.json";
 
@@ -25,6 +25,75 @@ describe("capitalize", () => {
 
   it("handles empty string", () => {
     expect(capitalize("")).toBe("");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// canonicalizeTree
+// ---------------------------------------------------------------------------
+
+describe("canonicalizeTree", () => {
+  it("returns the leaf name for a leaf node", () => {
+    const leaf = { name: "cat", children: [] };
+    const key = canonicalizeTree(leaf);
+    expect(key).toBe("cat");
+    expect(leaf.children).toEqual([]);
+  });
+
+  it("sorts children by smallest leaf name", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "zebra", children: [] },
+        { name: "ant", children: [] },
+        { name: "monkey", children: [] },
+      ],
+    };
+    canonicalizeTree(tree);
+    expect(tree.children.map((c) => c.name)).toEqual(["ant", "monkey", "zebra"]);
+  });
+
+  it("sorts recursively by smallest descendant leaf", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "branch-b",
+          children: [
+            { name: "dog", children: [] },
+            { name: "cat", children: [] },
+          ],
+        },
+        {
+          name: "branch-a",
+          children: [
+            { name: "zebra", children: [] },
+            { name: "ant", children: [] },
+          ],
+        },
+      ],
+    };
+    canonicalizeTree(tree);
+    // branch-a has min leaf "ant", branch-b has min leaf "cat"
+    // So branch-a should come first
+    expect(tree.children[0].name).toBe("branch-a");
+    expect(tree.children[1].name).toBe("branch-b");
+    // Within each branch, leaves are also sorted
+    expect(tree.children[0].children.map((c) => c.name)).toEqual(["ant", "zebra"]);
+    expect(tree.children[1].children.map((c) => c.name)).toEqual(["cat", "dog"]);
+  });
+
+  it("returns the smallest leaf name in the subtree", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "cherry", children: [] },
+        { name: "apple", children: [] },
+        { name: "banana", children: [] },
+      ],
+    };
+    const key = canonicalizeTree(tree);
+    expect(key).toBe("apple");
   });
 });
 
@@ -103,8 +172,8 @@ describe("renderTreeAscii", () => {
         "    |   +-- Brown Bear",
         "    |   +-- Wolf And Dog",
         "    +-- Felidae",
-        "        +-- Lion",
         "        +-- Cat",
+        "        +-- Lion",
         "",
       ].join("\n"),
     );
@@ -126,8 +195,8 @@ describe("renderTreeAscii", () => {
         "    |   +-- Ursus arctos",
         "    |   +-- Canis lupus",
         "    +-- Felidae",
-        "        +-- Panthera leo",
         "        +-- Felis catus",
+        "        +-- Panthera leo",
         "",
       ].join("\n"),
     );
@@ -144,12 +213,12 @@ describe("renderTreeAscii", () => {
         "Mrcaott3582ott9475",
         "+-- Tea Plant",
         "+-- Mrcaott9475ott11591",
-        "    +-- Kiwifruit",
         "    +-- Mrcaott11591ott24765",
-        "        +-- Mrcaott12463ott72910",
-        "        |   +-- Blueberry",
-        "        |   +-- Cranberry",
-        "        +-- Rhododendron",
+        "    |   +-- Mrcaott12463ott72910",
+        "    |   |   +-- Blueberry",
+        "    |   |   +-- Cranberry",
+        "    |   +-- Rhododendron",
+        "    +-- Kiwifruit",
         "",
       ].join("\n"),
     );
