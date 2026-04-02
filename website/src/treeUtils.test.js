@@ -33,14 +33,14 @@ describe("capitalize", () => {
 // ---------------------------------------------------------------------------
 
 describe("canonicalizeTree", () => {
-  it("returns the leaf name for a leaf node", () => {
+  it("returns size and minName for a leaf node", () => {
     const leaf = { name: "cat", children: [] };
     const key = canonicalizeTree(leaf);
-    expect(key).toBe("cat");
+    expect(key).toEqual({ size: 1, minName: "cat" });
     expect(leaf.children).toEqual([]);
   });
 
-  it("sorts children by smallest leaf name", () => {
+  it("sorts children by subtree size first, then alphabetically", () => {
     const tree = {
       name: "root",
       children: [
@@ -50,10 +50,34 @@ describe("canonicalizeTree", () => {
       ],
     };
     canonicalizeTree(tree);
+    // All size 1 → tiebreaker is alphabetical
     expect(tree.children.map((c) => c.name)).toEqual(["ant", "monkey", "zebra"]);
   });
 
-  it("sorts recursively by smallest descendant leaf", () => {
+  it("puts smaller subtrees before larger ones", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "big-branch",
+          children: [
+            { name: "zebra", children: [] },
+            { name: "yak", children: [] },
+            { name: "ant", children: [] },
+          ],
+        },
+        { name: "monkey", children: [] },
+      ],
+    };
+    canonicalizeTree(tree);
+    // monkey (size 1) before big-branch (size 3) despite "monkey" > "ant"
+    expect(tree.children[0].name).toBe("monkey");
+    expect(tree.children[1].name).toBe("big-branch");
+    // Within big-branch, all size 1 → alphabetical
+    expect(tree.children[1].children.map((c) => c.name)).toEqual(["ant", "yak", "zebra"]);
+  });
+
+  it("sorts recursively by size then min-leaf tiebreaker", () => {
     const tree = {
       name: "root",
       children: [
@@ -74,16 +98,15 @@ describe("canonicalizeTree", () => {
       ],
     };
     canonicalizeTree(tree);
-    // branch-a has min leaf "ant", branch-b has min leaf "cat"
-    // So branch-a should come first
+    // Both size 2 → tiebreaker: branch-a min="ant" < branch-b min="cat"
     expect(tree.children[0].name).toBe("branch-a");
     expect(tree.children[1].name).toBe("branch-b");
-    // Within each branch, leaves are also sorted
+    // Within each branch, size 1 each → alphabetical
     expect(tree.children[0].children.map((c) => c.name)).toEqual(["ant", "zebra"]);
     expect(tree.children[1].children.map((c) => c.name)).toEqual(["cat", "dog"]);
   });
 
-  it("returns the smallest leaf name in the subtree", () => {
+  it("returns total size and smallest leaf name for the subtree", () => {
     const tree = {
       name: "root",
       children: [
@@ -93,7 +116,7 @@ describe("canonicalizeTree", () => {
       ],
     };
     const key = canonicalizeTree(tree);
-    expect(key).toBe("apple");
+    expect(key).toEqual({ size: 3, minName: "apple" });
   });
 });
 
@@ -151,8 +174,8 @@ describe("renderTreeAscii", () => {
     expect(ascii).toBe(
       [
         "Felidae",
-        "+-- Lion",
         "+-- Cat",
+        "+-- Lion",
         "",
       ].join("\n"),
     );
@@ -213,12 +236,12 @@ describe("renderTreeAscii", () => {
         "Mrcaott3582ott9475",
         "+-- Tea Plant",
         "+-- Mrcaott9475ott11591",
-        "    +-- Mrcaott11591ott24765",
-        "    |   +-- Mrcaott12463ott72910",
-        "    |   |   +-- Blueberry",
-        "    |   |   +-- Cranberry",
-        "    |   +-- Rhododendron",
         "    +-- Kiwifruit",
+        "    +-- Mrcaott11591ott24765",
+        "        +-- Rhododendron",
+        "        +-- Mrcaott12463ott72910",
+        "            +-- Blueberry",
+        "            +-- Cranberry",
         "",
       ].join("\n"),
     );

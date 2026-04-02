@@ -11,28 +11,38 @@ export function capitalize(str) {
 }
 
 /**
- * Canonicalize a tree by sorting children at each internal node so that the
- * child whose subtree contains the alphabetically smallest leaf name comes
- * first.  This produces a unique, deterministic ordering for any given set
- * of leaves.
+ * Canonicalize a tree by sorting children at each internal node.
+ * Primary key: subtree size (number of leaves) – smaller subtrees first.
+ * Secondary key (tiebreaker): alphabetically smallest leaf name.
  *
- * Modifies the tree **in place** and returns the smallest leaf name found
- * in the subtree (used internally for the recursive sort key).
+ * This produces a unique, deterministic "ladderized" ordering for any given
+ * set of leaves: single-leaf branches appear before larger clades, and ties
+ * are broken alphabetically.
+ *
+ * Modifies the tree **in place** and returns `{ size, minName }` where
+ * `size` is the number of leaves and `minName` is the alphabetically
+ * smallest leaf name in the subtree.
  */
 export function canonicalizeTree(node) {
-  if (!node.children || node.children.length === 0) return node.name;
+  if (!node.children || node.children.length === 0) {
+    return { size: 1, minName: node.name };
+  }
 
   // Recursively canonicalize children and collect their sort keys
   const childKeys = node.children.map((child) => ({
     child,
-    key: canonicalizeTree(child),
+    ...canonicalizeTree(child),
   }));
 
-  // Sort children by their smallest leaf name
-  childKeys.sort((a, b) => a.key.localeCompare(b.key));
+  // Sort: smaller subtrees first, then alphabetically by min leaf name
+  childKeys.sort((a, b) => {
+    if (a.size !== b.size) return a.size - b.size;
+    return a.minName.localeCompare(b.minName);
+  });
   node.children = childKeys.map((k) => k.child);
 
-  return childKeys[0].key;
+  const totalSize = childKeys.reduce((sum, k) => sum + k.size, 0);
+  return { size: totalSize, minName: childKeys[0].minName };
 }
 
 /**
@@ -58,9 +68,10 @@ export function extractSubtree(node, ottIdSet) {
   if (keptChildren.length === 0 && !isTaxon) return null;
   // Collapse internal nodes with a single child (unless this node is a taxon)
   if (keptChildren.length === 1 && !isTaxon) return keptChildren[0];
-  // Sort children canonically by smallest leaf name in each subtree
-  canonicalizeTree({ children: keptChildren });
-  const result = { name: node.name, ott_id: node.ott_id, children: keptChildren };
+  // Sort children canonically (size first, then alphabetically)
+  const wrapper = { children: keptChildren };
+  canonicalizeTree(wrapper);
+  const result = { name: node.name, ott_id: node.ott_id, children: wrapper.children };
   if (isTaxon) result.isTaxon = true;
   return result;
 }
