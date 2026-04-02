@@ -5,6 +5,7 @@ import { capitalize, canonicalizeTree, renderCladeAscii } from "./treeUtils.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
 import Navbar from "./Navbar.jsx";
+import WalkaboutView from "./WalkaboutView.jsx";
 import "./CladeExplorerPage.css";
 
 /* ───── module-level data ───── */
@@ -338,6 +339,10 @@ export default function CladeExplorerPage() {
   const [copyMsg, setCopyMsg] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [expandMax, setExpandMax] = useState(5);
+  const [viewMode, setViewMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("view") === "walkabout" ? "walkabout" : "tree";
+  });
 
   const viewRoot = nodeById.get(viewRootId);
 
@@ -510,8 +515,18 @@ export default function CladeExplorerPage() {
             <option key={i} value={i}>{p.label}</option>
           ))}
         </select>
+        <button
+          className="clade-btn clade-view-toggle"
+          onClick={() => setViewMode(viewMode === "tree" ? "walkabout" : "tree")}
+          title={viewMode === "tree" ? "Switch to walkabout view" : "Switch to tree view"}
+        >
+          {viewMode === "tree" ? "🗺️ Walkabout" : "🌳 Tree"}
+        </button>
       </div>
 
+      {viewMode === "walkabout" ? (
+        <WalkaboutView condensed={condensed} taxaByOttId={taxaByOttId} />
+      ) : (
       <div className="clade-body">
         <div className="clade-display">
           {/* SVG tree with interactive controls */}
@@ -738,6 +753,7 @@ export default function CladeExplorerPage() {
           {copyMsg && <span className="clade-copy-msg">{copyMsg}</span>}
         </div>
       </div>
+      )}
 
       {/* ASCII name-choice modal */}
       {showAsciiPicker && (

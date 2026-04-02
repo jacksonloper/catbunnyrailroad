@@ -689,7 +689,8 @@
                                                                                         }
                                                                                       ]
                                                                                     }
-                                                                                  ]
+                                                                                  ],
+                                                                                  "color": "#6e2e4a"
                                                                                 },
                                                                                 {
                                                                                   "name": "Caryophyllales",
@@ -1093,7 +1094,8 @@
                                                                                                             }
                                                                                                           ]
                                                                                                         }
-                                                                                                      ]
+                                                                                                      ],
+                                                                                                      "color": "#1a5e3a"
                                                                                                     }
                                                                                                   ]
                                                                                                 },
@@ -1569,9 +1571,11 @@
                                                                                             }
                                                                                           ]
                                                                                         }
-                                                                                      ]
+                                                                                      ],
+                                                                                      "color": "#5e5a1a"
                                                                                     }
-                                                                                  ]
+                                                                                  ],
+                                                                                  "color": "#4a3a5e"
                                                                                 },
                                                                                 {
                                                                                   "name": "mrcaott650ott16734",
@@ -1809,7 +1813,8 @@
                                                                                           "children": [],
                                                                                           "isTaxon": true
                                                                                         }
-                                                                                      ]
+                                                                                      ],
+                                                                                      "color": "#6e4a1a"
                                                                                     },
                                                                                     {
                                                                                       "name": "hydrangea",
@@ -1819,7 +1824,8 @@
                                                                                     }
                                                                                   ]
                                                                                 }
-                                                                              ]
+                                                                              ],
+                                                                              "color": "#5a2e6e"
                                                                             }
                                                                           ]
                                                                         },
@@ -1853,7 +1859,8 @@
                                                                             }
                                                                           ]
                                                                         }
-                                                                      ]
+                                                                      ],
+                                                                      "color": "#2e4a6e"
                                                                     },
                                                                     {
                                                                       "name": "mrcaott121ott890",
@@ -2009,7 +2016,8 @@
                                                                                                   "children": [],
                                                                                                   "isTaxon": true
                                                                                                 }
-                                                                                              ]
+                                                                                              ],
+                                                                                              "color": "#4a6e1a"
                                                                                             }
                                                                                           ]
                                                                                         },
@@ -2230,7 +2238,8 @@
                                                                                                 }
                                                                                               ]
                                                                                             }
-                                                                                          ]
+                                                                                          ],
+                                                                                          "color": "#1a5e5a"
                                                                                         },
                                                                                         {
                                                                                           "name": "mrcaott12986ott19161",
@@ -2364,7 +2373,8 @@
                                                                                 }
                                                                               ]
                                                                             }
-                                                                          ]
+                                                                          ],
+                                                                          "color": "#3a6e2e"
                                                                         },
                                                                         {
                                                                           "name": "magnoliid",

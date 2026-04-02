@@ -1,0 +1,118 @@
+/* ─── Walkabout View ─── */
+
+.walkabout-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 100px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #111;
+  cursor: grab;
+}
+
+.walkabout-container:active {
+  cursor: grabbing;
+}
+
+.walkabout-canvas {
+  position: relative;
+  /* width/height set inline from layout */
+}
+
+/* ─── Internal node rectangle ─── */
+.wb-node {
+  position: absolute;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.wb-node-label {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* ─── Leaf card ─── */
+.wb-card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  padding: 6px;
+}
+
+.wb-card-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #222;
+  display: block;
+}
+
+.wb-card-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
+  background: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #555;
+}
+
+.wb-card-name {
+  margin-top: 4px;
+  font-size: 12px;
+  text-align: center;
+  color: #ddd;
+  text-transform: capitalize;
+  line-height: 1.2;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── light mode ─── */
+@media (prefers-color-scheme: light) {
+  .walkabout-container {
+    background: #e8e8e8;
+  }
+
+  .wb-node {
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .wb-node-label {
+    color: rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  }
+
+  .wb-card-placeholder {
+    background: #d5d5d5;
+    color: #999;
+  }
+
+  .wb-card-name {
+    color: #333;
+  }
+}
+
+/* ─── mobile ─── */
+@media (max-width: 600px) {
+  .walkabout-container {
+    height: calc(100vh - 90px);
+  }
+}

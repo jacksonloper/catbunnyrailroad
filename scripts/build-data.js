@@ -260,6 +260,7 @@ function loadInternalNodeLabels() {
     name: row.name,
     ott_id: Number(row.ott_id),
     pair: [Number(row.descendant_a), Number(row.descendant_b)],
+    color: row.color || null,
   }));
 }
 
@@ -313,6 +314,7 @@ function labelInternalNodes(tree, labels) {
     if (!mrca.name || mrca.name.startsWith("mrca")) {
       mrca.name = entry.name;
       if (entry.ott_id) mrca.ott_id = entry.ott_id;
+      if (entry.color) mrca.color = entry.color;
       console.log(`  Labeled "${entry.name}" (ott${entry.ott_id || "none"})`);
     } else {
       console.log(
