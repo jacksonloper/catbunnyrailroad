@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState, useCallback } from "react";
 import { capitalize } from "./treeUtils.js";
 import "./WalkaboutView.css";
 
@@ -8,6 +8,10 @@ const CARD_H = 200;
 const PAD = 20;
 const GAP = 12;
 const LABEL_H = 26;
+
+const MIN_ZOOM = 0.15;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 1.15;
 
 /* ───── bottom-up layout algorithm ───── */
 
@@ -119,6 +123,8 @@ function hexToRgba(hex, alpha) {
 
 export default function WalkaboutView({ condensed, taxaByOttId }) {
   const containerRef = useRef(null);
+  const [zoom, setZoom] = useState(1);
+  const touchRef = useRef({ dist: 0, zoom: 1 });
 
   // Compute layout
   const { allNodes, totalW, totalH } = useMemo(() => {
@@ -132,77 +138,207 @@ export default function WalkaboutView({ condensed, taxaByOttId }) {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const scrollX = Math.max(0, (totalW - el.clientWidth) / 2);
-    const scrollY = Math.max(0, (totalH - el.clientHeight) / 2);
+    const scrollX = Math.max(0, (totalW * zoom - el.clientWidth) / 2);
+    const scrollY = Math.max(0, (totalH * zoom - el.clientHeight) / 2);
     el.scrollLeft = scrollX;
     el.scrollTop = scrollY;
-  }, [totalW, totalH]);
+    // only run on first mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Zoom toward a point in container-viewport coords */
+  const zoomAt = useCallback((newZoom, clientX, clientY) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const clamped = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newZoom));
+    const rect = el.getBoundingClientRect();
+    // point in content coords before zoom
+    const px = (el.scrollLeft + clientX - rect.left) / zoom;
+    const py = (el.scrollTop + clientY - rect.top) / zoom;
+    setZoom(clamped);
+    // after React re-renders, adjust scroll so the point stays under cursor
+    requestAnimationFrame(() => {
+      el.scrollLeft = px * clamped - (clientX - rect.left);
+      el.scrollTop = py * clamped - (clientY - rect.top);
+    });
+  }, [zoom]);
+
+  /** Zoom centered on viewport */
+  const zoomCenter = useCallback((newZoom) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    zoomAt(newZoom, rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }, [zoomAt]);
+
+  // Wheel zoom
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onWheel = (e) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
+      zoomAt(zoom * factor, e.clientX, e.clientY);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [zoom, zoomAt]);
+
+  // Pinch-to-zoom
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    function getTouchDist(e) {
+      const [a, b] = [e.touches[0], e.touches[1]];
+      return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    }
+    function getTouchCenter(e) {
+      const [a, b] = [e.touches[0], e.touches[1]];
+      return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+    }
+
+    const onTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        touchRef.current = { dist: getTouchDist(e), zoom };
+      }
+    };
+    const onTouchMove = (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const newDist = getTouchDist(e);
+        const center = getTouchCenter(e);
+        const scale = newDist / touchRef.current.dist;
+        zoomAt(touchRef.current.zoom * scale, center.x, center.y);
+      }
+    };
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [zoom, zoomAt]);
+
+  const pct = Math.round(zoom * 100);
 
   return (
     <div className="walkabout-container" ref={containerRef}>
       <div
         className="walkabout-canvas"
-        style={{ width: totalW, height: totalH }}
+        style={{
+          width: totalW * zoom,
+          height: totalH * zoom,
+        }}
       >
-        {allNodes.map((lyt, i) => {
-          const nd = lyt.node;
-          const isLeaf = lyt.children.length === 0;
+        <div
+          className="walkabout-inner"
+          style={{
+            width: totalW,
+            height: totalH,
+            transform: `scale(${zoom})`,
+            transformOrigin: "0 0",
+          }}
+        >
+          {allNodes.map((lyt, i) => {
+            const nd = lyt.node;
+            const isLeaf = lyt.children.length === 0;
 
-          if (isLeaf) {
-            const t = taxaByOttId.get(nd.ott_id);
-            const name = t ? t.name : nd.name;
-            const imgUrl = t?.image_url || null;
+            if (isLeaf) {
+              const t = taxaByOttId.get(nd.ott_id);
+              const name = t ? t.name : nd.name;
+              const imgUrl = t?.image_url || null;
+              return (
+                <div
+                  key={`leaf-${nd.ott_id || i}`}
+                  className="wb-card"
+                  style={{ left: lyt.x, top: lyt.y, width: lyt.w, height: lyt.h }}
+                >
+                  {imgUrl ? (
+                    <img
+                      className="wb-card-img"
+                      src={imgUrl}
+                      alt={name}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="wb-card-placeholder">🌿</div>
+                  )}
+                  <div className="wb-card-name">{capitalize(name)}</div>
+                </div>
+              );
+            }
+
+            // Internal node rectangle
+            const hasColor = nd.color;
+            const hasLabel = nd.name && !nd.name.startsWith("mrca");
+            const bg = hasColor
+              ? hexToRgba(nd.color, 0.22)
+              : "rgba(255, 255, 255, 0.05)";
+            const borderColor = hasColor
+              ? hexToRgba(nd.color, 0.6)
+              : "rgba(255, 255, 255, 0.08)";
+
             return (
               <div
-                key={`leaf-${nd.ott_id || i}`}
-                className="wb-card"
-                style={{ left: lyt.x, top: lyt.y, width: lyt.w, height: lyt.h }}
+                key={`node-${nd.ott_id || nd.name || i}`}
+                className="wb-node"
+                style={{
+                  left: lyt.x,
+                  top: lyt.y,
+                  width: lyt.w,
+                  height: lyt.h,
+                  background: bg,
+                  borderColor: borderColor,
+                  borderWidth: hasColor ? 2 : 1,
+                }}
               >
-                {imgUrl ? (
-                  <img
-                    className="wb-card-img"
-                    src={imgUrl}
-                    alt={name}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="wb-card-placeholder">🌿</div>
+                {hasLabel && (
+                  <span className="wb-node-label">{capitalize(nd.name)}</span>
                 )}
-                <div className="wb-card-name">{capitalize(name)}</div>
               </div>
             );
-          }
+          })}
+        </div>
+      </div>
 
-          // Internal node rectangle
-          const hasColor = nd.color;
-          const hasLabel = nd.name && !nd.name.startsWith("mrca");
-          const bg = hasColor
-            ? hexToRgba(nd.color, 0.22)
-            : "rgba(255, 255, 255, 0.05)";
-          const borderColor = hasColor
-            ? hexToRgba(nd.color, 0.6)
-            : "rgba(255, 255, 255, 0.08)";
-
-          return (
-            <div
-              key={`node-${nd.ott_id || nd.name || i}`}
-              className="wb-node"
-              style={{
-                left: lyt.x,
-                top: lyt.y,
-                width: lyt.w,
-                height: lyt.h,
-                background: bg,
-                borderColor: borderColor,
-                borderWidth: hasColor ? 2 : 1,
-              }}
-            >
-              {hasLabel && (
-                <span className="wb-node-label">{capitalize(nd.name)}</span>
-              )}
-            </div>
-          );
-        })}
+      {/* Zoom controls */}
+      <div className="wb-zoom-controls">
+        <button
+          className="wb-zoom-btn"
+          onClick={() => zoomCenter(zoom * ZOOM_STEP)}
+          aria-label="Zoom in"
+          title="Zoom in"
+        >
+          +
+        </button>
+        <span className="wb-zoom-level">{pct}%</span>
+        <button
+          className="wb-zoom-btn"
+          onClick={() => zoomCenter(zoom / ZOOM_STEP)}
+          aria-label="Zoom out"
+          title="Zoom out"
+        >
+          −
+        </button>
+        <button
+          className="wb-zoom-btn wb-zoom-fit"
+          onClick={() => {
+            const el = containerRef.current;
+            if (!el) return;
+            const fitZoom = Math.min(
+              el.clientWidth / totalW,
+              el.clientHeight / totalH,
+              MAX_ZOOM,
+            );
+            setZoom(Math.max(MIN_ZOOM, fitZoom));
+          }}
+          aria-label="Fit to screen"
+          title="Fit to screen"
+        >
+          ⊞
+        </button>
       </div>
     </div>
   );

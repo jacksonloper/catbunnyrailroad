@@ -8,6 +8,7 @@
   -webkit-overflow-scrolling: touch;
   background: #111;
   cursor: grab;
+  touch-action: pan-x pan-y;
 }
 
 .walkabout-container:active {
@@ -17,6 +18,11 @@
 .walkabout-canvas {
   position: relative;
   /* width/height set inline from layout */
+}
+
+.walkabout-inner {
+  position: relative;
+  /* transform/width/height set inline */
 }
 
 /* ─── Internal node rectangle ─── */
@@ -85,6 +91,62 @@
   white-space: nowrap;
 }
 
+/* ─── Zoom controls ─── */
+.wb-zoom-controls {
+  position: sticky;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(30, 30, 30, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 4px 8px;
+  z-index: 10;
+  width: max-content;
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+.wb-zoom-btn {
+  background: transparent;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.wb-zoom-btn:hover {
+  background: #444;
+  border-color: #e8a020;
+}
+.wb-zoom-btn:active {
+  background: #555;
+}
+
+.wb-zoom-fit {
+  font-size: 15px;
+}
+
+.wb-zoom-level {
+  font-size: 12px;
+  color: #aaa;
+  min-width: 40px;
+  text-align: center;
+  user-select: none;
+}
+
 /* ─── light mode ─── */
 @media (prefers-color-scheme: light) {
   .walkabout-container {
@@ -108,11 +170,39 @@
   .wb-card-name {
     color: #333;
   }
+
+  .wb-zoom-controls {
+    background: rgba(240, 240, 240, 0.9);
+    border-color: #bbb;
+  }
+
+  .wb-zoom-btn {
+    color: #222;
+    border-color: #aaa;
+  }
+  .wb-zoom-btn:hover {
+    background: #ddd;
+  }
+
+  .wb-zoom-level {
+    color: #555;
+  }
 }
 
 /* ─── mobile ─── */
 @media (max-width: 600px) {
   .walkabout-container {
     height: calc(100vh - 90px);
+  }
+
+  .wb-zoom-controls {
+    bottom: 8px;
+    padding: 3px 6px;
+  }
+
+  .wb-zoom-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
   }
 }
