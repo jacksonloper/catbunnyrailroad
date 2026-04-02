@@ -24,17 +24,17 @@ function buildCondensed(node) {
   const isTaxon = allOttIds.has(node.ott_id);
   if (!node.children || node.children.length === 0) {
     return isTaxon
-      ? { name: node.name, ott_id: node.ott_id, children: [] }
+      ? { name: node.name, ott_id: node.ott_id, color: node.color || null, children: [] }
       : null;
   }
   const kids = node.children.map(buildCondensed).filter(Boolean);
   if (kids.length === 0) {
     return isTaxon
-      ? { name: node.name, ott_id: node.ott_id, children: [] }
+      ? { name: node.name, ott_id: node.ott_id, color: node.color || null, children: [] }
       : null;
   }
   if (kids.length === 1 && !isTaxon) return kids[0];
-  return { name: node.name, ott_id: node.ott_id, children: kids };
+  return { name: node.name, ott_id: node.ott_id, color: node.color || null, children: kids };
 }
 
 const condensed = buildCondensed(tree);

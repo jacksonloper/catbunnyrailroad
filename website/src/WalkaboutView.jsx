@@ -3,11 +3,11 @@ import { capitalize } from "./treeUtils.js";
 import "./WalkaboutView.css";
 
 /* ───── layout constants ───── */
-const CARD_W = 142;
-const CARD_H = 170;
-const PAD = 14;
-const GAP = 10;
-const LABEL_H = 24;
+const CARD_W = 160;
+const CARD_H = 200;
+const PAD = 20;
+const GAP = 12;
+const LABEL_H = 26;
 
 /* ───── bottom-up layout algorithm ───── */
 
@@ -177,10 +177,10 @@ export default function WalkaboutView({ condensed, taxaByOttId }) {
           const hasColor = nd.color;
           const hasLabel = nd.name && !nd.name.startsWith("mrca");
           const bg = hasColor
-            ? hexToRgba(nd.color, 0.18)
+            ? hexToRgba(nd.color, 0.22)
             : "rgba(255, 255, 255, 0.02)";
           const borderColor = hasColor
-            ? hexToRgba(nd.color, 0.5)
+            ? hexToRgba(nd.color, 0.6)
             : "rgba(255, 255, 255, 0.06)";
 
           return (
@@ -194,6 +194,7 @@ export default function WalkaboutView({ condensed, taxaByOttId }) {
                 height: lyt.h,
                 background: bg,
                 borderColor: borderColor,
+                borderWidth: hasColor ? 2 : 1,
               }}
             >
               {hasLabel && (
