@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import { capitalize, canonicalizeTree, renderCladeAscii } from "./treeUtils.js";
@@ -343,6 +343,17 @@ export default function CladeExplorerPage() {
     const params = new URLSearchParams(window.location.search);
     return params.get("view") === "walkabout" ? "walkabout" : "tree";
   });
+
+  /* sync viewMode to URL */
+  useEffect(() => {
+    const url = new URL(window.location);
+    if (viewMode === "walkabout") {
+      url.searchParams.set("view", "walkabout");
+    } else {
+      url.searchParams.delete("view");
+    }
+    window.history.replaceState(null, "", url);
+  }, [viewMode]);
 
   const viewRoot = nodeById.get(viewRootId);
 

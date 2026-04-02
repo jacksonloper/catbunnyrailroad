@@ -178,14 +178,14 @@ export default function WalkaboutView({ condensed, taxaByOttId }) {
           const hasLabel = nd.name && !nd.name.startsWith("mrca");
           const bg = hasColor
             ? hexToRgba(nd.color, 0.22)
-            : "rgba(255, 255, 255, 0.02)";
+            : "rgba(255, 255, 255, 0.05)";
           const borderColor = hasColor
             ? hexToRgba(nd.color, 0.6)
-            : "rgba(255, 255, 255, 0.06)";
+            : "rgba(255, 255, 255, 0.08)";
 
           return (
             <div
-              key={`node-${nd.ott_id || i}-${lyt.x}`}
+              key={`node-${nd.ott_id || nd.name || i}`}
               className="wb-node"
               style={{
                 left: lyt.x,
