@@ -452,7 +452,7 @@ async function main() {
   console.log(`Read ${internalNodeLabels.length} rows from internal_nodes.csv`);
   labelInternalNodes(compactTree, internalNodeLabels);
 
-  // Canonicalize: sort children at each internal node by smallest leaf name
+  // Canonicalize: sort children by subtree size first, then alphabetically
   canonicalizeTree(compactTree);
 
   fs.writeFileSync(
