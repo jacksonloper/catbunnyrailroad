@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { capitalize, extractSubtree, renderTreeAscii, renderCladeAscii } from "./treeUtils.js";
+import { capitalize, canonicalizeTree, extractSubtree, renderTreeAscii, renderCladeAscii } from "./treeUtils.js";
 import tree from "./data/tree.json";
 import taxa from "./data/taxa.json";
 
@@ -25,6 +25,98 @@ describe("capitalize", () => {
 
   it("handles empty string", () => {
     expect(capitalize("")).toBe("");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// canonicalizeTree
+// ---------------------------------------------------------------------------
+
+describe("canonicalizeTree", () => {
+  it("returns size and minName for a leaf node", () => {
+    const leaf = { name: "cat", children: [] };
+    const key = canonicalizeTree(leaf);
+    expect(key).toEqual({ size: 1, minName: "cat" });
+    expect(leaf.children).toEqual([]);
+  });
+
+  it("sorts children by subtree size first, then alphabetically", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "zebra", children: [] },
+        { name: "ant", children: [] },
+        { name: "monkey", children: [] },
+      ],
+    };
+    canonicalizeTree(tree);
+    // All size 1 → tiebreaker is alphabetical
+    expect(tree.children.map((c) => c.name)).toEqual(["ant", "monkey", "zebra"]);
+  });
+
+  it("puts smaller subtrees before larger ones", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "big-branch",
+          children: [
+            { name: "zebra", children: [] },
+            { name: "yak", children: [] },
+            { name: "ant", children: [] },
+          ],
+        },
+        { name: "monkey", children: [] },
+      ],
+    };
+    canonicalizeTree(tree);
+    // monkey (size 1) before big-branch (size 3) despite "monkey" > "ant"
+    expect(tree.children[0].name).toBe("monkey");
+    expect(tree.children[1].name).toBe("big-branch");
+    // Within big-branch, all size 1 → alphabetical
+    expect(tree.children[1].children.map((c) => c.name)).toEqual(["ant", "yak", "zebra"]);
+  });
+
+  it("sorts recursively by size then min-leaf tiebreaker", () => {
+    const tree = {
+      name: "root",
+      children: [
+        {
+          name: "branch-b",
+          children: [
+            { name: "dog", children: [] },
+            { name: "cat", children: [] },
+          ],
+        },
+        {
+          name: "branch-a",
+          children: [
+            { name: "zebra", children: [] },
+            { name: "ant", children: [] },
+          ],
+        },
+      ],
+    };
+    canonicalizeTree(tree);
+    // Both size 2 → tiebreaker: branch-a min="ant" < branch-b min="cat"
+    expect(tree.children[0].name).toBe("branch-a");
+    expect(tree.children[1].name).toBe("branch-b");
+    // Within each branch, size 1 each → alphabetical
+    expect(tree.children[0].children.map((c) => c.name)).toEqual(["ant", "zebra"]);
+    expect(tree.children[1].children.map((c) => c.name)).toEqual(["cat", "dog"]);
+  });
+
+  it("returns total size and smallest leaf name for the subtree", () => {
+    const tree = {
+      name: "root",
+      children: [
+        { name: "cherry", children: [] },
+        { name: "apple", children: [] },
+        { name: "banana", children: [] },
+      ],
+    };
+    const key = canonicalizeTree(tree);
+    expect(key).toEqual({ size: 3, minName: "apple" });
   });
 });
 
@@ -82,8 +174,8 @@ describe("renderTreeAscii", () => {
     expect(ascii).toBe(
       [
         "Felidae",
-        "+-- Lion",
         "+-- Cat",
+        "+-- Lion",
         "",
       ].join("\n"),
     );
@@ -103,8 +195,8 @@ describe("renderTreeAscii", () => {
         "    |   +-- Brown Bear",
         "    |   +-- Wolf And Dog",
         "    +-- Felidae",
-        "        +-- Lion",
         "        +-- Cat",
+        "        +-- Lion",
         "",
       ].join("\n"),
     );
@@ -126,8 +218,8 @@ describe("renderTreeAscii", () => {
         "    |   +-- Ursus arctos",
         "    |   +-- Canis lupus",
         "    +-- Felidae",
-        "        +-- Panthera leo",
         "        +-- Felis catus",
+        "        +-- Panthera leo",
         "",
       ].join("\n"),
     );
@@ -146,10 +238,10 @@ describe("renderTreeAscii", () => {
         "+-- Mrcaott9475ott11591",
         "    +-- Kiwifruit",
         "    +-- Mrcaott11591ott24765",
-        "        +-- Mrcaott12463ott72910",
-        "        |   +-- Blueberry",
-        "        |   +-- Cranberry",
         "        +-- Rhododendron",
+        "        +-- Mrcaott12463ott72910",
+        "            +-- Blueberry",
+        "            +-- Cranberry",
         "",
       ].join("\n"),
     );

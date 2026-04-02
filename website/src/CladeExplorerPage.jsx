@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
-import { capitalize, renderCladeAscii } from "./treeUtils.js";
+import { capitalize, canonicalizeTree, renderCladeAscii } from "./treeUtils.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
 import Navbar from "./Navbar.jsx";
@@ -343,7 +343,11 @@ export default function CladeExplorerPage() {
 
   /* derived */
   const display = useMemo(
-    () => buildDisplay(viewRoot, expanded),
+    () => {
+      const d = buildDisplay(viewRoot, expanded);
+      canonicalizeTree(d);
+      return d;
+    },
     [viewRoot, expanded],
   );
   const vSp = 28;

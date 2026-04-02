@@ -15,6 +15,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { canonicalizeTree } from "../website/src/treeUtils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -450,6 +451,9 @@ async function main() {
   const internalNodeLabels = loadInternalNodeLabels();
   console.log(`Read ${internalNodeLabels.length} rows from internal_nodes.csv`);
   labelInternalNodes(compactTree, internalNodeLabels);
+
+  // Canonicalize: sort children by subtree size first, then alphabetically
+  canonicalizeTree(compactTree);
 
   fs.writeFileSync(
     path.join(OUT_DIR, "tree.json"),
