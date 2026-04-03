@@ -1,99 +1,36 @@
 /* ─── Walkabout View ─── */
 
-.walkabout-container {
+.walkabout-wrapper {
   position: relative;
   width: 100%;
   height: calc(100vh - 100px);
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  background: #111;
+}
+
+.walkabout-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   cursor: grab;
-  touch-action: pan-x pan-y;
+  touch-action: none;
+  overflow: hidden;
+  background: #111;
 }
 
 .walkabout-container:active {
   cursor: grabbing;
 }
 
-.walkabout-canvas {
-  position: relative;
-  /* width/height set inline from layout */
-}
-
-.walkabout-inner {
-  position: relative;
-  /* transform/width/height set inline */
-}
-
-/* ─── Internal node rectangle ─── */
-.wb-node {
-  position: absolute;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-sizing: border-box;
-}
-
-.wb-node-label {
-  position: absolute;
-  top: 4px;
-  left: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: capitalize;
-  color: rgba(255, 255, 255, 0.75);
-  white-space: nowrap;
-  pointer-events: none;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-}
-
-/* ─── Leaf card ─── */
-.wb-card {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  box-sizing: border-box;
-  padding: 6px;
-}
-
-.wb-card-img {
-  width: 140px;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 6px;
-  background: #222;
+.walkabout-container canvas {
   display: block;
-}
-
-.wb-card-placeholder {
-  width: 140px;
-  height: 140px;
-  border-radius: 6px;
-  background: #2a2a2a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 36px;
-  color: #555;
-}
-
-.wb-card-name {
-  margin-top: 6px;
-  font-size: 13px;
-  text-align: center;
-  color: #ddd;
-  text-transform: capitalize;
-  line-height: 1.2;
-  max-width: 148px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* ─── Zoom controls ─── */
 .wb-zoom-controls {
-  position: sticky;
+  position: absolute;
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
@@ -108,7 +45,6 @@
   padding: 4px 8px;
   z-index: 10;
   width: max-content;
-  margin: 0 auto;
   pointer-events: auto;
 }
 
@@ -153,24 +89,6 @@
     background: #e8e8e8;
   }
 
-  .wb-node {
-    border-color: rgba(0, 0, 0, 0.1);
-  }
-
-  .wb-node-label {
-    color: rgba(0, 0, 0, 0.6);
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
-  }
-
-  .wb-card-placeholder {
-    background: #d5d5d5;
-    color: #999;
-  }
-
-  .wb-card-name {
-    color: #333;
-  }
-
   .wb-zoom-controls {
     background: rgba(240, 240, 240, 0.9);
     border-color: #bbb;
@@ -191,7 +109,7 @@
 
 /* ─── mobile ─── */
 @media (max-width: 600px) {
-  .walkabout-container {
+  .walkabout-wrapper {
     height: calc(100vh - 90px);
   }
 

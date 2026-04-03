@@ -536,7 +536,7 @@ export default function CladeExplorerPage() {
       </div>
 
       {viewMode === "walkabout" ? (
-        <WalkaboutView condensed={condensed} taxaByOttId={taxaByOttId} />
+        <WalkaboutView condensed={condensed} taxaByOttId={taxaByOttId} viewRoot={viewRoot} parentOf={parentOf} />
       ) : (
       <div className="clade-body">
         <div className="clade-display">
