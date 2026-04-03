@@ -89,6 +89,11 @@ function findLCA(ottId1, ottId2) {
   return null;
 }
 
+/** True if a condensed-tree node has a meaningful (non-MRCA) name */
+function hasNodeName(node) {
+  return Boolean(node.name && !node.name.startsWith("mrca"));
+}
+
 /**
  * Encode a condensed-tree node as a stable string reference.
  * Nodes with ott_id → plain number.
@@ -360,6 +365,19 @@ export default function CladeExplorerPage() {
   const treeW = lay.treeW;
   const totalH = leafCount * vSp;
 
+  /* Set of descendant-leaf _ids for the currently-selected menu node */
+  const menuDescLeafIds = useMemo(() => {
+    if (menuNodeId === null) return null;
+    const ids = new Set();
+    const collect = (n) => {
+      if (n.children.length === 0) { ids.add(n._id); return; }
+      n.children.forEach(collect);
+    };
+    const start = lay.nodes.find((x) => x.node._id === menuNodeId);
+    if (start) collect(start.node);
+    return ids;
+  }, [menuNodeId, lay]);
+
   /* handlers */
   const handleOpen = (id) => {
     const cn = nodeById.get(id);
@@ -513,7 +531,10 @@ export default function CladeExplorerPage() {
       </div>
 
       <div className="clade-body">
-        <div className="clade-display">
+        <div
+          className="clade-display"
+          onClick={() => { if (menuNodeId !== null) setMenuNodeId(null); }}
+        >
           {/* SVG tree with interactive controls */}
           <svg
             className="clade-svg"
@@ -521,6 +542,24 @@ export default function CladeExplorerPage() {
             height={totalH}
             viewBox={`0 0 ${treeW} ${totalH}`}
           >
+            {/* Descendant highlight background */}
+            {menuNodeId !== null && (() => {
+              const menuNd = lay.nodes.find((x) => x.node._id === menuNodeId);
+              if (!menuNd || !menuDescLeafIds || menuDescLeafIds.size === 0) return null;
+              const descLeaves = leaves.filter((lf) => menuDescLeafIds.has(lf.node._id));
+              if (descLeaves.length === 0) return null;
+              const ys = descLeaves.map((lf) => lf.y);
+              const yMin = Math.min(...ys) - vSp / 2;
+              const yMax = Math.max(...ys) + vSp / 2;
+              return (
+                <rect
+                  x={menuNd.x} y={yMin}
+                  width={treeW - menuNd.x} height={yMax - yMin}
+                  fill="currentColor" className="desc-highlight-rect"
+                />
+              );
+            })()}
+
             {/* Tree edges */}
             {lay.edges.map((e, i) => (
               <line
@@ -595,16 +634,25 @@ export default function CladeExplorerPage() {
               }
 
               /* ── expanded internal node: unified ● menu button ── */
+              const named = hasNodeName(nd.node);
               return (
                 <g
                   key={`ctrl-${nd.node._id}`}
                   className="tree-ctrl"
                   role="button"
                   aria-label="Node options"
-                  onClick={() => setMenuNodeId(
-                    menuNodeId === nd.node._id ? null : nd.node._id,
-                  )}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuNodeId(
+                      menuNodeId === nd.node._id ? null : nd.node._id,
+                    );
+                  }}
                 >
+                  {named && (
+                    <circle cx={nd.x} cy={nd.y} r={11}
+                      fill="none"
+                      stroke="#e8a020" strokeWidth={1} />
+                  )}
                   <circle cx={nd.x} cy={nd.y} r={7}
                     fill={menuNodeId === nd.node._id ? "#e8a020" : "#2a2a2a"}
                     stroke="#e8a020" strokeWidth={1.5} />
@@ -621,11 +669,17 @@ export default function CladeExplorerPage() {
           {menuNodeId !== null && (() => {
             const menuNd = lay.nodes.find((x) => x.node._id === menuNodeId);
             if (!menuNd) return null;
+            const menuNodeName = hasNodeName(menuNd.node)
+              ? menuNd.node.name : null;
             return (
               <div
                 className="node-menu"
                 style={{ left: menuNd.x + 12, top: menuNd.y - 8 }}
+                onClick={(e) => e.stopPropagation()}
               >
+                {menuNodeName && (
+                  <div className="node-menu-name">{capitalize(menuNodeName)}</div>
+                )}
                 <button
                   className="node-menu-btn"
                   onClick={() => {
@@ -663,10 +717,11 @@ export default function CladeExplorerPage() {
                     ...shuffled.filter((t) => !highlighted.has(t.ott_id)),
                   ]
                 : shuffled;
+              const isDesc = menuDescLeafIds && menuDescLeafIds.has(lf.node._id);
               return (
                 <div
                   key={lf.node._id}
-                  className="clade-row"
+                  className={`clade-row${isDesc ? " clade-row-desc" : ""}`}
                   style={{ height: vSp }}
                 >
                   <div className="clade-taxa">

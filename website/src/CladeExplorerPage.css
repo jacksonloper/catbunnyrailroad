@@ -176,6 +176,24 @@
   color: #1a1a1a;
 }
 
+.node-menu-name {
+  padding: 2px 10px 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #e8a020;
+  border-bottom: 1px solid #555;
+}
+
+/* Subtle descendant highlight when a node is selected */
+.clade-row-desc {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.desc-highlight-rect {
+  color: rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+}
+
 .clade-bottom-bar {
   display: flex;
   justify-content: center;
@@ -312,6 +330,16 @@
   }
   .clade-hl {
     color: #b37400;
+  }
+  .node-menu-name {
+    color: #b37400;
+    border-bottom-color: #ccc;
+  }
+  .clade-row-desc {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  .desc-highlight-rect {
+    color: rgba(0, 0, 0, 0.04);
   }
 }
 
