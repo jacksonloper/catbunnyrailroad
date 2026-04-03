@@ -346,6 +346,131 @@ async function fetchTree(nodeIds) {
 }
 
 // ---------------------------------------------------------------------------
+// Walkabout layout – pre-compute the nested-rectangle layout at build time.
+// This is the same algorithm as WalkaboutView.jsx but run once and serialized
+// to JSON so the browser can skip this work.
+// ---------------------------------------------------------------------------
+
+const WB_CARD_W = 160;
+const WB_CARD_H = 200;
+const WB_PAD = 20;
+const WB_GAP = 12;
+const WB_LABEL_H = 26;
+
+/**
+ * Build condensed tree from the compact tree (same as CladeExplorerPage does
+ * at module level).  Only includes curated taxa and collapses single-child
+ * internal nodes.
+ */
+function buildCondensedForLayout(node, allOttIds) {
+  const isTaxon = allOttIds.has(node.ott_id);
+  if (!node.children || node.children.length === 0) {
+    return isTaxon
+      ? { name: node.name, ott_id: node.ott_id, color: node.color || null, children: [] }
+      : null;
+  }
+  const kids = node.children.map((c) => buildCondensedForLayout(c, allOttIds)).filter(Boolean);
+  if (kids.length === 0) {
+    return isTaxon
+      ? { name: node.name, ott_id: node.ott_id, color: node.color || null, children: [] }
+      : null;
+  }
+  if (kids.length === 1 && !isTaxon) return kids[0];
+  return { name: node.name, ott_id: node.ott_id, color: node.color || null, children: kids };
+}
+
+function wbComputeLayout(node) {
+  const isLeaf = !node.children || node.children.length === 0;
+  if (isLeaf) {
+    return { node, w: WB_CARD_W, h: WB_CARD_H, children: [], labelH: 0 };
+  }
+  const childLayouts = node.children.map(wbComputeLayout);
+  const hasLabel = node.name && !node.name.startsWith("mrca");
+  const labelH = hasLabel ? WB_LABEL_H : 0;
+
+  if (childLayouts.length === 1) {
+    const cl = childLayouts[0];
+    const w = cl.w + 2 * WB_PAD;
+    const h = cl.h + 2 * WB_PAD + labelH;
+    return { node, w, h, horizontal: true, children: childLayouts, labelH };
+  }
+
+  const hW = childLayouts.reduce((s, c) => s + c.w, 0) + WB_GAP * (childLayouts.length - 1) + 2 * WB_PAD;
+  const hH = Math.max(...childLayouts.map((c) => c.h)) + 2 * WB_PAD + labelH;
+  const vW = Math.max(...childLayouts.map((c) => c.w)) + 2 * WB_PAD;
+  const vH = childLayouts.reduce((s, c) => s + c.h, 0) + WB_GAP * (childLayouts.length - 1) + 2 * WB_PAD + labelH;
+
+  const target = 1.6;
+  const hAspect = Math.abs(hW / hH - target);
+  const vAspect = Math.abs(vW / vH - target);
+  const horizontal = hAspect <= vAspect;
+
+  return {
+    node,
+    w: horizontal ? hW : vW,
+    h: horizontal ? hH : vH,
+    horizontal,
+    children: childLayouts,
+    labelH,
+  };
+}
+
+function wbAssignPositions(layout, x, y) {
+  layout.x = x;
+  layout.y = y;
+  if (layout.children.length === 0) return;
+  const startX = x + WB_PAD;
+  const startY = y + WB_PAD + layout.labelH;
+
+  if (layout.horizontal) {
+    let cx = startX;
+    for (const child of layout.children) {
+      const availH = layout.h - 2 * WB_PAD - layout.labelH;
+      const cy = startY + (availH - child.h) / 2;
+      wbAssignPositions(child, cx, cy);
+      cx += child.w + WB_GAP;
+    }
+  } else {
+    let cy = startY;
+    for (const child of layout.children) {
+      const availW = layout.w - 2 * WB_PAD;
+      const cx = startX + (availW - child.w) / 2;
+      wbAssignPositions(child, cx, cy);
+      cy += child.h + WB_GAP;
+    }
+  }
+}
+
+function wbCollect(layout, result = []) {
+  const nd = layout.node;
+  const isLeaf = layout.children.length === 0;
+  result.push({
+    x: layout.x,
+    y: layout.y,
+    w: layout.w,
+    h: layout.h,
+    ott_id: nd.ott_id || null,
+    name: nd.name || "",
+    color: nd.color || null,
+    isLeaf,
+  });
+  for (const child of layout.children) {
+    wbCollect(child, result);
+  }
+  return result;
+}
+
+function buildWalkaboutLayout(compactTree, taxaByTreeId, taxaJson) {
+  const allOttIds = new Set(taxaJson.map((t) => t.ott_id));
+  const cond = buildCondensedForLayout(compactTree, allOttIds);
+  canonicalizeTree(cond);
+  const root = wbComputeLayout(cond);
+  wbAssignPositions(root, 0, 0);
+  const nodes = wbCollect(root);
+  return { totalW: root.w, totalH: root.h, nodes };
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -516,6 +641,18 @@ async function main() {
   }
   console.log("\nTree structure:");
   printTree(compactTree);
+
+  // ─── Build walkabout layout ───
+  // Pre-compute the nested-rectangle layout for the walkabout view so the
+  // browser doesn't have to do it at runtime.  The layout is a flat array
+  // of positioned rectangles.
+  console.log("\nBuilding walkabout layout…");
+  const walkaboutLayout = buildWalkaboutLayout(compactTree, taxaByTreeId, taxaJson);
+  fs.writeFileSync(
+    path.join(OUT_DIR, "walkabout-layout.json"),
+    JSON.stringify(walkaboutLayout)
+  );
+  console.log(`Wrote walkabout-layout.json (${walkaboutLayout.nodes.length} nodes)`);
 }
 
 main().catch((err) => {
