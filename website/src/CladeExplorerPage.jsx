@@ -89,6 +89,11 @@ function findLCA(ottId1, ottId2) {
   return null;
 }
 
+/** True if a condensed-tree node has a meaningful (non-MRCA) name */
+function hasNodeName(node) {
+  return Boolean(node.name && !node.name.startsWith("mrca"));
+}
+
 /**
  * Encode a condensed-tree node as a stable string reference.
  * Nodes with ott_id → plain number.
@@ -595,6 +600,7 @@ export default function CladeExplorerPage() {
               }
 
               /* ── expanded internal node: unified ● menu button ── */
+              const named = hasNodeName(nd.node);
               return (
                 <g
                   key={`ctrl-${nd.node._id}`}
@@ -605,6 +611,11 @@ export default function CladeExplorerPage() {
                     menuNodeId === nd.node._id ? null : nd.node._id,
                   )}
                 >
+                  {named && (
+                    <circle cx={nd.x} cy={nd.y} r={11}
+                      fill="none"
+                      stroke="#e8a020" strokeWidth={1} />
+                  )}
                   <circle cx={nd.x} cy={nd.y} r={7}
                     fill={menuNodeId === nd.node._id ? "#e8a020" : "#2a2a2a"}
                     stroke="#e8a020" strokeWidth={1.5} />
@@ -621,11 +632,16 @@ export default function CladeExplorerPage() {
           {menuNodeId !== null && (() => {
             const menuNd = lay.nodes.find((x) => x.node._id === menuNodeId);
             if (!menuNd) return null;
+            const menuNodeName = hasNodeName(menuNd.node)
+              ? menuNd.node.name : null;
             return (
               <div
                 className="node-menu"
                 style={{ left: menuNd.x + 12, top: menuNd.y - 8 }}
               >
+                {menuNodeName && (
+                  <div className="node-menu-name">{capitalize(menuNodeName)}</div>
+                )}
                 <button
                   className="node-menu-btn"
                   onClick={() => {
