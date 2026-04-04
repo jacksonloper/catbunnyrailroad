@@ -2675,13 +2675,13 @@
   {
     "name": "flatworm",
     "ott_id": 555379,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Platyhelminthes_diversity.jpg",
+    "image_url": "/taxa-images/555379.jpg",
     "uniqname": "Platyhelminthes"
   },
   {
     "name": "lancelet",
     "ott_id": 176550,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Branchiostoma_lanceolatum.jpg",
+    "image_url": "/taxa-images/176550.jpg",
     "uniqname": "Branchiostoma"
   },
   {
@@ -2699,13 +2699,13 @@
   {
     "name": "trypanosome",
     "ott_id": 494245,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Tb_brucei.jpg",
+    "image_url": "/taxa-images/494245.jpg",
     "uniqname": "Trypanosoma brucei"
   },
   {
     "name": "dinoflagellate",
     "ott_id": 746947,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Ceratium_hirundinella.jpg",
+    "image_url": "/taxa-images/746947.jpg",
     "uniqname": "Noctiluca scintillans"
   },
   {
@@ -2717,13 +2717,13 @@
   {
     "name": "coccolithophore",
     "ott_id": 695761,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Emiliania_huxleyi_coccolithophore_%28PLoS%29.png",
+    "image_url": "/taxa-images/695761.png",
     "uniqname": "Emiliania huxleyi"
   },
   {
     "name": "centrohelid heliozoan",
     "ott_id": 607132,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Raphidiophrys_contractilis.jpg",
+    "image_url": "/taxa-images/607132.jpg",
     "uniqname": "Raphidiophrys"
   },
   {
@@ -2749,5 +2749,17 @@
     "ott_id": 122253,
     "image_url": "/taxa-images/122253.jpg",
     "uniqname": "Dahlia (genus in kingdom Archaeplastida)"
+  },
+  {
+    "name": "Brassicales",
+    "ott_id": 8844,
+    "image_url": "/taxa-images/8844.jpg",
+    "uniqname": "Brassicales"
+  },
+  {
+    "name": "Malvales",
+    "ott_id": 229284,
+    "image_url": "/taxa-images/229284.jpg",
+    "uniqname": "Malvales"
   }
 ]
