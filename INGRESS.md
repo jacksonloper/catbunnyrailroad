@@ -150,6 +150,51 @@ Most errors should be fixable by correcting `taxa.csv` and rerunning the scripts
 
 **Rule of thumb**: If a problem is a weird one-off, fix it by hand in `taxa.csv`. If it's a systematic issue (e.g. a whole class of names failing), fix it in the scripts instead.
 
+## Naming Internal Clades
+
+There are **two ways** to give an internal node in the tree a display name (e.g. "rosid", "Brassicales").  Which one you use depends on whether the clade is monophyletic in the OTT synthetic tree.
+
+### Option A: Add the clade directly to `taxa.csv` (monophyletic only)
+
+If the clade is **monophyletic** in the OTT synthetic tree, you can add it to `taxa.csv` just like any leaf taxon.  Use the order/family/clade scientific name as `scientific_name`.  The build scripts handle this correctly — the taxon becomes an `isTaxon: true` internal node in the tree, sitting above its descendant taxa.  It gets its own card (image + name) in the walkabout view and appears as a selectable organism everywhere else.
+
+For example, **Brassicales** (ott 8844) and **Malvales** (ott 229284) are monophyletic, so they live in `taxa.csv`:
+
+```
+Brassicales,Brassicales,8844,Brassicales,<image_url>,
+Malvales,Malvales,229284,Malvales,<image_url>,
+```
+
+Run `fill-ott-ids.mjs` — if it reports `❌ broken (non-monophyletic)` for the clade, it **cannot** go in `taxa.csv`.  Use Option B instead.
+
+**If the clade is in `taxa.csv`, do NOT also add it to `internal_nodes.csv`** — that would create a duplicate node in the tree.
+
+### Option B: Label via MRCA in `internal_nodes.csv` (non-monophyletic clades)
+
+Many well-known clades (fabids, malvids, lamiids, etc.) are **non-monophyletic** ("broken") in the current OTT synthetic tree.  The tree API remaps them to a different node, so they cannot be used as taxa IDs.  Instead, they are labeled after tree construction by finding the **Most Recent Common Ancestor (MRCA)** of two known descendant taxa.
+
+Add a row to `internal_nodes.csv` at the repo root:
+
+| Column | What to put |
+|--------|-------------|
+| `name` | Display name for the clade (e.g. `fabid`, `Solanales`) |
+| `ott_id` | The OTT taxonomy ID (for reference — may be 0 if truly broken) |
+| `descendant_a` | `ott_id` of one descendant taxon that IS in `taxa.csv` |
+| `descendant_b` | `ott_id` of another descendant taxon that IS in `taxa.csv` |
+
+The two descendants should be chosen so that their MRCA is exactly the clade you want to label.  Pick taxa from different major sub-branches of the clade.
+
+During `build-data.js`, the script finds the MRCA of the two descendants in the simplified tree and assigns the clade name to that node.  If the node already has a meaningful name (not starting with `mrca`), it is skipped — this prevents overwriting names of clades that were added via `taxa.csv`.
+
+**Known non-monophyletic clades** (as of 2026-04): fabid (565281), malvid (565277), Solanales (1050255), lamiid (596112), Gentianales (524062), Sapindales (229288).  These can only be named via `internal_nodes.csv`.
+
+### Decision flow
+
+1. Look up the clade's OTT ID at <https://tree.opentreeoflife.org/taxonomy/browse>
+2. Add it to `taxa.csv` and run `fill-ott-ids.mjs`
+3. If it passes monophyly check → keep it in `taxa.csv`, proceed with the normal ingress pipeline
+4. If it fails (`❌ broken`) → remove it from `taxa.csv` and add it to `internal_nodes.csv` instead, choosing two descendant ott_ids that bracket the clade
+
 ## Meta: Revisit This Document
 
 **This file (INGRESS.md) should itself be revisited each time you ingress new taxa.** If you discover new edge cases, new failure modes, or better workflows, update this document so the next person benefits.
