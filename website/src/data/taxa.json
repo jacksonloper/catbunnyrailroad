@@ -2663,67 +2663,67 @@
   {
     "name": "paramecium",
     "ott_id": 568126,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Paramecium.jpg",
+    "image_url": "/taxa-images/568126.jpg",
     "uniqname": "Paramecium (genus in subkingdom SAR)"
   },
   {
     "name": "comb jelly",
     "ott_id": 641212,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Comb_jelly.jpg",
+    "image_url": "/taxa-images/641212.jpg",
     "uniqname": "Ctenophora (phylum ncbi:10197)"
   },
   {
     "name": "flatworm",
     "ott_id": 555379,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Platyhelminthes_diversity.jpg",
+    "image_url": "/taxa-images/555379.jpg",
     "uniqname": "Platyhelminthes"
   },
   {
     "name": "lancelet",
     "ott_id": 176550,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Branchiostoma_lanceolatum.jpg",
+    "image_url": "/taxa-images/176550.jpg",
     "uniqname": "Branchiostoma"
   },
   {
     "name": "lamprey",
     "ott_id": 1067466,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Boca_de_lamprea.1_-_Aquarium_Finisterrae.JPG",
+    "image_url": "/taxa-images/1067466.jpg",
     "uniqname": "Petromyzontiformes"
   },
   {
     "name": "euglena",
     "ott_id": 1073327,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Euglena.gracilis.jpg",
+    "image_url": "/taxa-images/1073327.jpg",
     "uniqname": "Euglena gracilis"
   },
   {
     "name": "trypanosome",
     "ott_id": 494245,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Tb_brucei.jpg",
+    "image_url": "/taxa-images/494245.jpg",
     "uniqname": "Trypanosoma brucei"
   },
   {
     "name": "dinoflagellate",
     "ott_id": 746947,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Ceratium_hirundinella.jpg",
+    "image_url": "/taxa-images/746947.jpg",
     "uniqname": "Noctiluca scintillans"
   },
   {
     "name": "cryptophyte",
     "ott_id": 491172,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Cryptomonas_curvata_Anatomy_(DOTkamina).png",
+    "image_url": "/taxa-images/491172.png",
     "uniqname": "Cryptophyceae"
   },
   {
     "name": "coccolithophore",
     "ott_id": 695761,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Emiliania_huxleyi_coccolithophore_%28PLoS%29.png",
+    "image_url": "/taxa-images/695761.png",
     "uniqname": "Emiliania huxleyi"
   },
   {
     "name": "centrohelid heliozoan",
     "ott_id": 607132,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Raphidiophrys_contractilis.jpg",
+    "image_url": "/taxa-images/607132.jpg",
     "uniqname": "Raphidiophrys"
   },
   {
@@ -2737,5 +2737,29 @@
     "ott_id": 775725,
     "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Late_blight_on_potato_leaf_2.jpg",
     "uniqname": "Phytophthora infestans"
+  },
+  {
+    "name": "loris",
+    "ott_id": 863754,
+    "image_url": "/taxa-images/863754.jpg",
+    "uniqname": "Loris"
+  },
+  {
+    "name": "dahlia",
+    "ott_id": 122253,
+    "image_url": "/taxa-images/122253.jpg",
+    "uniqname": "Dahlia (genus in kingdom Archaeplastida)"
+  },
+  {
+    "name": "Brassicales",
+    "ott_id": 8844,
+    "image_url": "/taxa-images/8844.jpg",
+    "uniqname": "Brassicales"
+  },
+  {
+    "name": "Malvales",
+    "ott_id": 229284,
+    "image_url": "/taxa-images/229284.jpg",
+    "uniqname": "Malvales"
   }
 ]
