@@ -75,18 +75,36 @@ function findLCA(ottId1, ottId2) {
   const n1 = nodeByOttId.get(ottId1);
   const n2 = nodeByOttId.get(ottId2);
   if (!n1 || !n2) return null;
+  return findLCANodes(n1, n2);
+}
+
+/** Find the LCA of two condensed-tree nodes */
+function findLCANodes(node1, node2) {
+  if (!node1 || !node2) return null;
   const ancestors = new Set();
-  let cur = n1;
+  let cur = node1;
   while (cur) {
     ancestors.add(cur._id);
     cur = parentOf.get(cur._id);
   }
-  cur = n2;
+  cur = node2;
   while (cur) {
     if (ancestors.has(cur._id)) return cur;
     cur = parentOf.get(cur._id);
   }
   return null;
+}
+
+/** Find the LCA (MRCA) of multiple nodes identified by ott_id */
+function findLCAMultiple(ottIds) {
+  const nodes = ottIds.map((id) => nodeByOttId.get(id)).filter(Boolean);
+  if (nodes.length === 0) return null;
+  let result = nodes[0];
+  for (let i = 1; i < nodes.length; i++) {
+    result = findLCANodes(result, nodes[i]);
+    if (!result) return null;
+  }
+  return result;
 }
 
 /** True if a condensed-tree node has a meaningful (non-MRCA) name */
@@ -298,7 +316,20 @@ export default function CladeExplorerPage() {
   const [viewRootId, setViewRootId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const r = params.get("r");
-    if (r !== null) {
+    if (r === "h") {
+      /* r=h means "use MRCA of highlighted organisms as root" */
+      const h = params.get("h");
+      if (h) {
+        const ids = h.split(",").map(Number).filter((id) => !Number.isNaN(id) && allOttIds.has(id));
+        if (ids.length >= 2) {
+          const mrca = findLCAMultiple(ids);
+          if (mrca) return mrca._id;
+        } else if (ids.length === 1) {
+          const node = nodeByOttId.get(ids[0]);
+          if (node) return node._id;
+        }
+      }
+    } else if (r !== null) {
       const node = decodeNodeRef(r);
       if (node) return node._id;
     }
@@ -321,6 +352,19 @@ export default function CladeExplorerPage() {
           }
         }
         return ids;
+      }
+    }
+    /* When highlighting is active without explicit expansion, expand the
+       view root so the first level of the MRCA subtree is visible. */
+    const r = params.get("r");
+    if (r === "h") {
+      const h = params.get("h");
+      if (h) {
+        const ids = h.split(",").map(Number).filter((id) => !Number.isNaN(id) && allOttIds.has(id));
+        if (ids.length >= 2) {
+          const mrca = findLCAMultiple(ids);
+          if (mrca) return rootOnlyExpansion(mrca);
+        }
       }
     }
     return rootOnlyExpansion(condensed);

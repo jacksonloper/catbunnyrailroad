@@ -431,6 +431,21 @@ h2 {
   cursor: not-allowed;
 }
 
+.view-clades-btn {
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #3a8a3a;
+  color: #fff;
+}
+
+.view-clades-btn:hover {
+  background: #2e6e2e;
+}
+
 .clear-selection-btn {
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
