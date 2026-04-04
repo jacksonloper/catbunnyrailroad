@@ -167,7 +167,7 @@ Malvales,Malvales,229284,Malvales,<image_url>,
 
 Run `fill-ott-ids.mjs` — if it reports `❌ broken (non-monophyletic)` for the clade, it **cannot** go in `taxa.csv`.  Use Option B instead.
 
-**If the clade is in `taxa.csv`, do NOT also add it to `internal_nodes.csv`** — that would create a duplicate node in the tree.
+If the clade is already in `taxa.csv`, having it also in `internal_nodes.csv` is harmless — the build script detects that the MRCA node is already named and skips the relabeling with a `⚠` warning.  It will **not** create a duplicate node.  However, the overlap is redundant, so you should remove the `internal_nodes.csv` row to keep things tidy.
 
 ### Option B: Label via MRCA in `internal_nodes.csv` (non-monophyletic clades)
 

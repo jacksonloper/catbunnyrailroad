@@ -315,8 +315,9 @@ function labelInternalNodes(tree, labels) {
       if (entry.ott_id) mrca.ott_id = entry.ott_id;
       console.log(`  Labeled "${entry.name}" (ott${entry.ott_id || "none"})`);
     } else {
-      console.log(
-        `  Node for ${entry.name} already named "${mrca.name}" – skipping`
+      console.warn(
+        `  ⚠ Node for ${entry.name} already named "${mrca.name}" – skipping ` +
+        `(if it's in taxa.csv you can remove it from internal_nodes.csv)`
       );
     }
   }
