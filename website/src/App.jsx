@@ -1362,6 +1362,7 @@ function parseUrlParams(searchParams) {
 
 function App() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const trie = useMemo(() => buildTrie(taxa), []);
 
   // Parse URL params on mount (supports navigation from ExplorePage with ?clade= or ?taxa=)
@@ -1668,6 +1669,15 @@ function App() {
               onClick={handleShowSubtree}
             >
               🌳 Make tree ({selectedOrganisms.size} selected)
+            </button>
+            <button
+              className="view-clades-btn"
+              onClick={() => {
+                const ids = listOttIds.join(",");
+                navigate(`/clades?r=h&h=${ids}`);
+              }}
+            >
+              🌿 View in clades
             </button>
           </div>
         )}
