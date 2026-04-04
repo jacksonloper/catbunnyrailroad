@@ -310,6 +310,12 @@ function shuffle(arr, seed) {
   return r;
 }
 
+/** Parse comma-separated OTT IDs from a URL param string, filtering to known taxa */
+function parseHighlightParam(h) {
+  if (!h) return [];
+  return h.split(",").map(Number).filter((id) => !Number.isNaN(id) && allOttIds.has(id));
+}
+
 /* ───── component ───── */
 
 export default function CladeExplorerPage() {
@@ -318,16 +324,13 @@ export default function CladeExplorerPage() {
     const r = params.get("r");
     if (r === "h") {
       /* r=h means "use MRCA of highlighted organisms as root" */
-      const h = params.get("h");
-      if (h) {
-        const ids = h.split(",").map(Number).filter((id) => !Number.isNaN(id) && allOttIds.has(id));
-        if (ids.length >= 2) {
-          const mrca = findLCAMultiple(ids);
-          if (mrca) return mrca._id;
-        } else if (ids.length === 1) {
-          const node = nodeByOttId.get(ids[0]);
-          if (node) return node._id;
-        }
+      const ids = parseHighlightParam(params.get("h"));
+      if (ids.length >= 2) {
+        const mrca = findLCAMultiple(ids);
+        if (mrca) return mrca._id;
+      } else if (ids.length === 1) {
+        const node = nodeByOttId.get(ids[0]);
+        if (node) return node._id;
       }
     } else if (r !== null) {
       const node = decodeNodeRef(r);
@@ -358,28 +361,18 @@ export default function CladeExplorerPage() {
        view root so the first level of the MRCA subtree is visible. */
     const r = params.get("r");
     if (r === "h") {
-      const h = params.get("h");
-      if (h) {
-        const ids = h.split(",").map(Number).filter((id) => !Number.isNaN(id) && allOttIds.has(id));
-        if (ids.length >= 2) {
-          const mrca = findLCAMultiple(ids);
-          if (mrca) return rootOnlyExpansion(mrca);
-        }
+      const ids = parseHighlightParam(params.get("h"));
+      if (ids.length >= 2) {
+        const mrca = findLCAMultiple(ids);
+        if (mrca) return rootOnlyExpansion(mrca);
       }
     }
     return rootOnlyExpansion(condensed);
   });
   const [highlighted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    const h = params.get("h");
-    if (h) {
-      const ids = h
-        .split(",")
-        .map(Number)
-        .filter((id) => !Number.isNaN(id) && allOttIds.has(id));
-      if (ids.length > 0) return new Set(ids);
-    }
-    return new Set();
+    const ids = parseHighlightParam(params.get("h"));
+    return ids.length > 0 ? new Set(ids) : new Set();
   });
   const [globalSeed, setGlobalSeed] = useState(0);
   const [menuNodeId, setMenuNodeId] = useState(null);
