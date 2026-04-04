@@ -1,10 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import taxa from "./data/taxa.json";
 import tree from "./data/tree.json";
 import { capitalize, canonicalizeTree, renderCladeAscii } from "./treeUtils.js";
 import { buildTrie } from "./trieUtils.js";
 import Autocomplete from "./Autocomplete.jsx";
 import Navbar from "./Navbar.jsx";
+import WalkaboutView from "./WalkaboutView.jsx";
 import "./CladeExplorerPage.css";
 
 /* ───── module-level data ───── */
@@ -23,17 +24,17 @@ function buildCondensed(node) {
   const isTaxon = allOttIds.has(node.ott_id);
   if (!node.children || node.children.length === 0) {
     return isTaxon
-      ? { name: node.name, ott_id: node.ott_id, children: [] }
+      ? { name: node.name, ott_id: node.ott_id, color: node.color || null, children: [] }
       : null;
   }
   const kids = node.children.map(buildCondensed).filter(Boolean);
   if (kids.length === 0) {
     return isTaxon
-      ? { name: node.name, ott_id: node.ott_id, children: [] }
+      ? { name: node.name, ott_id: node.ott_id, color: node.color || null, children: [] }
       : null;
   }
   if (kids.length === 1 && !isTaxon) return kids[0];
-  return { name: node.name, ott_id: node.ott_id, children: kids };
+  return { name: node.name, ott_id: node.ott_id, color: node.color || null, children: kids };
 }
 
 const condensed = buildCondensed(tree);
@@ -343,6 +344,21 @@ export default function CladeExplorerPage() {
   const [copyMsg, setCopyMsg] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [expandMax, setExpandMax] = useState(5);
+  const [viewMode, setViewMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("view") === "walkabout" ? "walkabout" : "tree";
+  });
+
+  /* sync viewMode to URL */
+  useEffect(() => {
+    const url = new URL(window.location);
+    if (viewMode === "walkabout") {
+      url.searchParams.set("view", "walkabout");
+    } else {
+      url.searchParams.delete("view");
+    }
+    window.history.replaceState(null, "", url);
+  }, [viewMode]);
 
   const viewRoot = nodeById.get(viewRootId);
 
@@ -528,8 +544,18 @@ export default function CladeExplorerPage() {
             <option key={i} value={i}>{p.label}</option>
           ))}
         </select>
+        <button
+          className="clade-btn clade-view-toggle"
+          onClick={() => setViewMode(viewMode === "tree" ? "walkabout" : "tree")}
+          title={viewMode === "tree" ? "Switch to walkabout view" : "Switch to tree view"}
+        >
+          {viewMode === "tree" ? "🗺️ Walkabout" : "🌳 Tree"}
+        </button>
       </div>
 
+      {viewMode === "walkabout" ? (
+        <WalkaboutView condensed={condensed} taxaByOttId={taxaByOttId} viewRoot={viewRoot} parentOf={parentOf} />
+      ) : (
       <div className="clade-body">
         <div
           className="clade-display"
@@ -793,6 +819,7 @@ export default function CladeExplorerPage() {
           {copyMsg && <span className="clade-copy-msg">{copyMsg}</span>}
         </div>
       </div>
+      )}
 
       {/* ASCII name-choice modal */}
       {showAsciiPicker && (
