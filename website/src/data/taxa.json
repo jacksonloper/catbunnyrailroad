@@ -2735,7 +2735,7 @@
   {
     "name": "potato late blight",
     "ott_id": 775725,
-    "image_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Late_blight_on_potato_leaf_2.jpg",
+    "image_url": "/taxa-images/775725.jpg",
     "uniqname": "Phytophthora infestans"
   },
   {
@@ -2761,5 +2761,89 @@
     "ott_id": 229284,
     "image_url": "/taxa-images/229284.jpg",
     "uniqname": "Malvales"
+  },
+  {
+    "name": "camphor",
+    "ott_id": 849188,
+    "image_url": "/taxa-images/849188.jpg",
+    "uniqname": "Cinnamomum camphora"
+  },
+  {
+    "name": "giant sequoia",
+    "ott_id": 810380,
+    "image_url": "/taxa-images/810380.jpg",
+    "uniqname": "Sequoiadendron giganteum"
+  },
+  {
+    "name": "banyan tree",
+    "ott_id": 105101,
+    "image_url": "/taxa-images/105101.jpg",
+    "uniqname": "Ficus benghalensis"
+  },
+  {
+    "name": "baobab",
+    "ott_id": 659137,
+    "image_url": "/taxa-images/659137.jpg",
+    "uniqname": "Adansonia (genus in kingdom Archaeplastida)"
+  },
+  {
+    "name": "sedum",
+    "ott_id": 509332,
+    "image_url": "/taxa-images/509332.jpg",
+    "uniqname": "Crassulaceae"
+  },
+  {
+    "name": "snakehead fritillary",
+    "ott_id": 19154,
+    "image_url": "/taxa-images/19154.jpg",
+    "uniqname": "Fritillaria meleagris"
+  },
+  {
+    "name": "tiarella",
+    "ott_id": 890082,
+    "image_url": "/taxa-images/890082.jpg",
+    "uniqname": "Tiarella (genus in kingdom Archaeplastida)"
+  },
+  {
+    "name": "witch hazel",
+    "ott_id": 60700,
+    "image_url": "/taxa-images/60700.jpg",
+    "uniqname": "Hamamelis"
+  },
+  {
+    "name": "begonia",
+    "ott_id": 999065,
+    "image_url": "/taxa-images/999065.jpg",
+    "uniqname": "Begonia grandis"
+  },
+  {
+    "name": "red-winged blackbird",
+    "ott_id": 226605,
+    "image_url": "/taxa-images/226605.jpg",
+    "uniqname": "Agelaius phoeniceus"
+  },
+  {
+    "name": "nightingale",
+    "ott_id": 961118,
+    "image_url": "/taxa-images/961118.jpg",
+    "uniqname": "Luscinia megarhynchos"
+  },
+  {
+    "name": "finch",
+    "ott_id": 28336,
+    "image_url": "/taxa-images/28336.jpg",
+    "uniqname": "Fringilla"
+  },
+  {
+    "name": "American robin",
+    "ott_id": 96291,
+    "image_url": "/taxa-images/96291.jpg",
+    "uniqname": "Turdus migratorius"
+  },
+  {
+    "name": "flea",
+    "ott_id": 656313,
+    "image_url": "/taxa-images/656313.jpg",
+    "uniqname": "Siphonaptera"
   }
 ]
