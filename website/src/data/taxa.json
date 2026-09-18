@@ -2887,5 +2887,46 @@
     "ott_id": 131680,
     "image_url": "/taxa-images/131680.jpg",
     "uniqname": "Gymnocladus"
+  },
+  {
+    "name": "house sparrow",
+    "ott_id": 745175,
+    "image_url": "/taxa-images/745175.jpg",
+    "uniqname": "Passer domesticus"
+  },
+  {
+    "name": "T. rex",
+    "ott_id": 664349,
+    "image_url": "/taxa-images/664349.jpg",
+    "uniqname": "Tyrannosaurus rex",
+    "comments": "Tyrannosaurus rex is a fossil taxon. The Open Tree of Life synthetic tree has no well-resolved phylogeny for non-avian dinosaurs, so its placement here (grouped with lizards and snakes) does not reflect the consensus view that theropods like T. rex are the closest relatives of birds."
+  },
+  {
+    "name": "Velociraptor",
+    "ott_id": 4946063,
+    "image_url": "/taxa-images/4946063.jpg",
+    "uniqname": "Velociraptor",
+    "comments": "Velociraptor is a fossil taxon. The Open Tree of Life synthetic tree has no well-resolved phylogeny for non-avian dinosaurs, so its placement here (grouped with lizards and snakes) does not reflect the consensus view that dromaeosaurs like Velociraptor are among the closest relatives of birds."
+  },
+  {
+    "name": "Ankylosaurus",
+    "ott_id": 4946546,
+    "image_url": "/taxa-images/4946546.jpg",
+    "uniqname": "Ankylosaurus",
+    "comments": "Ankylosaurus is a fossil taxon. The Open Tree of Life synthetic tree has no well-resolved phylogeny for non-avian dinosaurs, so its placement here does not reflect the consensus view that dinosaurs (including birds) form a single group within Archosauria alongside crocodiles."
+  },
+  {
+    "name": "Diplodocus",
+    "ott_id": 4946869,
+    "image_url": "/taxa-images/4946869.jpg",
+    "uniqname": "Diplodocus",
+    "comments": "Diplodocus is a fossil taxon. The Open Tree of Life synthetic tree has no well-resolved phylogeny for non-avian dinosaurs, so its placement here does not reflect the consensus view that dinosaurs (including birds) form a single group within Archosauria alongside crocodiles."
+  },
+  {
+    "name": "Psittacosaurus",
+    "ott_id": 4126864,
+    "image_url": "/taxa-images/4126864.jpg",
+    "uniqname": "Psittacosaurus",
+    "comments": "Psittacosaurus is an early horned dinosaur (ceratopsian), included as the closest available relative of Triceratops, which is absent from the Open Tree of Life synthetic tree. Like other non-avian dinosaurs, its placement in the synthetic tree is not well resolved."
   }
 ]
