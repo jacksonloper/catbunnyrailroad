@@ -1,0 +1,6 @@
+ott_id,anchor_a,anchor_b,clade_name,clade_ott_id,upstream_ref,reason
+4946063,153563,647692,Paraves,,OTL-1,Velociraptor (Dromaeosauridae) is sister to birds among the taxa we track; Open Tree puts it next to lizards and snakes
+664349,4946063,153563,Coelurosauria,664351,OTL-1,T. rex is a coelurosaurian theropod outside Paraves; Open Tree puts it next to lizards and snakes
+4946869,664349,153563,Saurischia,90223,OTL-2,Diplodocus (Sauropodomorpha) is sister to Theropoda; Open Tree leaves it unplaced directly under Sauria
+4946546,4946869,153563,Dinosauria,90215,OTL-2,Ankylosaurus (Ornithischia) is sister to Saurischia; Open Tree leaves it unplaced directly under Sauria
+4126864,4946546,,Ornithischia,90224,OTL-1,Psittacosaurus is an ornithischian like Ankylosaurus; Open Tree puts it next to lizards and snakes

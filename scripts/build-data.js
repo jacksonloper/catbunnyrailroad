@@ -16,11 +16,16 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { canonicalizeTree } from "../website/src/treeUtils.js";
+import {
+  applyPlacementOverrides,
+  parseOverrideRows,
+} from "./placement-overrides.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const CSV_PATH = path.resolve(ROOT, "taxa.csv");
 const INTERNAL_NODES_CSV_PATH = path.resolve(ROOT, "internal_nodes.csv");
+const PLACEMENT_OVERRIDES_CSV_PATH = path.resolve(ROOT, "placement_overrides.csv");
 const OUT_DIR = path.resolve(ROOT, "website", "src", "data");
 
 // ---------------------------------------------------------------------------
@@ -264,6 +269,17 @@ function loadInternalNodeLabels() {
 }
 
 // ---------------------------------------------------------------------------
+// Placement overrides – manual grafts for taxa the synthetic tree misplaces.
+// See scripts/placement-overrides.js and UPSTREAM.md.
+// ---------------------------------------------------------------------------
+
+function loadPlacementOverrides() {
+  if (!fs.existsSync(PLACEMENT_OVERRIDES_CSV_PATH)) return [];
+  const csv = fs.readFileSync(PLACEMENT_OVERRIDES_CSV_PATH, "utf-8");
+  return parseOverrideRows(parseCsv(csv));
+}
+
+// ---------------------------------------------------------------------------
 // Label internal nodes – find MRCA of each pair and assign name + ott_id.
 // ---------------------------------------------------------------------------
 
@@ -415,7 +431,21 @@ async function main() {
   // when needed (e.g. for maze embedding).  The resolvePolytomies() and
   // checkBinaryTree() helpers above are kept for that purpose.
 
-  const compactTree = treeToCompact(simplified, treeIdToTaxon);
+  let compactTree = treeToCompact(simplified, treeIdToTaxon);
+
+  // Apply manual placement overrides for taxa the synthetic tree places
+  // wrongly (fossils, mostly).  Each row is a workaround for an upstream
+  // problem listed in UPSTREAM.md; delete the row when upstream fixes it.
+  const overrides = loadPlacementOverrides();
+  if (overrides.length > 0) {
+    console.log(
+      `Applying ${overrides.length} placement override(s) from placement_overrides.csv…`
+    );
+    compactTree = applyPlacementOverrides(compactTree, overrides, {
+      log: (msg) => console.log(msg),
+      warn: (msg) => console.warn(`  ⚠ ${msg}`),
+    });
+  }
 
   // Verify that every taxon appears exactly once in the tree
   const treeOtts = new Map();
