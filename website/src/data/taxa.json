@@ -2887,5 +2887,46 @@
     "ott_id": 131680,
     "image_url": "/taxa-images/131680.jpg",
     "uniqname": "Gymnocladus"
+  },
+  {
+    "name": "house sparrow",
+    "ott_id": 745175,
+    "image_url": "/taxa-images/745175.jpg",
+    "uniqname": "Passer domesticus"
+  },
+  {
+    "name": "T. rex",
+    "ott_id": 664349,
+    "image_url": "/taxa-images/664349.jpg",
+    "uniqname": "Tyrannosaurus rex",
+    "comments": "Tyrannosaurus rex is a fossil taxon. The Open Tree of Life synthetic tree groups it with lizards and snakes (see UPSTREAM.md, OTL-1), so its position here is set by a manual override in placement_overrides.csv, following the consensus that tyrannosaurs are coelurosaurian theropods: closer to birds than sauropods are, but outside the bird line."
+  },
+  {
+    "name": "Velociraptor",
+    "ott_id": 4946063,
+    "image_url": "/taxa-images/4946063.jpg",
+    "uniqname": "Velociraptor",
+    "comments": "Velociraptor is a fossil taxon. The Open Tree of Life synthetic tree groups it with lizards and snakes (see UPSTREAM.md, OTL-1), so its position here is set by a manual override in placement_overrides.csv, following the consensus that dromaeosaurs are among the closest relatives of birds."
+  },
+  {
+    "name": "Ankylosaurus",
+    "ott_id": 4946546,
+    "image_url": "/taxa-images/4946546.jpg",
+    "uniqname": "Ankylosaurus",
+    "comments": "Ankylosaurus is a fossil taxon. The Open Tree of Life synthetic tree leaves it unplaced (see UPSTREAM.md, OTL-2), so its position here is set by a manual override in placement_overrides.csv, following the consensus that ornithischians are the sister group of Saurischia within Dinosauria."
+  },
+  {
+    "name": "Diplodocus",
+    "ott_id": 4946869,
+    "image_url": "/taxa-images/4946869.jpg",
+    "uniqname": "Diplodocus",
+    "comments": "Diplodocus is a fossil taxon. The Open Tree of Life synthetic tree leaves it unplaced (see UPSTREAM.md, OTL-2), so its position here is set by a manual override in placement_overrides.csv, following the consensus that sauropods are the sister group of theropods within Saurischia."
+  },
+  {
+    "name": "Psittacosaurus",
+    "ott_id": 4126864,
+    "image_url": "/taxa-images/4126864.jpg",
+    "uniqname": "Psittacosaurus",
+    "comments": "Psittacosaurus is an early horned dinosaur (ceratopsian), included as the closest available relative of Triceratops, which is pruned from the Open Tree of Life synthetic tree (see UPSTREAM.md, OTL-4). Open Tree groups it with lizards and snakes (OTL-1), so its position here is set by a manual override in placement_overrides.csv."
   }
 ]

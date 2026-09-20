@@ -1,8 +1,9 @@
 # How the JSON Tree Is Produced
 
 This document explains how `scripts/build-data.js` turns
-`taxa.csv` and `internal_nodes.csv` into the two JSON files the
-website uses at runtime: `taxa.json` and `tree.json`.
+`taxa.csv`, `internal_nodes.csv` and `placement_overrides.csv` into
+the two JSON files the website uses at runtime: `taxa.json` and
+`tree.json`.
 
 Run the pipeline with:
 
@@ -133,6 +134,47 @@ have `isTaxon: true`.
 
 Taxon names come from `taxa.csv` (the common name).
 
+## 6b. Apply placement overrides (`applyPlacementOverrides`)
+
+The Open Tree synthetic tree is excellent for living taxa, which are
+covered by large molecular phylogenies, and poor for **fossil taxa**,
+which have no DNA, enter the taxonomy from GBIF with a flat backbone,
+and are positioned only by a handful of low-ranked morphological
+studies.  When we add a fossil (e.g. the dinosaurs in the Dino
+Delight list) it usually lands somewhere wrong.
+
+`placement_overrides.csv` at the repo root lets us graft such taxa
+into the accepted position.  Every row is a workaround for a specific
+upstream problem recorded in **`UPSTREAM.md`**; the goal is to file
+those upstream and delete the rows over time.
+
+| Column | Example | Description |
+|--------|---------|-------------|
+| `ott_id` | `664349` | Taxon to move (must be in `taxa.csv`) |
+| `anchor_a` | `4946063` | ott_id of a node already in the tree |
+| `anchor_b` | `153563` | Optional; the anchor is the MRCA of `anchor_a` and `anchor_b`. Blank = `anchor_a`'s own node |
+| `clade_name` | `Coelurosauria` | Name of the new node joining the taxon and the anchor clade |
+| `clade_ott_id` | `664351` | Optional OTT id for that new node; must not already be in the tree |
+| `upstream_ref` | `OTL-1` | Key into `UPSTREAM.md` |
+| `reason` | … | One-line explanation |
+
+For each row, in file order, the build:
+
+1. Detaches the taxon (and its subtree) from wherever Open Tree put it,
+   collapsing any internal node left with a single child.
+2. Finds the anchor clade.
+3. Replaces the anchor with a new node `{ clade_name, clade_ott_id,
+   children: [anchor, taxon] }`.
+
+Rows are ordered so later rows can anchor on a `clade_ott_id` created
+by an earlier one (e.g. Diplodocus anchors on Coelurosauria).
+
+The build **fails** if a `clade_ott_id` already exists in the tree
+(Open Tree may have started placing it) and **warns** when a row looks
+like a no-op because the taxon is already sister to its anchor.  Both
+are hints that the corresponding `UPSTREAM.md` entry may be resolved
+and the row can be deleted.
+
 ## 7. Label internal nodes (`labelInternalNodes`)
 
 Several well-known plant clades (monocot, eudicot, rosid, asterid,
@@ -185,8 +227,8 @@ A flat array of taxon objects:
 ```
 
 Both files are **committed to the repository**.  They are regenerated
-by running `node scripts/build-data.js` whenever `taxa.csv` or
-`internal_nodes.csv` changes.
+by running `node scripts/build-data.js` whenever `taxa.csv`,
+`internal_nodes.csv` or `placement_overrides.csv` changes.
 
 ---
 
@@ -214,6 +256,13 @@ Broken (non-monophyletic) taxa are not allowed.  Both
 Open Tree API response for broken entries.  If a taxon is broken,
 remove it or choose a monophyletic alternative.
 
+### Fossil taxa need overrides
+
+Extinct taxa are the one category Open Tree handles badly (see
+section 6b).  Expect every new fossil to need a row in
+`placement_overrides.csv`, a `comments` footnote saying so, and an
+entry in `UPSTREAM.md` describing what would let us delete the row.
+
 ### Comments as footnotes
 
 Taxa with `comments` in the CSV show a clickable ★ star on the
@@ -226,6 +275,7 @@ website.  Clicking it reveals the explanatory text.
 ```
 taxa.csv
 internal_nodes.csv
+placement_overrides.csv
     │
     ▼
 ┌────────────────────────────────┐
@@ -239,10 +289,12 @@ internal_nodes.csv
 │  5. parse Newick               │
 │  6. simplifyTree               │
 │  7. treeToCompact              │
-│  8. verify all taxa present    │
-│  9. label internal nodes       │
+│  8. apply placement overrides  │
+│     (placement_overrides.csv)  │
+│  9. verify all taxa present    │
+│ 10. label internal nodes       │
 │     (from internal_nodes.csv)  │
-│ 10. write JSON                 │
+│ 11. write JSON                 │
 └────────────┬───────────────────┘
              │
              ▼
